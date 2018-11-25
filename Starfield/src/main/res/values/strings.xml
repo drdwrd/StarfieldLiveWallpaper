@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Starfield</string>
+    <string name="description">Starscape Live Wallpaper</string>
+    <string name="author">drdwrd</string>
 </resources>
