@@ -1,9 +1,12 @@
 package drwdrd.ktdev.engine
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import java.nio.ByteBuffer
+import java.util.logging.Filter
 
 
 class Texture() {
@@ -123,6 +126,26 @@ class Texture() {
             GLES20.glGenerateMipmap(target.glTarget)
         }
         GLES20.glBindTexture(target.glTarget, 0)
+    }
+
+    companion object {
+        fun loadFromAssets(context : Context, name : String, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+            var texture = Texture()
+            texture.create()
+            texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
+            texture.filtering = arrayOf(minFilter, magFilter)
+            texture.mipmappingEnabled = when(minFilter) {
+                Filtering.Linear -> false
+                Filtering.Nearest -> false
+                else -> true
+
+            }
+
+            var inputStream = context.assets.open(name)
+            var bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
+            texture.createTexture2D(bitmap)
+            return texture
+        }
     }
 
 }
