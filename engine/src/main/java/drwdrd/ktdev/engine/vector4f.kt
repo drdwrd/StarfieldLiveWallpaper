@@ -104,6 +104,26 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
 
     fun toFloatArray() = floatArrayOf(ex, ey, ez, ew)
 
+    operator fun get(index : Int) : Float {
+        return when(index) {
+            0 -> ex
+            1 -> ey
+            2 -> ez
+            3 -> ew
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
+    operator fun set(index : Int, value : Float) {
+        when(index) {
+            0 -> ex = value
+            1 -> ey = value
+            2 -> ez = value
+            3 -> ew = value
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
     companion object {
         fun mix(a : vector4f, b : vector4f, s : Float) : vector4f {
             require(s in 0.0f .. 1.0f)

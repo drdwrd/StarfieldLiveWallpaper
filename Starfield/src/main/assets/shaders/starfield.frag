@@ -6,7 +6,10 @@ uniform sampler2D u_Layer0;
 uniform sampler2D u_Layer1;
 uniform sampler2D u_Layer2;
 
+uniform vec2 u_Aspect;
 uniform float u_Time;
+uniform float u_DropTime;
+uniform vec2 u_DropCenter;
 
 varying vec2 uv;
 
@@ -14,23 +17,20 @@ varying vec2 uv;
 void main() {
 
 
-    vec2 duv0 = vec2(sin(0.05 * u_Time), cos(0.05 * u_Time));
-    vec2 duv1 = vec2(sin(0.1 * u_Time), cos(0.1 * u_Time));
-    vec2 duv2 = vec2(sin(0.15 * u_Time), cos(0.15 * u_Time));
+    vec2 duv = vec2(sin(0.05 * u_Time), cos(0.05 * u_Time));
 
 
-    vec4 layer0 = texture2D(u_Layer0, uv + duv0);
-    vec4 layer1 = texture2D(u_Layer1, uv + duv1);
-    vec4 layer2 = texture2D(u_Layer2, uv + duv2);
+    vec4 layer0 = texture2D(u_Layer0, uv + duv);
+    vec4 layer1 = texture2D(u_Layer1, uv + 2.0 * duv);
+    vec4 layer2 = texture2D(u_Layer2, uv + 3.0 * duv);
 
-    float l1 = exp(5.0 * (0.299 * layer1.r + 0.587 * layer1.g + 0.114 * layer1.b));
-    float l2 = exp(5.0 * (0.299 * layer2.r + 0.587 * layer2.g + 0.114 * layer2.b));
+    float dist = length(uv - u_DropCenter);
 
-    vec4 color = layer2;
+    float wave = (5.0 * smoothstep(0.0, 1.0, sin(10.0 * min(dist - u_DropTime, 0.0))) * exp(-2.0 * u_DropTime) + 1.0);
 
-    color = 1.0 - (1.0 - l2 * layer1) * (1.0 - layer2);
+    float ll = 0.299 * layer0.r + 0.587 * layer0.g + 0.114 * layer0.b;
 
-    color = 1.0 - (1.0 - l1 * layer0) * (1.0 - color);
+    vec4 color = pow(layer0, 1.0 - 1.75 * vec4(wave * ll)) + layer1 + layer2;
 
     gl_FragColor = color;
 }

@@ -129,6 +129,23 @@ class vector2f(x : Float, y : Float) {
 
     fun toFloatArray() = floatArrayOf(ex, ey)
 
+    operator fun get(index : Int) : Float {
+        return when(index) {
+            0 -> ex
+            1 -> ey
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
+    operator fun set(index : Int, value : Float) {
+        when(index) {
+            0 -> ex = value
+            1 -> ey = value
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
+
     companion object {
         fun mix(a : vector2f, b : vector2f, s : Float) : vector2f {
             require(s in 0.0f .. 1.0f)

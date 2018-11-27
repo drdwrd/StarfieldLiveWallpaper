@@ -92,7 +92,33 @@ class vector3f(x : Float, y : Float, z : Float) {
     fun abs() = (ex * ex + ey * ey + ez * ez)
     fun length() = Math.sqrt((ex * ex + ey * ey + ez * ez).toDouble()).toFloat()
 
+    fun normalized() : vector3f  {
+        var l = length()
+        if(l != 0.0f) {
+            return div(l)
+        }
+        throw ArithmeticException()
+    }
+
     fun toFloatArray() = floatArrayOf(ex, ey, ez)
+
+    operator fun get(index : Int) : Float {
+        return when(index) {
+            0 -> ex
+            1 -> ey
+            2 -> ez
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
+    operator fun set(index : Int, value : Float) {
+        when(index) {
+            0 -> ex = value
+            1 -> ey = value
+            2 -> ez = value
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
 
     companion object {
         fun mix(a : vector3f, b : vector3f, s : Float) : vector3f {
