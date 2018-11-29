@@ -1,6 +1,7 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.Sensor
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
@@ -88,7 +89,8 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private val lastGravity = vector2f(0.0f, 0.0f)
     private var aspect = vector2f(1.0f, 1.0f)
     private lateinit var shader : ProgramObject
-    private var layers = Array(3) { Texture() }
+    private val layers = Array(3) { Texture() }
+    private val uvOffset = vector2f(0.0f, 0.0f)
     private var startTime : Long = 0
     private var dropStartTime : Long = 0
     private var dropCenter = vector2f(0.5f, 0.5f)
@@ -130,21 +132,12 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         if(dg[1] < -180.0f) dg[1] = 0.0f
 
-        /*
-        if (!screen->isPortrait())
-
-        {
-
-            // Its landscape mode – swap dgX and dgY
-
-            double temp = dgY;
-
-            dgY = dgX;
-
-            dgX = temp;
-
+        if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            var tmp = dg[1]
+            dg[1] = dg[0]
+            dg[0] = tmp
         }
-*/
+
         lastGravity[0] = roll
         lastGravity[1] = pitch
 
@@ -192,7 +185,9 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(p0: GL10?) {
-        //var dg = calculateGyroEffect()
+        var dg = 0.005f * calculateGyroEffect()
+
+        uvOffset += vector2f(-dg.x, dg.y)
 
         var currentTime = SystemClock.uptimeMillis()
 
@@ -216,6 +211,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         shader.setSampler("u_Layer0", 0)
         shader.setSampler("u_Layer1", 1)
         shader.setSampler("u_Layer2", 2)
+        shader.setUniformValue("u_dg", uvOffset)
         shader.setUniformValue("u_Time", deltaTime)
         shader.setUniformValue("u_Aspect", aspect)
         shader.setUniformValue("u_DropTime", dropTime)

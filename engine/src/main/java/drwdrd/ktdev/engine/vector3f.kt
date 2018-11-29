@@ -97,7 +97,8 @@ class vector3f(x : Float, y : Float, z : Float) {
         if(l != 0.0f) {
             return div(l)
         }
-        throw ArithmeticException()
+        return vector3f(0.0f, 0.0f, 0.0f)
+//        throw ArithmeticException()
     }
 
     fun toFloatArray() = floatArrayOf(ex, ey, ez)
