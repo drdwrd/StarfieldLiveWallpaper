@@ -90,6 +90,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private var aspect = vector2f(1.0f, 1.0f)
     private lateinit var shader : ProgramObject
     private val layers = Array(3) { Texture() }
+    private var noise = Texture()
     private val uvOffset = vector2f(0.0f, 0.0f)
     private var startTime : Long = 0
     private var dropStartTime : Long = 0
@@ -164,6 +165,8 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         layers[1] = Texture.loadFromAssets(context, "images/stars_layer1.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[2] = Texture.loadFromAssets(context, "images/stars_layer2.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
+        noise = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+
         var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
@@ -208,9 +211,11 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         layers[0].bind(0)
         layers[1].bind(1)
         layers[2].bind(2)
+        noise.bind(3)
         shader.setSampler("u_Layer0", 0)
         shader.setSampler("u_Layer1", 1)
         shader.setSampler("u_Layer2", 2)
+        shader.setSampler("u_Noise", 3)
         shader.setUniformValue("u_dg", uvOffset)
         shader.setUniformValue("u_Time", deltaTime)
         shader.setUniformValue("u_Aspect", aspect)
@@ -220,6 +225,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         layers[0].release(0)
         layers[1].release(1)
         layers[2].release(2)
+        noise.release(3)
         shader.release()
     }
 }
