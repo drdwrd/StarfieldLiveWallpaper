@@ -92,13 +92,20 @@ class vector3f(x : Float, y : Float, z : Float) {
     fun abs() = (ex * ex + ey * ey + ez * ez)
     fun length() = Math.sqrt((ex * ex + ey * ey + ez * ez).toDouble()).toFloat()
 
+    fun normalize()  {
+        var l = length()
+        if(l != 0.0f) {
+            divAssign(l)
+        }
+        throw ArithmeticException()
+    }
+
     fun normalized() : vector3f  {
         var l = length()
         if(l != 0.0f) {
             return div(l)
         }
         return vector3f(0.0f, 0.0f, 0.0f)
-//        throw ArithmeticException()
     }
 
     fun toFloatArray() = floatArrayOf(ex, ey, ez)
@@ -121,11 +128,20 @@ class vector3f(x : Float, y : Float, z : Float) {
         }
     }
 
+    fun dot(v : vector3f) = ex * v.ex + ey * v.ey + ez * v.ez
+
+    fun cross(v : vector3f) = vector3f(ey * v.ez - ez * v.ey, ez * v.ex - ex * v.ez, ex * v.ey - ey * v.ex)
+
+
     companion object {
         fun mix(a : vector3f, b : vector3f, s : Float) : vector3f {
             require(s in 0.0f .. 1.0f)
             return vector3f(s * a.ex + (1.0f - s) * b.ex,s * a.ey + (1.0f - s) * b.ey, s * a.ez + (1.0f - s) * b.ez)
         }
+
+        fun dot(v1 : vector3f, v2 : vector3f) = v1.dot(v2)
+
+        fun cross(v1 : vector3f, v2 : vector3f) = v1.cross(v2)
     }
 
 }

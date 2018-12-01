@@ -1,6 +1,7 @@
 package drwdrd.ktdev.engine
 
 import android.graphics.Color
+import kotlin.math.sqrt
 
 
 class vector4f(x : Float, y : Float, z : Float, w : Float) {
@@ -100,7 +101,7 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
     operator fun unaryMinus() = vector4f(-ex, -ey, -ez, -ew)
 
     fun abs() = (ex * ex + ey * ey + ez * ez + ew * ew)
-    fun length() = Math.sqrt((ex * ex + ey * ey + ez * ez + ew * ew).toDouble()).toFloat()
+    fun length() = sqrt((ex * ex + ey * ey + ez * ez + ew * ew))
 
     fun toFloatArray() = floatArrayOf(ex, ey, ez, ew)
 

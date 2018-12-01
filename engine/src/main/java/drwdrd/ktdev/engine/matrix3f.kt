@@ -1,5 +1,8 @@
 package drwdrd.ktdev.engine
 
+import kotlin.math.cos
+import kotlin.math.sin
+
 class matrix3f(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : Float, e6 : Float, e7 : Float, e8 : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ,0.0f, 0.0f, 0.0f)
@@ -248,17 +251,17 @@ class matrix3f(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : 
 
     fun setRotation(angle : Float) {
         loadIdentity()
-        e[0] = Math.cos(angle.toDouble()).toFloat()
-        e[1] = Math.sin(angle.toDouble()).toFloat()
-        e[3] = -Math.sin(angle.toDouble()).toFloat()
-        e[4] = Math.cos(angle.toDouble()).toFloat()
+        e[0] = cos(angle)
+        e[1] = sin(angle)
+        e[3] = -sin(angle)
+        e[4] = cos(angle)
     }
 
     fun setRotationPart(angle : Float) {
-        e[0] = Math.cos(angle.toDouble()).toFloat()
-        e[1] = Math.sin(angle.toDouble()).toFloat()
-        e[3] = -Math.sin(angle.toDouble()).toFloat()
-        e[4] = Math.cos(angle.toDouble()).toFloat()
+        e[0] = cos(angle)
+        e[1] = sin(angle)
+        e[3] = -sin(angle)
+        e[4] = cos(angle)
     }
 
     fun toFloatArray() = e.copyOf()
