@@ -159,6 +159,12 @@ class ProgramObject(_name : String = "") {
         GLES20.glUniformMatrix3fv(location, 1, false, value.toFloatArray(), 0)
     }
 
+    fun setUniformValue(name : String, value : matrix4f) {
+        val location = GLES20.glGetUniformLocation(glProgramId, name)
+        check(location != -1) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniformMatrix4fv(location, 1, false, value.toFloatArray(), 0)
+    }
+
     companion object {
 
         fun load(vertexShader : ShaderObject, fragmentShader : ShaderObject, vertexFormat: VertexFormat) : ProgramObject {

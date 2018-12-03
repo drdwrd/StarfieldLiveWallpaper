@@ -537,4 +537,7 @@ class matrix4f(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : 
         e[14] = v.e[14]
         e[15] = v.e[15]
     }
+
+    fun toFloatArray() = e.copyOf()
+
 }

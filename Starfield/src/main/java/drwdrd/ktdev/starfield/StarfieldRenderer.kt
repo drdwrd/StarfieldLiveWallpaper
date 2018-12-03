@@ -83,7 +83,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     }
 
     private val context : Context = _context
-    private val simplePlane = SimplePlane()
+    private val simplePlane = Plane3D()
     private val sensorEventListener = StarfieldSensorEventListener()
     private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
     private val lastGravity = vector2f(0.0f, 0.0f)
@@ -95,6 +95,8 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private var startTime : Long = 0
     private var dropStartTime : Long = 0
     private var dropCenter = vector2f(0.5f, 0.5f)
+    private lateinit var sprites : Array<Sprite>
+    private var eye = Eye()
 
 
     fun calculateGyroEffect() : vector2f {
@@ -159,7 +161,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         Log.info("OpenGL renderer: $renderer")
 
         simplePlane.create()
-        shader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", simplePlane.vertexFormat)
+        shader = ProgramObject.loadFromAssets(context, "shaders/sprite.vert", "shaders/sprite.frag", simplePlane.vertexFormat)
 
         layers[0] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[1] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
@@ -173,12 +175,29 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
 
+        RandomGenerator.seed(RandomGenerator.createSeed())
+
+        sprites = Array(25) {
+            var p = vector3f(RandomGenerator.randf(-2.0f, 2.0f), RandomGenerator.randf(-8.0f, 8.0f), RandomGenerator.randf(1.0f, 10.0f))
+            var s = p.z * RandomGenerator.randf(0.2f, 1.0f)
+            var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
+            return@Array Sprite(p, s, uvpos)
+        }
+
+        fun selector(sprite: Sprite) : Float = sprite.position.z
+
+        sprites.sortByDescending { selector(it)  }
+
+        eye.setPerspective(50.0f, 0.1f, 100.0f)
+        eye.setLookAt(vector3f(0.0f, 0.0f, -10.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+
         startTime = SystemClock.uptimeMillis()
     }
 
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
+        eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
         if(width < height) {
             aspect = vector2f(width.toFloat() / height.toFloat(), 1.0f)
         } else {
@@ -204,9 +223,42 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         }
 
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClearDepthf(1.0f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
+        GLES20.glDisable(GLES20.GL_DEPTH_TEST)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
+        val projectionViewMatrix = eye.projectionViewMatrix
 
+        shader.bind()
+        layers[0].bind(0)
+        for(sprite in sprites) {
+            var scaleMatrix = matrix4f()
+            scaleMatrix.setScale(sprite.scale, sprite.scale, 1.0f)
+
+            var translationMatrix = matrix4f()
+
+            var pos = vector3f(sprite.position.x + 2.0f * uvOffset.x * sprite.position.z, sprite.position.y + 2.0f * uvOffset.y * sprite.position.z, sprite.position.z)
+
+            translationMatrix.setTranslation(pos)
+
+            var modelMatrix = translationMatrix * scaleMatrix
+
+            shader.setSampler("u_Layer0", 0)
+            shader.setUniformValue("u_MVP", projectionViewMatrix * modelMatrix)
+            shader.setUniformValue("u_uvPos", sprite.uvPos)
+            shader.setUniformValue("u_uvScale", sprite.scale)
+            simplePlane.draw()
+        }
+        layers[0].release(0)
+        shader.release()
+
+        GLES20.glDisable(GLES20.GL_BLEND)
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+
+/*
         shader.bind()
         layers[0].bind(0)
         layers[1].bind(1)
@@ -226,6 +278,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         layers[1].release(1)
         layers[2].release(2)
         noise.release(3)
-        shader.release()
+        shader.release()*/
     }
 }
