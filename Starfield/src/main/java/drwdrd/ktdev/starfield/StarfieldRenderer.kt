@@ -95,9 +95,10 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private var noise = Texture()
     private val uvOffset = vector2f(0.0f, 0.0f)
     private var startTime : Long = 0
+    private var lastTime : Long = 0
     private var dropStartTime : Long = 0
     private var dropCenter = vector2f(0.5f, 0.5f)
-    private lateinit var sprites : Array<Sprite>
+    private lateinit var sprites : MutableList<Sprite>
     private var eye = Eye()
     private var resetGyro  = true
 
@@ -180,13 +181,13 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         RandomGenerator.seed(RandomGenerator.createSeed())
 
-        sprites = Array(50) {
-            var p = vector3f(RandomGenerator.randf(-2.0f, 2.0f), RandomGenerator.randf(-4.0f, 4.0f), RandomGenerator.randf(1.0f, 5.0f))
-            var v = RandomGenerator.rand3f(-0.5f, 0.5f)
-            var s = p.z * RandomGenerator.randf(0.1f, 0.5f)
+        sprites = MutableList(150) {
+            var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), RandomGenerator.randf(1.0f, 10.0f))
+            var v = RandomGenerator.rand3f(-0.001f, 0.001f)
+            var s = RandomGenerator.randf(0.2f, 1.5f)
             var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
             var gb = vector3f(RandomGenerator.randf(-0.5f, 0.5f), RandomGenerator.randf(-3.0f, 3.0f), RandomGenerator.randf(1.0f, 5.0f))
-            return@Array Sprite(p, v, s, uvpos, gb)
+            return@MutableList Sprite(p, v, s, uvpos, gb, 0.0f)
         }
 
         fun selector(sprite: Sprite) : Float = sprite.position.z
@@ -223,7 +224,15 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         var currentTime = SystemClock.uptimeMillis()
 
-        val deltaTime = 0.0001f * (currentTime - startTime).toFloat()
+        if(lastTime == 0L) {
+            lastTime = currentTime
+        }
+
+        val deltaTime = 0.0001f * (currentTime - lastTime).toFloat()
+
+        val time = 0.0001f * (currentTime - startTime).toFloat()
+
+        lastTime = currentTime
 
         var dropTime = 0.0001f * (currentTime - dropStartTime).toFloat()
 
@@ -242,12 +251,28 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         val projectionViewMatrix = eye.projectionViewMatrix
 
-        var sc = vector2f(sin(deltaTime), cos(deltaTime))
+        var sc = vector2f(sin(time), cos(time))
+
+        sprites.removeAll { it.position.z < 1.0f }
+
+        for( i in sprites.size .. 50) {
+            //new sprite
+            var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), 10.0f)
+            var v = RandomGenerator.rand3f(-0.001f, 0.001f)
+            var s = RandomGenerator.randf(0.2f, 1.5f)
+            var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
+            var gb = vector3f(RandomGenerator.randf(-0.5f, 0.5f), RandomGenerator.randf(-3.0f, 3.0f), RandomGenerator.randf(1.0f, 5.0f))
+            sprites.add(Sprite(p, v, s, uvpos, gb, 0.0f))
+        }
 
         shader.bind()
         simplePlane.bind()
         layers[0].bind(0)
-        for(sprite in sprites) {
+        var it = sprites.iterator()
+        while(it.hasNext()) {
+
+            var sprite = it.next()
+
             var scaleMatrix = matrix4f()
 
             var s = sprite.scale * (1.0f + 0.1f * sc.x)
@@ -256,23 +281,27 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
             var translationMatrix = matrix4f()
 
-            var px = sprite.position.x + 2.0f * uvOffset.x * sprite.position.z + sprite.velocity.x * sc.x
-            var py = sprite.position.y + 2.0f * uvOffset.y * sprite.position.z + sprite.velocity.y * sc.y
-            var pz = sprite.position.z + sprite.velocity.z * sc.x * sc.y
+            sprite.position += vector3f(sprite.velocity.x * sc.x,sprite.velocity.y * sc.y, -1.0f * deltaTime)
+            sprite.age += deltaTime
 
-            var pos = vector3f(px, py, pz)
+            var pos = sprite.position + 2.0f * vector3f(uvOffset.x * sprite.position.z, uvOffset.y * sprite.position.z, 0.0f)
 
             translationMatrix.setTranslation(pos)
 
             var modelMatrix = translationMatrix * scaleMatrix
 
-            var gb = 1.0f + sprite.gammaBurst.x * sin(sprite.gammaBurst.z * deltaTime + sprite.gammaBurst.y)
+            var gb = 1.0f + sprite.gammaBurst.x * sin(sprite.gammaBurst.z * time + sprite.gammaBurst.y)
+
+
+            var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+            var fadeOut = smoothstep(1.0f, 2.0f, sprite.position.z)
 
             shader.setSampler("u_Layer0", 0)
             shader.setUniformValue("u_MVP", projectionViewMatrix * modelMatrix)
             shader.setUniformValue("u_uvPos", sprite.uvPos)
             shader.setUniformValue("u_uvScale", sprite.scale)
             shader.setUniformValue("u_Gamma", gb)
+            shader.setUniformValue("u_Fade", fadeIn * fadeOut)
             simplePlane.draw()
         }
         layers[0].release(0)
