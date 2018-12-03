@@ -5,7 +5,9 @@ abstract class Mesh {
 
     abstract fun create()
     abstract fun destroy()
+    abstract fun bind()
     abstract fun draw()
+    abstract fun release()
 
 }
 
@@ -55,11 +57,15 @@ class SimplePlane : Mesh() {
     }
 
     override fun draw() {
-
-        vertexBuffer.enableVertexArray()
         indexBuffer.drawElements()
-        vertexBuffer.disableVertexArray()
+    }
 
+    override fun bind() {
+        vertexBuffer.enableVertexArray()
+    }
+
+    override fun release() {
+        vertexBuffer.disableVertexArray()
     }
 }
 
@@ -108,10 +114,14 @@ class Plane3D : Mesh() {
     }
 
     override fun draw() {
-
-        vertexBuffer.enableVertexArray()
         indexBuffer.drawElements()
-        vertexBuffer.disableVertexArray()
+    }
 
+    override fun bind() {
+        vertexBuffer.enableVertexArray()
+    }
+
+    override fun release() {
+        vertexBuffer.disableVertexArray()
     }
 }

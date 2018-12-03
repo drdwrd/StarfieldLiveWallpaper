@@ -15,6 +15,8 @@ import android.hardware.SensorManager
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 
@@ -97,6 +99,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private var dropCenter = vector2f(0.5f, 0.5f)
     private lateinit var sprites : Array<Sprite>
     private var eye = Eye()
+    private var resetGyro  = true
 
 
     fun calculateGyroEffect() : vector2f {
@@ -177,11 +180,13 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         RandomGenerator.seed(RandomGenerator.createSeed())
 
-        sprites = Array(25) {
-            var p = vector3f(RandomGenerator.randf(-2.0f, 2.0f), RandomGenerator.randf(-8.0f, 8.0f), RandomGenerator.randf(1.0f, 10.0f))
-            var s = p.z * RandomGenerator.randf(0.2f, 1.0f)
+        sprites = Array(50) {
+            var p = vector3f(RandomGenerator.randf(-2.0f, 2.0f), RandomGenerator.randf(-4.0f, 4.0f), RandomGenerator.randf(1.0f, 5.0f))
+            var v = RandomGenerator.rand3f(-0.5f, 0.5f)
+            var s = p.z * RandomGenerator.randf(0.1f, 0.5f)
             var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
-            return@Array Sprite(p, s, uvpos)
+            var gb = vector3f(RandomGenerator.randf(-0.5f, 0.5f), RandomGenerator.randf(-3.0f, 3.0f), RandomGenerator.randf(1.0f, 5.0f))
+            return@Array Sprite(p, v, s, uvpos, gb)
         }
 
         fun selector(sprite: Sprite) : Float = sprite.position.z
@@ -189,7 +194,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         sprites.sortByDescending { selector(it)  }
 
         eye.setPerspective(50.0f, 0.1f, 100.0f)
-        eye.setLookAt(vector3f(0.0f, 0.0f, -10.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+        eye.setLookAt(vector3f(0.0f, 0.0f, -5.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         startTime = SystemClock.uptimeMillis()
     }
@@ -197,6 +202,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
+        resetGyro = true
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
         if(width < height) {
             aspect = vector2f(width.toFloat() / height.toFloat(), 1.0f)
@@ -207,7 +213,11 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(p0: GL10?) {
-        var dg = 0.005f * calculateGyroEffect()
+        if(resetGyro) {
+            calculateGyroEffect()
+            resetGyro = false
+        }
+        var dg = 0.002f * calculateGyroEffect()
 
         uvOffset += vector2f(-dg.x, dg.y)
 
@@ -227,32 +237,46 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
         val projectionViewMatrix = eye.projectionViewMatrix
 
+        var sc = vector2f(sin(deltaTime), cos(deltaTime))
+
         shader.bind()
+        simplePlane.bind()
         layers[0].bind(0)
         for(sprite in sprites) {
             var scaleMatrix = matrix4f()
-            scaleMatrix.setScale(sprite.scale, sprite.scale, 1.0f)
+
+            var s = sprite.scale * (1.0f + 0.1f * sc.x)
+
+            scaleMatrix.setScale(s, s, 1.0f)
 
             var translationMatrix = matrix4f()
 
-            var pos = vector3f(sprite.position.x + 2.0f * uvOffset.x * sprite.position.z, sprite.position.y + 2.0f * uvOffset.y * sprite.position.z, sprite.position.z)
+            var px = sprite.position.x + 2.0f * uvOffset.x * sprite.position.z + sprite.velocity.x * sc.x
+            var py = sprite.position.y + 2.0f * uvOffset.y * sprite.position.z + sprite.velocity.y * sc.y
+            var pz = sprite.position.z + sprite.velocity.z * sc.x * sc.y
+
+            var pos = vector3f(px, py, pz)
 
             translationMatrix.setTranslation(pos)
 
             var modelMatrix = translationMatrix * scaleMatrix
 
+            var gb = 1.0f + sprite.gammaBurst.x * sin(sprite.gammaBurst.z * deltaTime + sprite.gammaBurst.y)
+
             shader.setSampler("u_Layer0", 0)
             shader.setUniformValue("u_MVP", projectionViewMatrix * modelMatrix)
             shader.setUniformValue("u_uvPos", sprite.uvPos)
             shader.setUniformValue("u_uvScale", sprite.scale)
+            shader.setUniformValue("u_Gamma", gb)
             simplePlane.draw()
         }
         layers[0].release(0)
+        simplePlane.release()
         shader.release()
 
         GLES20.glDisable(GLES20.GL_BLEND)
