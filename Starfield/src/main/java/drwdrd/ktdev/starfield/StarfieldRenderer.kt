@@ -21,6 +21,7 @@ import kotlin.math.sqrt
 
 
 const val gravityFilter = 0.8f
+const val maxParticlesCount = 150
 
 class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
@@ -181,7 +182,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         RandomGenerator.seed(RandomGenerator.createSeed())
 
-        sprites = MutableList(150) {
+        sprites = MutableList(maxParticlesCount) {
             var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), RandomGenerator.randf(1.0f, 10.0f))
             var v = RandomGenerator.rand3f(-0.001f, 0.001f)
             var s = RandomGenerator.randf(0.2f, 1.5f)
@@ -255,7 +256,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         sprites.removeAll { it.position.z < 1.0f }
 
-        for( i in sprites.size .. 50) {
+        for( i in sprites.size .. maxParticlesCount) {
             //new sprite
             var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), 10.0f)
             var v = RandomGenerator.rand3f(-0.001f, 0.001f)
