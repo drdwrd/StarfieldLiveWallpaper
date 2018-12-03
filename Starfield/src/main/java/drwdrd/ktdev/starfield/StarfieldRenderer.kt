@@ -285,7 +285,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
             sprite.position += vector3f(sprite.velocity.x * sc.x,sprite.velocity.y * sc.y, -1.0f * deltaTime)
             sprite.age += deltaTime
 
-            var pos = sprite.position + 2.0f * vector3f(uvOffset.x * sprite.position.z, uvOffset.y * sprite.position.z, 0.0f)
+            var pos = sprite.position + vector3f(uvOffset.x * sprite.position.z, uvOffset.y * sprite.position.z, 0.0f)
 
             translationMatrix.setTranslation(pos)
 

@@ -4,12 +4,13 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class IndexBuffer(_indicesFormat : IndicesFormat) {
+class IndexBufferObject(_indicesFormat : IndicesFormat) {
 
     constructor(_indicesFormat: IndicesFormat, _indicesCount: Int) : this(_indicesFormat) {
         alloc(_indicesCount)
     }
 
+    val bufferObject = StaticBuffer(BufferObject.Type.ElementArray)
     val indicesFormat: IndicesFormat = _indicesFormat
 
     var indicesCount : Int = 0
@@ -28,7 +29,7 @@ class IndexBuffer(_indicesFormat : IndicesFormat) {
     }
 
     fun drawElements() {
-        GLES20.glDrawElements(indicesFormat.layout.glMode, indicesCount, indicesFormat.type.glType, indexData)
+        GLES20.glDrawElements(indicesFormat.layout.glMode, indicesCount, indicesFormat.type.glType, 0)
     }
 
     fun put(data : ByteArray) {
@@ -46,4 +47,21 @@ class IndexBuffer(_indicesFormat : IndicesFormat) {
     fun flush() {
         indexData.rewind()
     }
+
+    fun create() {
+        bufferObject.create(indexData)
+    }
+
+    fun destroy() {
+        bufferObject.destroy()
+    }
+
+    fun bind() {
+        bufferObject.bind()
+    }
+
+    fun release() {
+        bufferObject.release()
+    }
+
 }

@@ -4,11 +4,13 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class VertexBuffer(_vertexFormat : VertexFormat) {
+class VertexBufferObject(_vertexFormat : VertexFormat) {
 
     constructor(_vertexFormat: VertexFormat, _vertexCount : Int) : this(_vertexFormat) {
         alloc(_vertexCount)
     }
+
+    val bufferObject = StaticBuffer(BufferObject.Type.VertexArray)
 
     val vertexFormat : VertexFormat = _vertexFormat
 
@@ -34,8 +36,7 @@ class VertexBuffer(_vertexFormat : VertexFormat) {
         }
         for (vertexAttribute in vertexFormat) {
             if (vertexAttribute.size > 0 && vertexAttribute.index > -1) {
-                vertexData.position(countMul * vertexAttribute.offset)
-                GLES20.glVertexAttribPointer(vertexAttribute.index, vertexAttribute.size, vertexAttribute.type.glType, vertexAttribute.isNormalized, vertexFormat.vertexSize, vertexData)
+                GLES20.glVertexAttribPointer(vertexAttribute.index, vertexAttribute.size, vertexAttribute.type.glType, vertexAttribute.isNormalized, vertexFormat.vertexSize, countMul * vertexAttribute.offset)
                 GLES20.glEnableVertexAttribArray(vertexAttribute.index)
             }
         }
@@ -55,5 +56,21 @@ class VertexBuffer(_vertexFormat : VertexFormat) {
 
     fun flush() {
         vertexData.rewind()
+    }
+
+    fun create() {
+        bufferObject.create(vertexData)
+    }
+
+    fun destroy() {
+        bufferObject.destroy()
+    }
+
+    fun bind() {
+        bufferObject.bind()
+    }
+
+    fun release() {
+        bufferObject.release()
     }
 }

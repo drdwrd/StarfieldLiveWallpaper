@@ -71,8 +71,8 @@ class SimplePlane : Mesh() {
 
 class Plane3D : Mesh() {
 
-    private lateinit var vertexBuffer : VertexBuffer
-    private lateinit var indexBuffer : IndexBuffer
+    private lateinit var vertexBuffer : VertexBufferObject
+    private lateinit var indexBuffer : IndexBufferObject
 
     val vertexFormat : VertexFormat
         get() = vertexBuffer.vertexFormat
@@ -82,7 +82,7 @@ class Plane3D : Mesh() {
         val vertexFormat = VertexFormat()
         vertexFormat[VertexFormat.VertexAttribute.VertexPosition] = VertexFormat.VertexAttributeInfo("position", 0, VertexFormat.Type.Float, 3, false)
 
-        vertexBuffer = VertexBuffer(vertexFormat)
+        vertexBuffer = VertexBufferObject(vertexFormat)
 
 
         val plane = floatArrayOf(
@@ -94,10 +94,11 @@ class Plane3D : Mesh() {
         vertexBuffer.alloc(4)
         vertexBuffer.put(plane)
         vertexBuffer.flush()
+        vertexBuffer.create()
 
         val indicesFormat = IndicesFormat(IndicesFormat.Layout.Triangles, IndicesFormat.Type.UByte)
 
-        indexBuffer = IndexBuffer(indicesFormat)
+        indexBuffer = IndexBufferObject(indicesFormat)
 
         val indices = byteArrayOf(
             0, 1, 2,
@@ -106,11 +107,13 @@ class Plane3D : Mesh() {
         indexBuffer.alloc(6)
         indexBuffer.put(indices)
         indexBuffer.flush()
+        indexBuffer.create()
 
     }
 
     override fun destroy() {
-
+        vertexBuffer.destroy()
+        indexBuffer.destroy()
     }
 
     override fun draw() {
@@ -118,10 +121,14 @@ class Plane3D : Mesh() {
     }
 
     override fun bind() {
+        vertexBuffer.bind()
+        indexBuffer.bind()
         vertexBuffer.enableVertexArray()
     }
 
     override fun release() {
         vertexBuffer.disableVertexArray()
+        indexBuffer.release()
+        vertexBuffer.release()
     }
 }
