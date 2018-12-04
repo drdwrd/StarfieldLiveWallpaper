@@ -4,7 +4,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
 
+
 class matrix4f {
+
+    constructor()
 
     constructor(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : Float, e6 : Float, e7 : Float,
                 e8 : Float, e9 : Float, e10 : Float, e11 : Float, e12 : Float, e13 : Float, e14 : Float, e15 : Float) {
@@ -12,11 +15,13 @@ class matrix4f {
         e[0] = e0; e[1] = e1; e[2] = e2; e[3] = e3; e[4] = e4; e[5] = e5; e[6] = e6; e[7] = e7; e[8] = e8; e[9] = e9; e[10] = e10; e[11] = e11; e[12] = e12; e[13] = e13; e[14] = e14; e[15] = e15
 
     }
-    constructor() : this(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
-    constructor(m : matrix4f) : this(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15])
+
+    constructor(m : matrix4f) : this(m.e)
+
     constructor(m : FloatArray)  {
         m.copyInto(e, 0, 0, 16)
     }
+
     constructor(m : FloatArray, offset : Int) {
         m.copyInto(e, 0, offset, offset + 16)
     }

@@ -3,8 +3,11 @@ package drwdrd.ktdev.engine
 class matrix2f(e0 : Float, e1 : Float, e2 : Float, e3 : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f)
-    constructor(m : matrix2f) : this(m[0], m[1], m[2], m[3])
+
+    constructor(m : matrix2f) : this(m.e)
+
     constructor(m : FloatArray) : this(m[0], m[1], m[2], m[3])
+
     constructor(m : FloatArray, offset: Int) : this(m[offset], m[offset + 1], m[offset + 2], m[offset + 3])
 
     private var e : FloatArray = floatArrayOf(e0, e1, e2, e3)
