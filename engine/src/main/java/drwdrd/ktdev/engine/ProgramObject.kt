@@ -39,6 +39,7 @@ fun Array<vector4f>.toFloatArray() : FloatArray {
 class ProgramObject(_name : String = "") {
 
     val name : String = _name
+    val uniformMap = hashMapOf<String, Int>()
 
     var glProgramId : Int = 0
         private set
@@ -81,6 +82,13 @@ class ProgramObject(_name : String = "") {
             Log.error("Cannot link program: $info")
             return false
         }
+        var count = intArrayOf(1)
+        GLES20.glGetProgramiv(glProgramId, GLES20.GL_ACTIVE_UNIFORMS, count, 0)
+        var buf = intArrayOf(2)
+        for(index in 0 .. count[0]) {
+            var name = GLES20.glGetActiveUniform(glProgramId, index, buf, 0, buf, 1)
+            uniformMap[name] = index
+        }
         return true
     }
 
@@ -93,75 +101,74 @@ class ProgramObject(_name : String = "") {
     }
 
     fun setSampler(name : String, value : Int) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform1i(location, value)
     }
 
     fun setUniformValue(name : String, value : Float) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform1f(location, value)
     }
 
     fun setUniformValue(name : String, value : FloatArray) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform1fv(location, value.size, value, 0)
     }
 
     fun setUniformValue(name : String, value : vector2f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform2fv(location, 1, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : Array<vector2f>) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
-        var array = value.toFloatArray()
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform2fv(location, value.size, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : vector3f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform3fv(location, 1, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : Array<vector3f>) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform3fv(location, value.size, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : vector4f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform4fv(location, 1,value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : Array<vector4f>) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniform4fv(location, value.size, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : matrix2f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniformMatrix2fv(location, 1, false, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : matrix3f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniformMatrix3fv(location, 1, false, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : matrix4f) {
-        val location = GLES20.glGetUniformLocation(glProgramId, name)
-        check(location != -1) { "Uniform $name not found in program this.$name" }
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniformMatrix4fv(location, 1, false, value.toFloatArray(), 0)
     }
 

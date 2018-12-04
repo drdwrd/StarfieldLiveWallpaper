@@ -3,17 +3,31 @@ package drwdrd.ktdev.engine
 import kotlin.math.cos
 import kotlin.math.sin
 
-class matrix3f(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : Float, e6 : Float, e7 : Float, e8 : Float) {
+class matrix3f {
+
+    constructor(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : Float, e6 : Float, e7 : Float, e8 : Float) {
+        e[0] = e0; e[1] = e1; e[2] = e2; e[3] = e3; e[4] = e4; e[5] = e5; e[6] = e6; e[7] = e7; e[8] = e8
+    }
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ,0.0f, 0.0f, 0.0f)
     constructor(m : matrix3f) : this(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8])
-    constructor(m : FloatArray) : this(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8])
+    constructor(m : FloatArray)  {
+        m.copyInto(e, 0, 0, 9)
+    }
+    constructor(m : FloatArray, offset : Int) {
+        m.copyInto(e, 0, offset, offset + 9)
+    }
 
-    private var e = floatArrayOf(e0, e1, e2, e3, e4, e5, e6, e7, e8)
+    private var e = FloatArray(9)
 
     operator fun get(index : Int) : Float {
         require(index in 0 .. 8)
         return e[index]
+    }
+
+    operator fun set(index : Int, value : Float) {
+        require(index in 0 .. 8)
+        e[index] = value
     }
 
     fun equals(m : matrix3f) : Boolean {
@@ -264,7 +278,15 @@ class matrix3f(e0 : Float, e1 : Float, e2 : Float, e3 : Float, e4 : Float, e5 : 
         e[4] = cos(angle)
     }
 
-    fun toFloatArray() = e.copyOf()
+    fun toFloatArray() = e
+
+    fun put(buffer : FloatArray, offset : Int) {
+        e.copyInto(buffer, offset, 0, 9)
+    }
+
+    fun get(buffer: FloatArray, offset : Int) {
+        buffer.copyInto(e, 0, offset, offset + 9)
+    }
 
     companion object {
         fun identity() = matrix3f(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f)

@@ -5,12 +5,18 @@ class matrix2f(e0 : Float, e1 : Float, e2 : Float, e3 : Float) {
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f)
     constructor(m : matrix2f) : this(m[0], m[1], m[2], m[3])
     constructor(m : FloatArray) : this(m[0], m[1], m[2], m[3])
+    constructor(m : FloatArray, offset: Int) : this(m[offset], m[offset + 1], m[offset + 2], m[offset + 3])
 
     private var e : FloatArray = floatArrayOf(e0, e1, e2, e3)
 
     operator fun get(index : Int) : Float {
         require(index in 0 .. 3)
         return e[index]
+    }
+
+    operator fun set(index : Int, value : Float) {
+        require(index in 0 .. 3)
+        e[index] = value
     }
 
     fun equals(m : matrix2f) = ((e[0] == m.e[0]) && (e[1] == m.e[1]) && (e[2] == m.e[2]) && (e[3] == m.e[3]))
@@ -104,7 +110,22 @@ class matrix2f(e0 : Float, e1 : Float, e2 : Float, e3 : Float) {
         e[3] = idet * tmp
     }
 
-    fun toFloatArray() = e.copyOf()
+    fun toFloatArray() = e
+
+    fun put(buffer : FloatArray, offset : Int) {
+        buffer[offset] = e[0]
+        buffer[offset + 1] = e[1]
+        buffer[offset + 2] = e[2]
+        buffer[offset + 3] = e[3]
+    }
+
+    fun get(buffer: FloatArray, offset : Int) {
+        e[0] = buffer[offset]
+        e[1] = buffer[offset + 1]
+        e[2] = buffer[offset + 2]
+        e[3] = buffer[offset + 3]
+    }
+
 
     companion object {
         fun identity() = matrix2f(1.0f, 0.0f, 0.0f, 1.0f)

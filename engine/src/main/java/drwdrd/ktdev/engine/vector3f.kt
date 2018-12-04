@@ -6,91 +6,91 @@ import android.graphics.Color
 class vector3f(x : Float, y : Float, z : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f)
-    constructor(v : vector3f) : this(v.ex, v.ey, v.ez)
+    constructor(v : vector3f) : this(v.e[0], v.e[1], v.e[2])
     constructor(v : FloatArray) : this(v[0], v[1], v[2])
+    constructor(v : FloatArray, offset : Int) : this(v[offset], v[offset + 1], v[offset + 2])
+
     constructor(color : Int) : this() {
-        ex = Color.red(color) / 255.0f
-        ey = Color.green(color) / 255.0f
-        ez = Color.blue(color) / 255.0f
+        e[0] = Color.red(color) / 255.0f
+        e[1] = Color.green(color) / 255.0f
+        e[2] = Color.blue(color) / 255.0f
     }
 
-    private var ex : Float = x
-    private var ey : Float = y
-    private var ez : Float = z
+    private var e = floatArrayOf(x, y, z)
 
     val x : Float
-        get() = ex
+        get() = e[0]
     val y : Float
-        get() = ey
+        get() = e[1]
     val z : Float
-        get() = ez
+        get() = e[2]
 
-    fun toColor()  = Color.rgb(Math.round(255.0f * ex), Math.round(255.0f * ey), Math.round(255.0f * ez))
+    fun toColor()  = Color.rgb(Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     override operator fun equals(other : Any?) : Boolean {
         return when(other) {
-            is vector3f -> (ex == other.ex) && (ey == other.ey) && (ez == other.ez)
+            is vector3f -> (e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2])
             else -> false
         }
     }
 
-    operator fun plus(v : vector3f) = vector3f(ex + v.ex, ey + v.ey, ez + v.ez)
-    operator fun minus(v : vector3f) = vector3f(ex - v.ex, ey - v.ey, ez - v.ez)
-    operator fun times(v : vector3f) = vector3f(ex * v.ex, ey * v.ey, ez * v.ez)
-    operator fun times(a : Float) = vector3f(ex * a, ey * a, ez * a)
+    operator fun plus(v : vector3f) = vector3f(e[0] + v.e[0], e[1] + v.e[1], e[2] + v.e[2])
+    operator fun minus(v : vector3f) = vector3f(e[0] - v.e[0], e[1] - v.e[1], e[2] - v.e[2])
+    operator fun times(v : vector3f) = vector3f(e[0] * v.e[0], e[1] * v.e[1], e[2] * v.e[2])
+    operator fun times(a : Float) = vector3f(e[0] * a, e[1] * a, e[2] * a)
 
     operator fun div(v : vector3f) : vector3f {
-        require(v.ex != 0.0f && v.ey != 0.0f && v.ez != 0.0f)
-        return vector3f(ex / v.ex, ey / v.ey, ez / v.ez)
+        require(v.e[0] != 0.0f && v.e[1] != 0.0f && v.e[2] != 0.0f)
+        return vector3f(e[0] / v.e[0], e[1] / v.e[1], e[2] / v.e[2])
     }
 
     operator fun div(a : Float) : vector3f {
         require(a != 0.0f)
-        return vector3f(ex / a, ey / a, ez / a)
+        return vector3f(e[0] / a, e[1] / a, e[2] / a)
     }
 
     operator fun plusAssign(v : vector3f) {
-        ex += v.ex
-        ey += v.ey
-        ez += v.ez
+        e[0] += v.e[0]
+        e[1] += v.e[1]
+        e[2] += v.e[2]
     }
 
     operator fun minusAssign(v : vector3f) {
-        ex -= v.ex
-        ey -= v.ey
-        ez -= v.ez
+        e[0] -= v.e[0]
+        e[1] -= v.e[1]
+        e[2] -= v.e[2]
     }
 
     operator fun timesAssign(v : vector3f) {
-        ex *= v.ex
-        ey *= v.ey
-        ez *= v.ez
+        e[0] *= v.e[0]
+        e[1] *= v.e[1]
+        e[2] *= v.e[2]
     }
 
     operator fun timesAssign(a : Float) {
-        ex *= a
-        ey *= a
-        ez *= a
+        e[0] *= a
+        e[1] *= a
+        e[2] *= a
     }
 
     operator fun divAssign(v : vector3f) {
-        require(v.ex != 0.0f && v.ey != 0.0f && v.ez != 0.0f)
-        ex /= v.ex
-        ey /= v.ey
-        ez /= v.ez
+        require(v.e[0] != 0.0f && v.e[1] != 0.0f && v.e[2] != 0.0f)
+        e[0] /= v.e[0]
+        e[1] /= v.e[1]
+        e[2] /= v.e[2]
     }
 
     operator fun divAssign(a : Float) {
         require(a != 0.0f)
-        ex /= a
-        ey /= a
-        ez /= a
+        e[0] /= a
+        e[1] /= a
+        e[2] /= a
     }
 
-    operator fun unaryMinus() = vector3f(-ex, -ey, -ez)
+    operator fun unaryMinus() = vector3f(-e[0], -e[1], -e[2])
 
-    fun abs() = (ex * ex + ey * ey + ez * ez)
-    fun length() = Math.sqrt((ex * ex + ey * ey + ez * ez).toDouble()).toFloat()
+    fun abs() = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
+    fun length() = Math.sqrt((e[0] * e[0] + e[1] * e[1] + e[2] * e[2]).toDouble()).toFloat()
 
     fun normalize()  {
         var l = length()
@@ -108,35 +108,39 @@ class vector3f(x : Float, y : Float, z : Float) {
         return vector3f(0.0f, 0.0f, 0.0f)
     }
 
-    fun toFloatArray() = floatArrayOf(ex, ey, ez)
+    fun toFloatArray() = e
+
+    fun put(buffer : FloatArray, offset : Int) {
+        buffer[offset] = e[0]
+        buffer[offset + 1] = e[1]
+        buffer[offset + 2] = e[2]
+    }
+
+    fun get(buffer: FloatArray, offset : Int) {
+        e[0] = buffer[offset]
+        e[1] = buffer[offset + 1]
+        e[2] = buffer[offset + 2]
+    }
 
     operator fun get(index : Int) : Float {
-        return when(index) {
-            0 -> ex
-            1 -> ey
-            2 -> ez
-            else -> throw IndexOutOfBoundsException()
-        }
+        require(index in 0 .. 2)
+        return e[index]
     }
 
     operator fun set(index : Int, value : Float) {
-        when(index) {
-            0 -> ex = value
-            1 -> ey = value
-            2 -> ez = value
-            else -> throw IndexOutOfBoundsException()
-        }
+        require(index in 0 .. 2)
+        e[index] = value
     }
 
-    fun dot(v : vector3f) = ex * v.ex + ey * v.ey + ez * v.ez
+    fun dot(v : vector3f) = e[0] * v.e[0] + e[1] * v.e[1] + e[2] * v.e[2]
 
-    fun cross(v : vector3f) = vector3f(ey * v.ez - ez * v.ey, ez * v.ex - ex * v.ez, ex * v.ey - ey * v.ex)
+    fun cross(v : vector3f) = vector3f(e[1] * v.e[2] - e[2] * v.e[1], e[2] * v.e[0] - e[0] * v.e[2], e[0] * v.e[1] - e[1] * v.e[0])
 
 
     companion object {
         fun mix(a : vector3f, b : vector3f, s : Float) : vector3f {
             require(s in 0.0f .. 1.0f)
-            return vector3f(s * a.ex + (1.0f - s) * b.ex,s * a.ey + (1.0f - s) * b.ey, s * a.ez + (1.0f - s) * b.ez)
+            return vector3f(s * a.e[0] + (1.0f - s) * b.e[0],s * a.e[1] + (1.0f - s) * b.e[1], s * a.e[2] + (1.0f - s) * b.e[2])
         }
 
         fun dot(v1 : vector3f, v2 : vector3f) = v1.dot(v2)

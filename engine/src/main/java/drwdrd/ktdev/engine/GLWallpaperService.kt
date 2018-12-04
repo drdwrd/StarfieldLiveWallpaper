@@ -40,7 +40,7 @@ abstract class GLWallpaperService : WallpaperService() {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(touchEventsEnabled)
             glSurfaceView = GLWallpaperSurfaceView(this@GLWallpaperService)
-            val renderer = this@GLWallpaperService.createRenderer()!!
+            val renderer = this@GLWallpaperService.createRenderer()
             setRenderer(renderer)
         }
 

@@ -7,128 +7,131 @@ import kotlin.math.sqrt
 class vector4f(x : Float, y : Float, z : Float, w : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f)
-    constructor(v : vector4f) : this(v.ex, v.ey, v.ez, v.ew)
+    constructor(v : vector4f) : this(v.e[0], v.e[1], v.e[2], v.e[3])
     constructor(v : FloatArray) : this(v[0], v[1], v[2], v[3])
+    constructor(v : FloatArray, offset : Int) : this(v[offset], v[offset + 1], v[offset + 2], v[offset + 3])
+
     constructor(color : Int) : this() {
-        ex = Color.red(color) / 255.0f
-        ey = Color.green(color) / 255.0f
-        ez = Color.blue(color) / 255.0f
-        ew = Color.alpha(color) / 255.0f
+        e[0] = Color.red(color) / 255.0f
+        e[1] = Color.green(color) / 255.0f
+        e[2] = Color.blue(color) / 255.0f
+        e[3] = Color.alpha(color) / 255.0f
     }
 
-    private var ex : Float = x
-    private var ey : Float = y
-    private var ez : Float = z
-    private var ew : Float = w
+    private var e = floatArrayOf(x, y, z, w)
 
     val x : Float
-        get() = ex
+        get() = e[0]
     val y : Float
-        get() = ey
+        get() = e[1]
     val z : Float
-        get() = ez
+        get() = e[2]
     val w : Float
-        get() = ew
+        get() = e[3]
 
-    fun toColor()  = Color.argb(Math.round(255.0f * ew), Math.round(255.0f * ex), Math.round(255.0f * ey), Math.round(255.0f * ez))
+    fun toColor()  = Color.argb(Math.round(255.0f * e[3]), Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     override operator fun equals(other : Any?) : Boolean {
         return when(other) {
-            is vector4f -> (ex == other.ex) && (ey == other.ey) && (ez == other.ez) && (ew == other.ew)
+            is vector4f -> (e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]) && (e[3] == other.e[3])
             else -> false
         }
     }
 
-    operator fun plus(v : vector4f) = vector4f(ex + v.ex, ey + v.ey, ez + v.ez, ew + v.ew)
-    operator fun minus(v : vector4f) = vector4f(ex - v.ex, ey - v.ey, ez - v.ez, ew - v.ew)
-    operator fun times(v : vector4f) = vector4f(ex * v.ex, ey * v.ey, ez * v.ez, ew * v.ew)
-    operator fun times(a : Float) = vector4f(ex * a, ey * a, ez * a, ew * a)
+    operator fun plus(v : vector4f) = vector4f(e[0] + v.e[0], e[1] + v.e[1], e[2] + v.e[2], e[3] + v.e[3])
+    operator fun minus(v : vector4f) = vector4f(e[0] - v.e[0], e[1] - v.e[1], e[2] - v.e[2], e[3] - v.e[3])
+    operator fun times(v : vector4f) = vector4f(e[0] * v.e[0], e[1] * v.e[1], e[2] * v.e[2], e[3] * v.e[3])
+    operator fun times(a : Float) = vector4f(e[0] * a, e[1] * a, e[2] * a, e[3] * a)
 
     operator fun div(v : vector4f) : vector4f {
-        require(v.ex != 0.0f && v.ey != 0.0f && v.ez != 0.0f && v.ew != 0.0f)
-        return vector4f(ex / v.ex, ey / v.ey, ez / v.ez, ew / v.ew)
+        require(v.e[0] != 0.0f && v.e[1] != 0.0f && v.e[2] != 0.0f && v.e[3] != 0.0f)
+        return vector4f(e[0] / v.e[0], e[1] / v.e[1], e[2] / v.e[2], e[3] / v.e[3])
     }
 
     operator fun div(a : Float) : vector4f {
         require(a != 0.0f)
-        return vector4f(ex / a, ey / a, ez / a, ew / a)
+        return vector4f(e[0] / a, e[1] / a, e[2] / a, e[3] / a)
     }
 
     operator fun plusAssign(v : vector4f) {
-        ex += v.ex
-        ey += v.ey
-        ez += v.ez
-        ew += v.ew
+        e[0] += v.e[0]
+        e[1] += v.e[1]
+        e[2] += v.e[2]
+        e[3] += v.e[3]
     }
 
     operator fun minusAssign(v : vector4f) {
-        ex -= v.ex
-        ey -= v.ey
-        ez -= v.ez
-        ew -= v.ew
+        e[0] -= v.e[0]
+        e[1] -= v.e[1]
+        e[2] -= v.e[2]
+        e[3] -= v.e[3]
     }
 
     operator fun timesAssign(v : vector4f) {
-        ex *= v.ex
-        ey *= v.ey
-        ez *= v.ez
-        ew *= v.ew
+        e[0] *= v.e[0]
+        e[1] *= v.e[1]
+        e[2] *= v.e[2]
+        e[3] *= v.e[3]
     }
 
     operator fun timesAssign(a : Float) {
-        ex *= a
-        ey *= a
-        ez *= a
-        ew *= a
+        e[0] *= a
+        e[1] *= a
+        e[2] *= a
+        e[3] *= a
     }
 
     operator fun divAssign(v : vector4f) {
-        require(v.ex != 0.0f && v.ey != 0.0f && v.ez != 0.0f && v.ew != 0.0f)
-        ex /= v.ex
-        ey /= v.ey
-        ez /= v.ez
-        ew /= v.ew
+        require(v.e[0] != 0.0f && v.e[1] != 0.0f && v.e[2] != 0.0f && v.e[3] != 0.0f)
+        e[0] /= v.e[0]
+        e[1] /= v.e[1]
+        e[2] /= v.e[2]
+        e[3] /= v.e[3]
     }
 
     operator fun divAssign(a : Float) {
         require(a != 0.0f)
-        ex /= a
-        ey /= a
-        ez /= a
-        ew /= a
+        e[0] /= a
+        e[1] /= a
+        e[2] /= a
+        e[3] /= a
     }
 
-    operator fun unaryMinus() = vector4f(-ex, -ey, -ez, -ew)
+    operator fun unaryMinus() = vector4f(-e[0], -e[1], -e[2], -e[3])
 
-    fun abs() = (ex * ex + ey * ey + ez * ez + ew * ew)
-    fun length() = sqrt((ex * ex + ey * ey + ez * ez + ew * ew))
+    fun abs() = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
+    fun length() = sqrt((e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3]))
 
-    fun toFloatArray() = floatArrayOf(ex, ey, ez, ew)
+    fun toFloatArray() = e
+
+    fun put(buffer : FloatArray, offset : Int) {
+        buffer[offset] = e[0]
+        buffer[offset + 1] = e[1]
+        buffer[offset + 2] = e[2]
+        buffer[offset + 3] = e[3]
+    }
+
+    fun get(buffer: FloatArray, offset : Int) {
+        e[0] = buffer[offset]
+        e[1] = buffer[offset + 1]
+        e[2] = buffer[offset + 2]
+        e[3] = buffer[offset + 3]
+    }
 
     operator fun get(index : Int) : Float {
-        return when(index) {
-            0 -> ex
-            1 -> ey
-            2 -> ez
-            3 -> ew
-            else -> throw IndexOutOfBoundsException()
-        }
+        require(index in 0 .. 3)
+        return e[index]
     }
 
     operator fun set(index : Int, value : Float) {
-        when(index) {
-            0 -> ex = value
-            1 -> ey = value
-            2 -> ez = value
-            3 -> ew = value
-            else -> throw IndexOutOfBoundsException()
-        }
+        require(index in 0 .. 3)
+        e[index] = value
     }
 
     companion object {
         fun mix(a : vector4f, b : vector4f, s : Float) : vector4f {
             require(s in 0.0f .. 1.0f)
-            return vector4f(s * a.ex + (1.0f - s) * b.ex,s * a.ey + (1.0f - s) * b.ey, s * a.ez + (1.0f - s) * b.ez, s * a.ew + (1.0f - s) * b.ew)
+            return vector4f(s * a.e[0] + (1.0f - s) * b.e[0],s * a.e[1] + (1.0f - s) * b.e[1], s * a.e[2] + (1.0f - s) * b.e[2], s * a.e[3] + (1.0f - s) * b.e[3])
         }
     }
 
