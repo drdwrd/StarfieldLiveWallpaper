@@ -29,10 +29,10 @@ class SimplePlane : Mesh() {
 
 
         val plane = floatArrayOf(
-                -1.0f, -1.0f,
-                1.0f, -1.0f,
-                -1.0f, 1.0f,
-                1.0f, 1.0f)
+            -1.0f, -1.0f,
+            1.0f, -1.0f,
+            -1.0f, 1.0f,
+            1.0f, 1.0f)
 
         vertexBuffer.alloc(4)
         vertexBuffer.put(plane)
@@ -43,8 +43,8 @@ class SimplePlane : Mesh() {
         indexBuffer = IndexBuffer(indicesFormat)
 
         val indices = byteArrayOf(
-                0, 1, 2,
-                2, 1, 3)
+            0, 1, 2,
+            2, 1, 3)
 
         indexBuffer.alloc(6)
         indexBuffer.put(indices)
@@ -106,6 +106,82 @@ class Plane3D : Mesh() {
 
         indexBuffer.alloc(6)
         indexBuffer.put(indices)
+        indexBuffer.flush()
+        indexBuffer.create()
+
+    }
+
+    override fun destroy() {
+        vertexBuffer.destroy()
+        indexBuffer.destroy()
+    }
+
+    override fun draw() {
+        indexBuffer.drawElements()
+    }
+
+    override fun bind() {
+        vertexBuffer.bind()
+        indexBuffer.bind()
+        vertexBuffer.enableVertexArray()
+    }
+
+    override fun release() {
+        vertexBuffer.disableVertexArray()
+        indexBuffer.release()
+        vertexBuffer.release()
+    }
+}
+
+class InstancedPlane3D(_instanceCount : Int) : Mesh() {
+
+    private lateinit var vertexBuffer : VertexBufferObject
+    private lateinit var indexBuffer : IndexBufferObject
+
+    val instanceCount = _instanceCount
+
+    val vertexFormat : VertexFormat
+        get() = vertexBuffer.vertexFormat
+
+    override fun create() {
+
+        val vertexFormat = VertexFormat()
+        vertexFormat[VertexFormat.VertexAttribute.VertexPosition] = VertexFormat.VertexAttributeInfo("position", 0, VertexFormat.Type.Float, 3, false)
+        vertexFormat[VertexFormat.VertexAttribute.VertexAttrib2] = VertexFormat.VertexAttributeInfo("instanceId", 1, VertexFormat.Type.Float, 1,false)
+
+        vertexBuffer = VertexBufferObject(vertexFormat)
+
+
+
+        vertexBuffer.alloc(4 * instanceCount)
+        for(index in 0 until instanceCount) {
+
+            val instanceId = index.toFloat()
+
+            val plane = floatArrayOf(
+                -1.0f, -1.0f, 0.0f, instanceId,
+                1.0f, -1.0f, 0.0f, instanceId,
+                -1.0f, 1.0f, 0.0f, instanceId,
+                1.0f, 1.0f, 0.0f, instanceId)
+
+            vertexBuffer.put(plane)
+        }
+        vertexBuffer.flush()
+        vertexBuffer.create()
+
+        val indicesFormat = IndicesFormat(IndicesFormat.Layout.Triangles, IndicesFormat.Type.UShort)
+
+        indexBuffer = IndexBufferObject(indicesFormat)
+
+        indexBuffer.alloc(6 * instanceCount)
+        for(index in 0 until instanceCount) {
+
+            val indices = shortArrayOf(
+                index.toShort(), (index + 1).toShort(), (index + 2).toShort(),
+                (index + 2).toShort(), (index + 1).toShort(), (index + 3).toShort())
+
+            indexBuffer.put(indices)
+        }
         indexBuffer.flush()
         indexBuffer.create()
 
