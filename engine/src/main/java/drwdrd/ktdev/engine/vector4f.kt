@@ -33,7 +33,7 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
 
     override operator fun equals(other : Any?) : Boolean {
         return when(other) {
-            is vector4f -> (e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]) && (e[3] == other.e[3])
+            is vector4f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]) && (e[3] == other.e[3]))
             else -> false
         }
     }

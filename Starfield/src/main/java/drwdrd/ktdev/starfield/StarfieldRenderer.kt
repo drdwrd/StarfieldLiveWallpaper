@@ -21,7 +21,7 @@ import kotlin.math.sqrt
 
 
 const val gravityFilter = 0.8f
-const val maxParticlesCount = 150
+const val maxParticlesCount = 100
 
 class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
@@ -97,12 +97,9 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private val uvOffset = vector2f(0.0f, 0.0f)
     private var startTime : Long = 0
     private var lastTime : Long = 0
-    private var dropStartTime : Long = 0
-    private var dropCenter = vector2f(0.5f, 0.5f)
-    private lateinit var sprites : MutableList<Sprite>
+    private lateinit var sprites : MutableList<StarParticle>
     private var eye = Eye()
     private var resetGyro  = true
-
 
     fun calculateGyroEffect() : vector2f {
 
@@ -154,6 +151,19 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
     fun createGestureListener() = StarfieldGestureListener()
 
+    init {
+        RandomGenerator.seed(RandomGenerator.createSeed())
+
+        sprites = MutableList(maxParticlesCount) {
+            return@MutableList StarParticle.createRandom(RandomGenerator.randf(1.0f, 10.0f))
+        }
+
+        fun selector(sprite: StarParticle) : Float = sprite.position.z
+
+        sprites.sortByDescending { selector(it)  }
+    }
+
+
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         Log.debug("onSurfaceCreated()")
 
@@ -180,23 +190,10 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
 
-        RandomGenerator.seed(RandomGenerator.createSeed())
+        eye.setPerspective(50.0f, 0.0f, 100.0f)
 
-        sprites = MutableList(maxParticlesCount) {
-            var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), RandomGenerator.randf(1.0f, 10.0f))
-            var v = RandomGenerator.rand3f(-0.001f, 0.001f)
-            var s = RandomGenerator.randf(0.2f, 1.5f)
-            var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
-            var gb = vector3f(RandomGenerator.randf(-0.5f, 0.5f), RandomGenerator.randf(-3.0f, 3.0f), RandomGenerator.randf(1.0f, 5.0f))
-            return@MutableList Sprite(p, v, s, uvpos, gb, 0.0f)
-        }
-
-        fun selector(sprite: Sprite) : Float = sprite.position.z
-
-        sprites.sortByDescending { selector(it)  }
-
-        eye.setPerspective(50.0f, 0.1f, 100.0f)
-        eye.setLookAt(vector3f(0.0f, 0.0f, -5.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+        //TODO: z of camera position as Camera Distance settings in customization
+        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         startTime = SystemClock.uptimeMillis()
     }
@@ -231,16 +228,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         val deltaTime = 0.0001f * (currentTime - lastTime).toFloat()
 
-        val time = 0.0001f * (currentTime - startTime).toFloat()
-
         lastTime = currentTime
-
-        var dropTime = 0.0001f * (currentTime - dropStartTime).toFloat()
-
-        if(dropTime > 2.0f) {
-            dropStartTime = currentTime
-            dropCenter = RandomGenerator.rand2f(0.0f, 1.0f)
-        }
 
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
         GLES20.glClearDepthf(1.0f)
@@ -250,62 +238,40 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
-        val projectionViewMatrix = eye.projectionViewMatrix
+        val viewProjectionMatrix = eye.viewProjectionMatrix
 
-        var sc = vector2f(sin(time), cos(time))
-
-        sprites.removeAll { it.position.z < 1.0f }
+        sprites.removeAll { it.position.z < -1.0f }
 
         for( i in sprites.size .. maxParticlesCount) {
-            //new sprite
-            var p = vector3f(RandomGenerator.randf(-2.5f, 2.5f), RandomGenerator.randf(-5.0f, 5.0f), 10.0f)
-            var v = RandomGenerator.rand3f(-0.001f, 0.001f)
-            var s = RandomGenerator.randf(0.2f, 1.5f)
-            var uvpos = RandomGenerator.rand2f(0.0f, 1.0f)
-            var gb = vector3f(RandomGenerator.randf(-0.5f, 0.5f), RandomGenerator.randf(-3.0f, 3.0f), RandomGenerator.randf(1.0f, 5.0f))
-            sprites.add(Sprite(p, v, s, uvpos, gb, 0.0f))
+            sprites.add(StarParticle.createRandom())
         }
 
         shader.bind()
         simplePlane.bind()
         layers[0].bind(0)
+        noise.bind(1)
+        shader.setSampler("u_Layer0", 0)
+        shader.setSampler("u_Noise", 1)
         var it = sprites.iterator()
         while(it.hasNext()) {
 
             var sprite = it.next()
 
-            var scaleMatrix = matrix4f()
-
-            var s = sprite.scale * (1.0f + 0.1f * sc.x)
-
-            scaleMatrix.setScale(s, s, 1.0f)
-
-            var translationMatrix = matrix4f()
-
-            sprite.position += vector3f(sprite.velocity.x * sc.x,sprite.velocity.y * sc.y, -1.0f * deltaTime)
-            sprite.age += deltaTime
-
-            var pos = sprite.position + 0.0f * vector3f(uvOffset.x * sprite.position.z, uvOffset.y * sprite.position.z, 0.0f)
-
-            translationMatrix.setTranslation(pos)
-
-            var modelMatrix = translationMatrix * scaleMatrix
-
-            var gb = 1.0f + sprite.gammaBurst.x * sin(sprite.gammaBurst.z * time + sprite.gammaBurst.y)
 
 
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-            var fadeOut = smoothstep(1.0f, 2.0f, sprite.position.z)
+            var fadeOut = smoothstep(0.0f, 2.0f, sprite.position.z)
 
-            shader.setSampler("u_Layer0", 0)
-            shader.setUniformValue("u_MVP", projectionViewMatrix * modelMatrix)
-            shader.setUniformValue("u_uvPos", sprite.uvPos)
-            shader.setUniformValue("u_uvScale", sprite.scale)
-            shader.setUniformValue("u_Gamma", gb)
+
+            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
+            shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
             shader.setUniformValue("u_Fade", fadeIn * fadeOut)
             simplePlane.draw()
+
+            sprite.tick(deltaTime)
         }
         layers[0].release(0)
+        noise.release(1)
         simplePlane.release()
         shader.release()
 

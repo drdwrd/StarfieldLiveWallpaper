@@ -16,7 +16,7 @@ class vector2f(x : Float, y : Float) {
 
     override operator fun equals(other : Any?) : Boolean {
         return when(other) {
-            is vector2f -> (e[0] == other.e[0]) && (e[1] == other.e[1])
+            is vector2f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]))
             else -> false
         }
     }

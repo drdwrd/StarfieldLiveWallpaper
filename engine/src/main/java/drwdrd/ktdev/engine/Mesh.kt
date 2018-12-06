@@ -176,9 +176,11 @@ class InstancedPlane3D(_instanceCount : Int) : Mesh() {
         indexBuffer.alloc(6 * instanceCount)
         for(index in 0 until instanceCount) {
 
+            val x = 4 * index
+
             val indices = shortArrayOf(
-                index.toShort(), (index + 1).toShort(), (index + 2).toShort(),
-                (index + 2).toShort(), (index + 1).toShort(), (index + 3).toShort())
+                x.toShort(), (x + 1).toShort(), (x + 2).toShort(),
+                (x + 2).toShort(), (x + 1).toShort(), (x + 3).toShort())
 
             indexBuffer.put(indices)
         }

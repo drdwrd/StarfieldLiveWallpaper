@@ -7,8 +7,7 @@ import android.opengl.GLES20
 fun Array<vector2f>.toFloatArray() : FloatArray {
     var array = FloatArray(2 * this.size)
     for(index in this.indices) {
-        array[2 * index] = this[index].x
-        array[2 * index + 1] = this[index].y
+        this[index].put(array, 2 * index)
     }
     return array
 }
@@ -17,9 +16,7 @@ fun Array<vector2f>.toFloatArray() : FloatArray {
 fun Array<vector3f>.toFloatArray() : FloatArray {
     var array = FloatArray(3 * this.size)
     for(index in this.indices) {
-        array[3 * index] = this[index].x
-        array[3 * index + 1] = this[index].y
-        array[3 * index + 2] = this[index].z
+        this[index].put(array, 3 * index)
     }
     return array
 }
@@ -27,10 +24,31 @@ fun Array<vector3f>.toFloatArray() : FloatArray {
 fun Array<vector4f>.toFloatArray() : FloatArray {
     var array = FloatArray(4 * this.size)
     for(index in this.indices) {
-        array[4 * index] = this[index].x
-        array[4 * index + 1] = this[index].y
-        array[4 * index + 2] = this[index].z
-        array[4 * index + 3] = this[index].w
+        this[index].put(array, 4 * index)
+    }
+    return array
+}
+
+fun Array<matrix2f>.toFloatArray() : FloatArray {
+    var array = FloatArray(4 * this.size)
+    for(index in this.indices) {
+        this[index].put(array, 4 * index)
+    }
+    return array
+}
+
+fun Array<matrix3f>.toFloatArray() : FloatArray {
+    var array = FloatArray(12 * this.size)
+    for(index in this.indices) {
+        this[index].put(array, 12 * index)
+    }
+    return array
+}
+
+fun Array<matrix4f>.toFloatArray() : FloatArray {
+    var array = FloatArray(16 * this.size)
+    for(index in this.indices) {
+        this[index].put(array, 16 * index)
     }
     return array
 }
@@ -85,7 +103,7 @@ class ProgramObject(_name : String = "") {
         var count = intArrayOf(1)
         GLES20.glGetProgramiv(glProgramId, GLES20.GL_ACTIVE_UNIFORMS, count, 0)
         var buf = intArrayOf(2)
-        for(index in 0 .. count[0]) {
+        for(index in 0 until count[0]) {
             var name = GLES20.glGetActiveUniform(glProgramId, index, buf, 0, buf, 1)
             uniformMap[name] = index
         }
@@ -103,7 +121,9 @@ class ProgramObject(_name : String = "") {
     fun setSampler(name : String, value : Int) {
         val location = uniformMap[name]
         check(location != null) { "Uniform $name not found in program this.$name" }
+        GLError.check()
         GLES20.glUniform1i(location, value)
+        GLError.check()
     }
 
     fun setUniformValue(name : String, value : Float) {
@@ -145,7 +165,7 @@ class ProgramObject(_name : String = "") {
     fun setUniformValue(name : String, value : vector4f) {
         val location = uniformMap[name]
         check(location != null) { "Uniform $name not found in program this.$name" }
-        GLES20.glUniform4fv(location, 1,value.toFloatArray(), 0)
+        GLES20.glUniform4fv(location, 1, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : Array<vector4f>) {
@@ -154,10 +174,22 @@ class ProgramObject(_name : String = "") {
         GLES20.glUniform4fv(location, value.size, value.toFloatArray(), 0)
     }
 
+    fun setUniformValue(name : String, value : Rectangle) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniform4fv(location, 1, value.toFloatArray(), 0)
+    }
+
     fun setUniformValue(name : String, value : matrix2f) {
         val location = uniformMap[name]
         check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniformMatrix2fv(location, 1, false, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(name : String, value : Array<matrix2f>) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniformMatrix2fv(location, value.size, false, value.toFloatArray(), 0)
     }
 
     fun setUniformValue(name : String, value : matrix3f) {
@@ -166,10 +198,22 @@ class ProgramObject(_name : String = "") {
         GLES20.glUniformMatrix3fv(location, 1, false, value.toFloatArray(), 0)
     }
 
+    fun setUniformValue(name : String, value : Array<matrix3f>) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniformMatrix3fv(location, value.size, false, value.toFloatArray(), 0)
+    }
+
     fun setUniformValue(name : String, value : matrix4f) {
         val location = uniformMap[name]
         check(location != null) { "Uniform $name not found in program this.$name" }
         GLES20.glUniformMatrix4fv(location, 1, false, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(name : String, value : Array<matrix4f>) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniformMatrix4fv(location, value.size, false, value.toFloatArray(), 0)
     }
 
     companion object {

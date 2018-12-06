@@ -1,6 +1,7 @@
 package drwdrd.ktdev.engine
 
 import android.graphics.Color
+import kotlin.math.sqrt
 
 
 class vector3f(x : Float, y : Float, z : Float) {
@@ -29,7 +30,7 @@ class vector3f(x : Float, y : Float, z : Float) {
 
     override operator fun equals(other : Any?) : Boolean {
         return when(other) {
-            is vector3f -> (e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2])
+            is vector3f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]))
             else -> false
         }
     }
@@ -90,7 +91,7 @@ class vector3f(x : Float, y : Float, z : Float) {
     operator fun unaryMinus() = vector3f(-e[0], -e[1], -e[2])
 
     fun abs() = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
-    fun length() = Math.sqrt((e[0] * e[0] + e[1] * e[1] + e[2] * e[2]).toDouble()).toFloat()
+    fun length() = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
 
     fun normalize()  {
         var l = length()
