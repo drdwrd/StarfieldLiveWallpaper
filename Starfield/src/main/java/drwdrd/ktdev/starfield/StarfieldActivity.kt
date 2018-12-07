@@ -17,6 +17,7 @@ class StarfieldActivity : Activity() {
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var renderer: StarfieldRenderer
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,7 @@ class StarfieldActivity : Activity() {
         glSurfaceView = GLSurfaceView(this)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        val renderer = StarfieldRenderer(this)
+        renderer = StarfieldRenderer(this)
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         val gestureListener = renderer.createGestureListener()
@@ -39,11 +40,13 @@ class StarfieldActivity : Activity() {
     override fun onResume() {
         super.onResume()
         glSurfaceView.onResume()
+        renderer.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         glSurfaceView.onPause()
+        renderer.onPause()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

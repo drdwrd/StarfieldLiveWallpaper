@@ -21,9 +21,9 @@ import kotlin.math.sqrt
 
 
 const val gravityFilter = 0.8f
-const val maxParticlesCount = 100
+const val maxParticlesCount = 500
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
+class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
 
     inner class StarfieldSensorEventListener : SensorEventListener {
 
@@ -95,8 +95,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
     private val layers = Array(3) { Texture() }
     private var noise = Texture()
     private val uvOffset = vector2f(0.0f, 0.0f)
-    private var startTime : Long = 0
-    private var lastTime : Long = 0
+    private val timer = Timer(0.001)
     private lateinit var sprites : MutableList<StarParticle>
     private var eye = Eye()
     private var resetGyro  = true
@@ -178,7 +177,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         simplePlane.create()
         shader = ProgramObject.loadFromAssets(context, "shaders/sprite.vert", "shaders/sprite.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[0] = Texture.loadFromAssets(context, "images/star.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[1] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[2] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
@@ -195,7 +194,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         //TODO: z of camera position as Camera Distance settings in customization
         eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
 
-        startTime = SystemClock.uptimeMillis()
+        timer.reset()
     }
 
 
@@ -220,15 +219,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         uvOffset += vector2f(-dg.x, dg.y)
 
-        var currentTime = SystemClock.uptimeMillis()
-
-        if(lastTime == 0L) {
-            lastTime = currentTime
-        }
-
-        val deltaTime = 0.0001f * (currentTime - lastTime).toFloat()
-
-        lastTime = currentTime
+        timer.tick()
 
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
         GLES20.glClearDepthf(1.0f)
@@ -251,24 +242,35 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
         layers[0].bind(0)
         noise.bind(1)
         shader.setSampler("u_Layer0", 0)
-        shader.setSampler("u_Noise", 1)
+//        shader.setSampler("u_Noise", 1)
         var it = sprites.iterator()
         while(it.hasNext()) {
 
             var sprite = it.next()
 
+            //face dir
+            var dir = eye.position - sprite.position
+            dir.normalize()
+
+            //normal
+            var normal = vector3f(0.0f, 0.0f , -1.0f)
+
+            var rotMatrix = matrix4f()
+            rotMatrix.setAxisRotation(dir, normal)
+
+
 
 
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-            var fadeOut = smoothstep(0.0f, 2.0f, sprite.position.z)
+            var fadeOut = smoothstep(0.0f, 1.0f, sprite.position.z)
 
 
-            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
+            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix * rotMatrix)
             shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-            shader.setUniformValue("u_Fade", fadeIn * fadeOut)
+            shader.setUniformValue("u_Fade", fadeIn)
             simplePlane.draw()
 
-            sprite.tick(deltaTime)
+            sprite.tick(timer.deltaTime.toFloat())
         }
         layers[0].release(0)
         noise.release(1)
@@ -277,27 +279,12 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer {
 
         GLES20.glDisable(GLES20.GL_BLEND)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+    }
 
-/*
-        shader.bind()
-        layers[0].bind(0)
-        layers[1].bind(1)
-        layers[2].bind(2)
-        noise.bind(3)
-        shader.setSampler("u_Layer0", 0)
-        shader.setSampler("u_Layer1", 1)
-        shader.setSampler("u_Layer2", 2)
-        shader.setSampler("u_Noise", 3)
-        shader.setUniformValue("u_dg", uvOffset)
-        shader.setUniformValue("u_Time", deltaTime)
-        shader.setUniformValue("u_Aspect", aspect)
-        shader.setUniformValue("u_DropTime", dropTime)
-        shader.setUniformValue("u_DropCenter", dropCenter)
-        simplePlane.draw()
-        layers[0].release(0)
-        layers[1].release(1)
-        layers[2].release(2)
-        noise.release(3)
-        shader.release()*/
+    override fun onResume() {
+        timer.reset()
+    }
+
+    override fun onPause() {
     }
 }

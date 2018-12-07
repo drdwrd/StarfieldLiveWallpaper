@@ -2,6 +2,7 @@ package drwdrd.ktdev.engine
 
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.math.tan
 
 
@@ -393,9 +394,42 @@ class matrix4f {
         e[14] = t[2]
     }
 
+    fun setAxisRotation(dir : vector3f, normal : vector3f) {
+        loadIdentity()
+        setAxisRotationPart(dir, normal)
+    }
+
     fun setAxisRotation(axis : vector3f, angle : Float) {
         loadIdentity()
         setAxisRotationPart(axis, angle)
+    }
+
+
+    fun setAxisRotationPart(dir : vector3f, normal: vector3f) {
+
+        dir.normalize()
+        normal.normalize()
+
+        var u = vector3f.cross(dir, normal)
+        u.normalize()
+
+        //angle
+        var cosAngle = vector3f.dot(dir, normal)
+
+        val sinAngle = sqrt(1.0f - cosAngle * cosAngle)
+        val oneMinusCosAngle = 1.0f - cosAngle
+
+        e[0] = u.x * u.x + cosAngle * (1 - u.x * u.x)
+        e[4] = oneMinusCosAngle * u.x * u.y - sinAngle * u.z
+        e[8] = oneMinusCosAngle * u.x * u.z + sinAngle * u.y
+
+        e[1] = oneMinusCosAngle * u.x * u.y + sinAngle * u.z
+        e[5] = u.y * u.y + cosAngle * (1 - u.y * u.y)
+        e[9] = oneMinusCosAngle * u.y * u.z - sinAngle * u.x
+
+        e[2] = oneMinusCosAngle * u.x * u.z - sinAngle * u.y
+        e[6] = oneMinusCosAngle * u.y * u.z + sinAngle * u.x
+        e[10] = u.z * u.z + cosAngle * (1 - u.z * u.z)
     }
 
     fun setAxisRotationPart(axis : vector3f, angle : Float) {

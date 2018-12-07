@@ -13,7 +13,13 @@ abstract class GLWallpaperService : WallpaperService() {
         Log.tag = "GLWallpaperService"
     }
 
+    interface WallpaperLiveCycleListener {
+        fun onPause()
+        fun onResume()
+    }
+
     var touchEventsEnabled = false
+    var wallpaperLiveCycleListener : WallpaperLiveCycleListener? = null
 
     inner class GLWallaperServiceEngine : Engine() {
 
@@ -30,6 +36,18 @@ abstract class GLWallpaperService : WallpaperService() {
 
             fun onDestroy() {
                 super.onDetachedFromWindow()
+            }
+
+            override fun onPause() {
+                super.onPause()
+                wallpaperLiveCycleListener?.onPause()
+                Log.debug("GLWallpaperSurfaceView.onPause()")
+            }
+
+            override fun onResume() {
+                super.onResume()
+                wallpaperLiveCycleListener?.onResume()
+                Log.debug("GLWallpaperSurfaceView.onResume()")
             }
         }
 
@@ -64,6 +82,10 @@ abstract class GLWallpaperService : WallpaperService() {
             super.onTouchEvent(event)
             this@GLWallpaperService.onTouchEvent(event)
         }
+
+        open fun onResume() { }
+
+        open fun onPause() { }
 
         private fun setRenderer(renderer : GLSurfaceView.Renderer) {
             glSurfaceView.setRenderer(renderer)

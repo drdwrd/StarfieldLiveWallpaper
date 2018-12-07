@@ -98,7 +98,6 @@ class vector3f(x : Float, y : Float, z : Float) {
         if(l != 0.0f) {
             divAssign(l)
         }
-        throw ArithmeticException()
     }
 
     fun normalized() : vector3f  {

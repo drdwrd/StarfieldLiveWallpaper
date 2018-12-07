@@ -9,7 +9,7 @@ varying vec2 uv;
 
 
 void main() {
-    uv = position.xy;
+    uv = 0.5 * position.xy + 0.5;
 
 	gl_Position = u_ModelViewProjectionMatrix * vec4(position, 1.0);
 }
