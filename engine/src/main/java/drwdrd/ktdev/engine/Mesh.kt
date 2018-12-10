@@ -81,15 +81,18 @@ class Plane3D : Mesh() {
 
         val vertexFormat = VertexFormat()
         vertexFormat[VertexFormat.VertexAttribute.VertexPosition] = VertexFormat.VertexAttributeInfo("position", 0, VertexFormat.Type.Float, 3, false)
+        vertexFormat[VertexFormat.VertexAttribute.TexCoordUV] = VertexFormat.VertexAttributeInfo("uvCoord", 1, VertexFormat.Type.Float, 2, false)
+
 
         vertexBuffer = VertexBufferObject(vertexFormat)
 
 
         val plane = floatArrayOf(
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f)
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+
 
         vertexBuffer.alloc(4)
         vertexBuffer.put(plane)

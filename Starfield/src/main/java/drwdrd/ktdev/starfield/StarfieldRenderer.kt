@@ -95,7 +95,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     private val layers = Array(3) { Texture() }
     private var noise = Texture()
     private val uvOffset = vector2f(0.0f, 0.0f)
-    private val timer = Timer(0.001)
+    private val timer = Timer(0.0002)
     private lateinit var sprites : MutableList<StarParticle>
     private var eye = Eye()
     private var resetGyro  = true
@@ -159,7 +159,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
         fun selector(sprite: StarParticle) : Float = sprite.position.z
 
-        sprites.sortByDescending { selector(it)  }
+        sprites.sortByDescending{ selector(it)  }
     }
 
 
@@ -177,7 +177,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         simplePlane.create()
         shader = ProgramObject.loadFromAssets(context, "shaders/sprite.vert", "shaders/sprite.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/star.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[0] = Texture.loadFromAssets(context, "images/stars.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[1] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         layers[2] = Texture.loadFromAssets(context, "images/stars_tex.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
@@ -221,12 +221,13 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
         timer.tick()
 
+        GLES20.glDisable(GLES20.GL_CULL_FACE)
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
         GLES20.glClearDepthf(1.0f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
@@ -264,8 +265,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
             var fadeOut = smoothstep(0.0f, 1.0f, sprite.position.z)
 
-
-            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix * rotMatrix)
+            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
             shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
             shader.setUniformValue("u_Fade", fadeIn)
             simplePlane.draw()
