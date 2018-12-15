@@ -7,6 +7,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
+import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
 
 class StarfieldActivity : Activity() {
@@ -17,7 +18,7 @@ class StarfieldActivity : Activity() {
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var gestureDetector: GestureDetector
-    private lateinit var renderer: StarfieldRenderer
+    private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +29,8 @@ class StarfieldActivity : Activity() {
         glSurfaceView = GLSurfaceView(this)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        renderer = StarfieldRenderer(this)
+        var renderer = StarfieldWallpaperService.rendererFactory(this)
+        liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         val gestureListener = renderer.createGestureListener()
@@ -40,13 +42,13 @@ class StarfieldActivity : Activity() {
     override fun onResume() {
         super.onResume()
         glSurfaceView.onResume()
-        renderer.onResume()
+        liveCycleListener.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         glSurfaceView.onPause()
-        renderer.onPause()
+        liveCycleListener.onPause()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

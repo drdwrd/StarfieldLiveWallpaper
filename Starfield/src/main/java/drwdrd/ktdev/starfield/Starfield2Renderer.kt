@@ -20,34 +20,25 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 
-const val gravityFilter = 0.8f
 
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
+class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
 
-    inner class StarfieldSensorEventListener : SensorEventListener {
+    private val context : Context = _context
+    private val simplePlane = Plane3D()
+    private var aspect = vector2f(1.0f, 1.0f)
+    private lateinit var shader : ProgramObject
+    private val layers = Array(3) { Texture() }
+    private var noise = Texture()
+    private val timer = Timer(0.0002)
+    private val sprites : MutableList<StarParticle>
+    private var eye = Eye()
+    private var resetGyro  = true
 
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-
-        }
-
-        override fun onSensorChanged(event: SensorEvent?) {
-            when(event?.sensor?.type) {
-                Sensor.TYPE_GRAVITY -> {
-                    gravityVector[0] = gravityVector[0] * gravityFilter + (1.0f - gravityFilter) * event.values[0]
-                    gravityVector[1] = gravityVector[1] * gravityFilter + (1.0f - gravityFilter) * event.values[1]
-                    gravityVector[2] = gravityVector[2] * gravityFilter + (1.0f - gravityFilter) * event.values[2]
-                }
-            }
-        }
-
-    }
+    private val maxParticlesCount = 500
 
     inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
         override fun onDown(p0: MotionEvent?): Boolean {
-//            var x = p0?.rawX!!.toFloat() / context.resources.displayMetrics.widthPixels.toFloat()
-//            var y = p0?.rawY!!.toFloat() / context.resources.displayMetrics.heightPixels.toFloat()
-//            Log.debug("onDown() ... dropCenter = ($x, $y)")
             return false
         }
 
@@ -72,8 +63,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         }
 
         override fun onDoubleTap(p0: MotionEvent?): Boolean {
-            Log.debug("onDoubleTap()")
-            return true
+            return false
         }
 
         override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
@@ -85,70 +75,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         }
     }
 
-    private val context : Context = _context
-    private val simplePlane = Plane3D()
-    private val sensorEventListener = StarfieldSensorEventListener()
-    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
-    private val lastGravity = vector2f(0.0f, 0.0f)
-    private var aspect = vector2f(1.0f, 1.0f)
-    private lateinit var shader : ProgramObject
-    private val layers = Array(3) { Texture() }
-    private var noise = Texture()
-    private val uvOffset = vector2f(0.0f, 0.0f)
-    private val timer = Timer(0.0002)
-    private val sprites : MutableList<StarParticle>
-    private var eye = Eye()
-    private var resetGyro  = true
-
-    private val maxParticlesCount = 100
-
-    fun calculateGyroEffect() : vector2f {
-
-        var g = gravityVector.normalized()
-        var roll : Float = 0.0f
-        var pitch : Float
-
-        if(g.z != 0.0f) {
-            roll = atan2(g.x, g.z) * 180.0f / Math.PI.toFloat()
-        }
-
-        pitch = sqrt(g.x * g.x + g.z * g.z)
-
-        if(pitch != 0.0f) {
-            pitch = atan2(g.y, pitch) * 180.0f / Math.PI.toFloat()
-        }
-
-        var dg = vector2f()
-
-        dg[0] = (roll - lastGravity[0])
-
-        dg[1] = (pitch - lastGravity[1])
-
-// if device orientation is close to vertical – rotation around x is almost undefined – skip!
-
-        if(g.y > 0.99) dg[0] = 0.0f
-
-// if rotation was too intensive – more than 180 degrees – skip it
-
-        if(dg[0] > 180.0f) dg[0] = 0.0f
-
-        if(dg[0] < -180.0f) dg[0] = 0.0f
-
-        if(dg[1] > 180.0f) dg[1] = 0.0f
-
-        if(dg[1] < -180.0f) dg[1] = 0.0f
-
-        if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            var tmp = dg[1]
-            dg[1] = dg[0]
-            dg[0] = tmp
-        }
-
-        lastGravity[0] = roll
-        lastGravity[1] = pitch
-
-        return dg
-    }
 
     fun createGestureListener() = StarfieldGestureListener()
 
@@ -156,7 +82,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         RandomGenerator.seed(RandomGenerator.createSeed())
 
         sprites = MutableList(maxParticlesCount) {
-            return@MutableList StarParticle.createRandom(RandomGenerator.randf(1.0f, 5.0f))
+            return@MutableList StarParticle.createRandom2(RandomGenerator.randf(1.0f, 5.0f))
         }
 
         fun selector(sprite: StarParticle) : Float = sprite.position.z
@@ -177,17 +103,11 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         Log.info("OpenGL renderer: $renderer")
 
         simplePlane.create()
-        shader = ProgramObject.loadFromAssets(context, "shaders/sprite.vert", "shaders/sprite.frag", simplePlane.vertexFormat)
+        shader = ProgramObject.loadFromAssets(context, "shaders/sprite2.vert", "shaders/sprite2.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/stars.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[0] = Texture.loadFromAssets(context, "images/star2.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         noise = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-
-        var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-
-        var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
-
-        sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
 
@@ -211,13 +131,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     }
 
     override fun onDrawFrame(p0: GL10?) {
-        if(resetGyro) {
-            calculateGyroEffect()
-            resetGyro = false
-        }
-        var dg = 0.002f * calculateGyroEffect()
-
-        uvOffset += vector2f(-dg.x, dg.y)
 
         timer.tick()
 
@@ -227,7 +140,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
@@ -235,7 +148,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         sprites.removeAll { it.position.z < -1.0f }
 
         for( i in sprites.size .. maxParticlesCount) {
-            sprites.add(0, StarParticle.createRandom(5.0f))
+            sprites.add(0, StarParticle.createRandom2(5.0f))
         }
 
         shader.bind()
@@ -243,7 +156,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         layers[0].bind(0)
         noise.bind(1)
         shader.setSampler("u_Layer0", 0)
-        shader.setSampler("u_Noise", 1)
+//        shader.setSampler("u_Noise", 1)
         var it = sprites.iterator()
         while(it.hasNext()) {
 
@@ -268,7 +181,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
             shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
             shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
             shader.setUniformValue("u_FadeIn", fadeIn)
-            shader.setUniformValue("u_FadeOut", fadeOut)
+//            shader.setUniformValue("u_FadeOut", fadeOut)
             simplePlane.draw()
 
             sprite.tick(timer.deltaTime.toFloat())
