@@ -25,7 +25,7 @@ import kotlin.math.sqrt
 class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
 
     private val context : Context = _context
-    private val simplePlane = Plane3D()
+    private val simplePlane = Sprite3D()
     private var aspect = vector2f(1.0f, 1.0f)
     private lateinit var shader : ProgramObject
     private val layers = Array(3) { Texture() }
@@ -35,7 +35,7 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
     private var eye = Eye()
     private var resetGyro  = true
 
-    private val maxParticlesCount = 500
+    private val maxParticlesCount = 250
 
     inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
         override fun onDown(p0: MotionEvent?): Boolean {
@@ -141,6 +141,7 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        //GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
@@ -165,20 +166,24 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
             //face dir
             var dir = eye.position - sprite.position
             dir.normalize()
-
+/*
             //normal
             var normal = vector3f(0.0f, 0.0f , -1.0f)
 
             var rotMatrix = matrix4f()
             rotMatrix.setAxisRotation(dir, normal)
+*/
 
-
-
+            var normalMatrix = sprite.modelMatrix
+            normalMatrix.inverse()
+            normalMatrix.transpose()
 
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
             var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
             shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
+            shader.setUniformValue("u_NormalMatrix", sprite.normalMatrix)
+            shader.setUniformValue("u_Dir", dir)
             shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
             shader.setUniformValue("u_FadeIn", fadeIn)
 //            shader.setUniformValue("u_FadeOut", fadeOut)

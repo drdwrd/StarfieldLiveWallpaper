@@ -496,8 +496,8 @@ class matrix4f {
         val sp = sin(yangle)
         val cy = cos(zangle)
         val sy = sin(zangle)
-        val srsp = sr * sp;
-        val crsp = cr * sp;
+        val srsp = sr * sp
+        val crsp = cr * sp
 
         e[0] = cp * cy
         e[1] = cp * sy
@@ -509,6 +509,8 @@ class matrix4f {
         e[9] = crsp * sy - sr * cy
         e[10] = cr * cp
     }
+
+    fun getRotationPart() = matrix3f(e[0], e[1], e[2], e[4], e[5], e[6], e[8], e[9], e[10])
 
     fun setFrustumProjection(left : Float, right : Float, bottom : Float, top : Float, znear : Float, zfar : Float) {
         loadZero()
