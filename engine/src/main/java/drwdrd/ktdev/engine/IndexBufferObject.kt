@@ -36,16 +36,8 @@ class IndexBufferObject(_indicesFormat : IndicesFormat) {
         indexData.put(data)
     }
 
-    fun put(data : ShortArray) {
-        indexData.asShortBuffer().put(data)
-    }
-
-    fun put(data : IntArray) {
-        indexData.asIntBuffer().put(data)
-    }
-
     fun flush() {
-        indexData.rewind()
+        indexData.position(0)
     }
 
     fun create() {

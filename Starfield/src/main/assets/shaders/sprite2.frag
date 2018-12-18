@@ -25,5 +25,5 @@ void main() {
     float dt = abs(dot(n, u_Dir));
     float alpha = u_FadeIn * smoothstep(0.0, 0.5, l0) * dt;
 
-    gl_FragColor = alpha * layer0;
+    gl_FragColor = alpha * layer0;// + vec4(0.5;
 }

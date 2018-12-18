@@ -604,4 +604,26 @@ class matrix4f {
         buffer.copyInto(e, 0, offset, offset + 16)
     }
 
+    fun transformed(v : vector3f) : vector3f {
+        return vector3f(
+            e[0] * v[0] + e[4] * v[1] + e[8] * v[2] + e[12],
+            e[1] * v[0] + e[5] * v[1] + e[9] * v[2] + e[13],
+            e[2] * v[0] + e[6] * v[1] + e[10] * v[2] + e[14])
+    }
+
+    fun rotated(v : vector3f) : vector3f {
+        return vector3f(
+            e[0] * v[0] + e[4] * v[1] + e[8] * v[2],
+            e[1] * v[0] + e[5] * v[1] + e[9] * v[2],
+            e[2] * v[0] + e[6] * v[1] + e[10] * v[2])
+    }
+
+    fun translated(v : vector3f) : vector3f {
+        return vector3f(v[0] + e[12],v[1] + e[13],v[2] + e[14])
+    }
+
+    fun scaled(v : vector3f) : vector3f {
+        return vector3f(e[0] * v[0],e[5] * v[1],e[10] * v[2])
+    }
+
 }

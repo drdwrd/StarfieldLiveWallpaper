@@ -50,12 +50,8 @@ class VertexBufferObject(_vertexFormat : VertexFormat) {
         }
     }
 
-    fun put(data: FloatArray) {
-        vertexData.asFloatBuffer().put(data)
-    }
-
     fun flush() {
-        vertexData.rewind()
+        vertexData.position(0)
     }
 
     fun create() {

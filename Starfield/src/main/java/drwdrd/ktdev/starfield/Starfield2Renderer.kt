@@ -35,7 +35,7 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
     private var eye = Eye()
     private var resetGyro  = true
 
-    private val maxParticlesCount = 250
+    private val maxParticlesCount = 50
 
     inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
         override fun onDown(p0: MotionEvent?): Boolean {
