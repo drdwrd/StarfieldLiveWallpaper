@@ -1,33 +1,22 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import android.content.res.Configuration
-import android.hardware.Sensor
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.os.SystemClock
 import android.view.GestureDetector
 import android.view.MotionEvent
 import drwdrd.ktdev.engine.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import android.hardware.SensorManager
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 
-
-
-class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
+class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
 
     private val context : Context = _context
-    private val simplePlane = Sprite3D()
+    private val simplePlane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
     private lateinit var shader : ProgramObject
+    private lateinit var bkgShader : ProgramObject
     private val layers = Array(3) { Texture() }
     private var noise = Texture()
     private val timer = Timer(0.0002)
@@ -35,7 +24,7 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
     private var eye = Eye()
     private var resetGyro  = true
 
-    private val maxParticlesCount = 50
+    private val maxParticlesCount = 500
 
     inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
         override fun onDown(p0: MotionEvent?): Boolean {
@@ -82,7 +71,7 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         RandomGenerator.seed(RandomGenerator.createSeed())
 
         sprites = MutableList(maxParticlesCount) {
-            return@MutableList StarParticle.createRandom2(RandomGenerator.randf(1.0f, 5.0f))
+            return@MutableList StarParticle.createRandom3(RandomGenerator.randf(1.0f, 5.0f))
         }
 
         fun selector(sprite: StarParticle) : Float = sprite.position.z
@@ -103,9 +92,12 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         Log.info("OpenGL renderer: $renderer")
 
         simplePlane.create()
-        shader = ProgramObject.loadFromAssets(context, "shaders/sprite2.vert", "shaders/sprite2.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/star2.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        shader = ProgramObject.loadFromAssets(context, "shaders/sprite3.vert", "shaders/sprite3.frag", simplePlane.vertexFormat)
+        bkgShader = ProgramObject.loadFromAssets(context, "shaders/background.vert", "shaders/background.frag", simplePlane.vertexFormat)
+
+        layers[0] = Texture.loadFromAssets(context, "images/stars_atlas.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[1] = Texture.loadFromAssets(context, "images/stars_a.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         noise = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
@@ -140,16 +132,27 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE)
-        //GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
+
+        bkgShader.bind()
+        layers[1].bind(1)
+        bkgShader.setUniformValue("u_Aspect", aspect)
+        bkgShader.setSampler("u_Layer1", 1)
+
+        simplePlane.bind()
+        simplePlane.draw()
+        simplePlane.release()
+
+        layers[1].release(1)
+        bkgShader.release()
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
 
         sprites.removeAll { it.position.z < -1.0f }
 
         for( i in sprites.size .. maxParticlesCount) {
-            sprites.add(0, StarParticle.createRandom2(5.0f))
+            sprites.add(0, StarParticle.createRandom3(5.0f))
         }
 
         shader.bind()
@@ -166,26 +169,18 @@ class Starfield2Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
             //face dir
             var dir = eye.position - sprite.position
             dir.normalize()
-/*
+
             //normal
             var normal = vector3f(0.0f, 0.0f , -1.0f)
-
-            var rotMatrix = matrix4f()
-            rotMatrix.setAxisRotation(dir, normal)
-*/
-
-            var normalMatrix = sprite.modelMatrix
-            normalMatrix.inverse()
-            normalMatrix.transpose()
 
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
             var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
-            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.modelMatrix)
-            shader.setUniformValue("u_NormalMatrix", sprite.normalMatrix)
-            shader.setUniformValue("u_Dir", dir)
+
+            shader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.calculateBillboardModelMatrix(dir, normal))
             shader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
             shader.setUniformValue("u_FadeIn", fadeIn)
+//            shader.setUniformValue("u_Color", sprite.color)
 //            shader.setUniformValue("u_FadeOut", fadeOut)
             simplePlane.draw()
 

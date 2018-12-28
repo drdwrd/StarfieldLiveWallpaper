@@ -20,12 +20,6 @@ class Eye() {
 
     private var frustum : Frustum = Frustum()
 
-    val rotationMatrix
-        get() = matrix4f(
-                right[0], up[0], direction[0], 0.0f,
-                right[1], up[1], direction[1], 0.0f,
-                right[2], up[2], direction[2], 0.0f,
-                0.0f,       0.0f,    0.0f,1.0f)
 
     var viewMatrix : matrix4f = matrix4f()
         private set
@@ -34,7 +28,7 @@ class Eye() {
                 right[0], up[0], direction[0], 0.0f,
                 right[1], up[1], direction[1], 0.0f,
                 right[2], up[2], direction[2], 0.0f,
-                0.0f,       0.0f,    0.0f,           1.0f)
+                0.0f,       0.0f,    0.0f,1.0f)
 
             var translationMatrix = matrix4f(
                 1.0f,           0.0f,           0.0f,          0.0f,

@@ -410,7 +410,7 @@ class matrix4f {
         dir.normalize()
         normal.normalize()
 
-        var u = vector3f.cross(dir, normal)
+        var u = vector3f.cross(normal, dir)
         u.normalize()
 
         //angle
@@ -624,6 +624,13 @@ class matrix4f {
 
     fun scaled(v : vector3f) : vector3f {
         return vector3f(e[0] * v[0],e[5] * v[1],e[10] * v[2])
+    }
+
+    fun getBillboardMVPMatrix() : matrix4f {
+        var d = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
+
+        return matrix4f(d,0.0f,0.0f,0.0f,0.0f, d,0.0f,0.0f,0.0f,0.0f, d,0.0f, e[12], e[13], e[14],1.0f)
+
     }
 
 }

@@ -35,8 +35,7 @@ class SimplePlane : Mesh() {
             1.0f, 1.0f)
 
         vertexBuffer.alloc(4)
-        val vertexDataBuffer = vertexBuffer.vertexData.asFloatBuffer()
-        vertexDataBuffer.put(plane)
+        vertexBuffer.vertexData.asFloatBuffer().put(plane)
         vertexBuffer.flush()
         vertexBuffer.create()
 
@@ -52,11 +51,11 @@ class SimplePlane : Mesh() {
         indexBuffer.put(indices)
         indexBuffer.flush()
         indexBuffer.create()
-
     }
 
     override fun destroy() {
-
+        vertexBuffer.destroy()
+        indexBuffer.destroy()
     }
 
     override fun draw() {
@@ -64,11 +63,15 @@ class SimplePlane : Mesh() {
     }
 
     override fun bind() {
+        vertexBuffer.bind()
+        indexBuffer.bind()
         vertexBuffer.enableVertexArray()
     }
 
     override fun release() {
         vertexBuffer.disableVertexArray()
+        indexBuffer.release()
+        vertexBuffer.release()
     }
 }
 

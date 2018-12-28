@@ -10,6 +10,15 @@ fun deg2rad(deg: Float) : Float {
     return deg / 180.0f * M_PI
 }
 
+fun clamp(value: Double, min: Double, max: Double): Double {
+    if (value < min) {
+        return min
+    } else if (value > max) {
+        return max
+    }
+    return value
+}
+
 fun clamp(value: Float, min: Float, max: Float): Float {
     if (value < min) {
         return min
