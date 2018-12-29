@@ -179,7 +179,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         simplePlane.create()
         shader = ProgramObject.loadFromAssets(context, "shaders/sprite.vert", "shaders/sprite.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/stars.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[0] = Texture.loadFromAssets(context, "images/stars_a.png", Texture.WrapMode.MirroredRepeat, Texture.WrapMode.MirroredRepeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         noise = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 

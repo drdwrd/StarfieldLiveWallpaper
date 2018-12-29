@@ -116,7 +116,7 @@ class StarParticle(_position : vector3f, _velocity : vector3f, _rotation : vecto
         fun createRandom(z : Float) : StarParticle {
             var pos = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), z)
             var vel = vector3f(0.0f, 0.0f, -1.0f)
-            val s = RandomGenerator.randf(0.2f, 1.0f)
+            val s = RandomGenerator.randf(0.02f, 0.2f)
             var rot = RandomGenerator.randf(-0.1f, 0.1f)
 /*            var i = RandomGenerator.rand(2) * 0.5f
             var j = RandomGenerator.rand(2) * 0.5f

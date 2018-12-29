@@ -132,13 +132,14 @@ class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
         bkgShader.bind()
         layers[1].bind(1)
         bkgShader.setUniformValue("u_Aspect", aspect)
         bkgShader.setSampler("u_Layer1", 1)
+        bkgShader.setUniformValue("u_Time", timer.currentTime.toFloat())
 
         simplePlane.bind()
         simplePlane.draw()
