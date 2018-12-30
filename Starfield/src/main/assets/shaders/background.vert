@@ -11,7 +11,7 @@ varying vec2 uv;
 
 void main() {
 
-    uv = u_Aspect * position.xy;
+    uv = 0.5 * u_Aspect * position.xy;
 	gl_Position = vec4(position.xy, 0.0, 1.0);
 }
 

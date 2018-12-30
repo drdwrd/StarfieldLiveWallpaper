@@ -96,8 +96,8 @@ class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         shader = ProgramObject.loadFromAssets(context, "shaders/sprite3.vert", "shaders/sprite3.frag", simplePlane.vertexFormat)
         bkgShader = ProgramObject.loadFromAssets(context, "shaders/background.vert", "shaders/background.frag", simplePlane.vertexFormat)
 
-        layers[0] = Texture.loadFromAssets(context, "images/stars_atlas.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        layers[1] = Texture.loadFromAssets(context, "images/stars_a.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[0] = Texture.loadFromAssets(context, "images/star_atlas.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        layers[1] = Texture.loadFromAssets(context, "images/stars_bkg.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         noise = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
@@ -132,13 +132,16 @@ class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE)
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
+
+//        noise.bind(2)
 
         bkgShader.bind()
         layers[1].bind(1)
         bkgShader.setUniformValue("u_Aspect", aspect)
         bkgShader.setSampler("u_Layer1", 1)
+//        bkgShader.setSampler("u_Noise", 2)
         bkgShader.setUniformValue("u_Time", timer.currentTime.toFloat())
 
         simplePlane.bind()
@@ -159,9 +162,7 @@ class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
         shader.bind()
         simplePlane.bind()
         layers[0].bind(0)
-        noise.bind(1)
         shader.setSampler("u_Layer0", 0)
-//        shader.setSampler("u_Noise", 1)
         var it = sprites.iterator()
         while(it.hasNext()) {
 
@@ -188,7 +189,7 @@ class Starfield3Renderer(_context: Context) : GLSurfaceView.Renderer, GLWallpape
             sprite.tick(timer.deltaTime.toFloat())
         }
         layers[0].release(0)
-        noise.release(1)
+//        noise.release(2)
         simplePlane.release()
         shader.release()
 
