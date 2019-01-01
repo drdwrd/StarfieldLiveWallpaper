@@ -13,6 +13,10 @@ abstract class GLWallpaperService : WallpaperService() {
         Log.tag = "GLWallpaperService"
     }
 
+    interface OnOffsetChangedListener {
+        fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int)
+    }
+
     interface WallpaperLiveCycleListener {
         fun onPause()
         fun onResume()
@@ -20,6 +24,7 @@ abstract class GLWallpaperService : WallpaperService() {
 
     var touchEventsEnabled = false
     var wallpaperLiveCycleListener : WallpaperLiveCycleListener? = null
+    var onOffsetChangedListener : OnOffsetChangedListener? = null
 
     inner class GLWallaperServiceEngine : Engine() {
 
@@ -83,9 +88,10 @@ abstract class GLWallpaperService : WallpaperService() {
             this@GLWallpaperService.onTouchEvent(event)
         }
 
-        open fun onResume() { }
-
-        open fun onPause() { }
+        override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+            super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
+            onOffsetChangedListener?.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
+        }
 
         private fun setRenderer(renderer : GLSurfaceView.Renderer) {
             glSurfaceView.setRenderer(renderer)

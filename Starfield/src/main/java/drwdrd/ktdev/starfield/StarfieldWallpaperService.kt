@@ -26,6 +26,7 @@ class StarfieldWallpaperService : GLWallpaperService() {
         var gestureListener = renderer.createGestureListener()
         gestureDetector = GestureDetector(this, gestureListener)
         wallpaperLiveCycleListener = renderer
+        onOffsetChangedListener = renderer
         return renderer
     }
 

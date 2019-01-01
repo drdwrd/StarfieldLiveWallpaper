@@ -1,6 +1,11 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
+import android.content.res.Configuration
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.view.GestureDetector
@@ -9,9 +14,12 @@ import drwdrd.ktdev.engine.*
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
+const val gravityFilter = 0.8f
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener {
+class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
     private val context : Context = _context
     private val simplePlane = Plane3D()
@@ -28,6 +36,78 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
     private val maxParticlesCount = 1000        //hard limit just in case...
     private val maxParticleSpawnTime = 0.01
+
+    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
+    private val lastGravity = vector2f(0.0f, 0.0f)
+    private val sensorEventListener = StarfieldSensorEventListener()
+    private var gravityOffset = vector2f(0.0f, 0.0f)
+
+    inner class StarfieldSensorEventListener : SensorEventListener {
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+
+        }
+
+        override fun onSensorChanged(event: SensorEvent?) {
+            when(event?.sensor?.type) {
+                Sensor.TYPE_GRAVITY -> {
+                    gravityVector[0] = gravityVector[0] * gravityFilter + (1.0f - gravityFilter) * event.values[0]
+                    gravityVector[1] = gravityVector[1] * gravityFilter + (1.0f - gravityFilter) * event.values[1]
+                    gravityVector[2] = gravityVector[2] * gravityFilter + (1.0f - gravityFilter) * event.values[2]
+                }
+            }
+        }
+
+    }
+
+    fun calculateGyroEffect() : vector2f {
+
+        var g = gravityVector.normalized()
+        var roll : Float = 0.0f
+        var pitch : Float
+
+        if(g.z != 0.0f) {
+            roll = atan2(g.x, g.z) * 180.0f / Math.PI.toFloat()
+        }
+
+        pitch = sqrt(g.x * g.x + g.z * g.z)
+
+        if(pitch != 0.0f) {
+            pitch = atan2(g.y, pitch) * 180.0f / Math.PI.toFloat()
+        }
+
+        var dg = vector2f()
+
+        dg[0] = (roll - lastGravity[0])
+
+        dg[1] = (pitch - lastGravity[1])
+
+// if device orientation is close to vertical – rotation around x is almost undefined – skip!
+
+        if(g.y > 0.99) dg[0] = 0.0f
+
+// if rotation was too intensive – more than 180 degrees – skip it
+
+        if(dg[0] > 180.0f) dg[0] = 0.0f
+
+        if(dg[0] < -180.0f) dg[0] = 0.0f
+
+        if(dg[1] > 180.0f) dg[1] = 0.0f
+
+        if(dg[1] < -180.0f) dg[1] = 0.0f
+
+        if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            var tmp = dg[1]
+            dg[1] = dg[0]
+            dg[0] = tmp
+        }
+
+        lastGravity[0] = roll
+        lastGravity[1] = pitch
+
+        return dg
+    }
+
 
     inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
         override fun onDown(p0: MotionEvent?): Boolean {
@@ -67,11 +147,15 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         }
     }
 
-
     fun createGestureListener() = StarfieldGestureListener()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         Log.debug("onSurfaceCreated()")
+
+        var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+        sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+
 
         val version = GLES20.glGetString(GLES20.GL_VERSION)
         val vendor = GLES20.glGetString(GLES20.GL_VENDOR)
@@ -122,6 +206,17 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
     override fun onDrawFrame(p0: GL10?) {
 
+
+        var dg = 0.0005f * calculateGyroEffect()
+        if(resetGyro) {
+            dg = vector2f(0.0f, 0.0f)
+            resetGyro = false
+            gravityOffset = vector2f(0.0f, 0.0f)
+        }
+
+        gravityOffset.plusAssign(dg)
+        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(-gravityOffset.x, gravityOffset.y, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+
         timer.tick()
 
         //render background
@@ -131,6 +226,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
         starFieldShader.setUniformValue("u_Aspect", aspect)
         starFieldShader.setSampler("u_Starfield", 1)
+        starFieldShader.setUniformValue("u_Offset", gravityOffset)
         starFieldShader.setUniformValue("u_Time", timer.currentTime.toFloat())
 
         simplePlane.bind()
@@ -189,6 +285,10 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
         starSpritesTexture.release(0)
         starSpriteShader.release()
+    }
+
+    override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+
     }
 
     override fun onResume() {
