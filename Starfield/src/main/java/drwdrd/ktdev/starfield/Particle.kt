@@ -1,10 +1,9 @@
 package drwdrd.ktdev.starfield
 
 import drwdrd.ktdev.engine.*
-import kotlin.math.ln
 import kotlin.math.sqrt
 
-class StarParticle(_position : vector3f, _velocity : vector3f, _rotation : vector3f, _scale : vector3f, _uvRoI : Rectangle, _age : Float) {
+class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f, _scale : vector3f, _uvRoI : Rectangle, _age : Float) {
 
     val position = _position
     val velocity = _velocity
@@ -13,6 +12,7 @@ class StarParticle(_position : vector3f, _velocity : vector3f, _rotation : vecto
     val uvRoI = _uvRoI
 
     public var repulsiveForce = 0.0f
+    public var color = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
 
     var age = _age
         private set
@@ -73,7 +73,7 @@ class StarParticle(_position : vector3f, _velocity : vector3f, _rotation : vecto
 
     companion object {
 
-        fun createRandom(z : Float) : StarParticle {
+        fun createStar(z : Float) : Particle {
             var pos = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), z)
             var vel = vector3f(0.0f, 0.0f, -1.0f)
             val s = RandomGenerator.randf(0.01f, 0.15f)
@@ -81,10 +81,24 @@ class StarParticle(_position : vector3f, _velocity : vector3f, _rotation : vecto
             var i = RandomGenerator.rand(2) * 0.5f
             var j = RandomGenerator.rand(2) * 0.5f
             var roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
-            val p = StarParticle(pos, vel, vector3f(0.0f, 0.0f, rot), vector3f(s, s, s), roi, 0.0f)
+            val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), vector3f(s, s, s), roi, 0.0f)
             p.repulsiveForce = 0.1f
             return p
         }
-    }
 
+        fun createCloud(z : Float) : Particle {
+            var pos = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), z)
+            var vel = vector3f(0.0f, 0.0f, -1.0f)
+            val s = RandomGenerator.randf(0.5f, 1.5f)
+            var rot = RandomGenerator.randf(-0.5f, 0.5f)
+//            var i = RandomGenerator.rand(2) * 0.5f
+//            var j = RandomGenerator.rand(2) * 0.5f
+//            var roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
+            var roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
+            val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), vector3f(s, s, s), roi, 0.0f)
+            p.repulsiveForce = 0.0f
+            p.color = 0.15f * vector4f(RandomColor.randomColor())
+            return p
+        }
+    }
 }

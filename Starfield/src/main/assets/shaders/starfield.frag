@@ -2,7 +2,6 @@
 precision highp float;
 
 uniform sampler2D u_Starfield;
-uniform sampler2D u_Noise;
 uniform float u_Time;
 
 varying vec2 uv;
@@ -17,13 +16,10 @@ void main() {
 
     vec4 starfield = texture2D(u_Starfield, tex);
 
-    vec4 noise = texture2D(u_Noise, 0.5 * uv + vec2(0.1 * u_Time, 0.0));
-
     float luma = min(1.0, dot(lumaCoeff, starfield.rgb));
-
 
     float d = 1.0 + 0.75 * sin(60.0 * dot(tex - c, tex - c) - 2.0 * u_Time) * smoothstep(0.25, 0.6, luma);
 
-    gl_FragColor = pow(starfield, vec4(d + 0.5 * (noise.r - 0.5)));
+    gl_FragColor = pow(starfield, vec4(d));
 }
 

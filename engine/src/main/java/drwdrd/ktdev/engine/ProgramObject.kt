@@ -121,9 +121,7 @@ class ProgramObject(_name : String = "") {
     fun setSampler(name : String, value : Int) {
         val location = uniformMap[name]
         check(location != null) { "Uniform $name not found in program this.$name" }
-        GLError.check()
         GLES20.glUniform1i(location, value)
-        GLError.check()
     }
 
     fun setUniformValue(name : String, value : Float) {

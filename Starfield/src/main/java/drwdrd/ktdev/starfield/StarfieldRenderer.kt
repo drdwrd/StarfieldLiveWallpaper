@@ -25,19 +25,26 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     private val simplePlane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
     private lateinit var starSpriteShader : ProgramObject
+    private lateinit var cloudSpriteShader : ProgramObject
     private lateinit var starFieldShader : ProgramObject
     private lateinit var starFieldTexture : Texture
     private lateinit var starSpritesTexture : Texture
+    private lateinit var cloudSpritesTexture : Texture
     private lateinit var noiseTexture : Texture
     private val timer = Timer(0.0002)
-    private var lastParticleSpawnTime = 1000.0
-    private val sprites : MutableList<StarParticle> = ArrayList()
+    private var lastStarParticleSpawnTime = 1000.0
+    private val starSprites : MutableList<Particle> = ArrayList()
+    private var lastCloudParticleSpawnTime = 1000.0
+    private val cloudSprites : MutableList<Particle> = ArrayList()
     private var eye = Eye()
     private var resetGyro  = true
-    private var lastXOffset = 0.0f;
+    private var lastXOffset = 0.0f
 
-    private val maxParticlesCount = 1000        //hard limit just in case...
-    private val maxParticleSpawnTime = 0.01
+    private val maxStarParticlesCount = 1000        //hard limit just in case...
+    private val maxStarParticleSpawnTime = 0.01
+
+    private val maxCloudParticlesCount = 200        //hard limit just in case...
+    private val maxCloudParticleSpawnTime = 0.1
 
     private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
     private val lastGravity = vector2f(0.0f, 0.0f)
@@ -157,7 +164,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         Log.debug("onSurfaceCreated()")
 
-        RandomGenerator.seed(RandomGenerator.createSeed())
+        RandomGenerator.createSeed()
 
         var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
@@ -175,9 +182,11 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         simplePlane.create()
 
         starSpriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", simplePlane.vertexFormat)
+        cloudSpriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", simplePlane.vertexFormat)
         starFieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", simplePlane.vertexFormat)
 
         starSpritesTexture = Texture.loadFromAssets(context, "images/starsprites.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        cloudSpritesTexture = Texture.loadFromAssets(context, "images/cloud.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         starFieldTexture = Texture.loadFromAssets(context, "images/starfield.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         noiseTexture = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
@@ -239,48 +248,95 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         //render background
 
         simplePlane.bind()
-        noiseTexture.bind(2)
 
         starFieldShader.bind()
-        starFieldTexture.bind(1)
+        starFieldTexture.bind(0)
 
         starFieldShader.setUniformValue("u_Aspect", aspect)
-        starFieldShader.setSampler("u_Starfield", 1)
-        starFieldShader.setSampler("u_Noise", 2)
+        starFieldShader.setSampler("u_Starfield", 0)
         starFieldShader.setUniformValue("u_TextureMatrix", backgroundTextureMatrix)
         starFieldShader.setUniformValue("u_Offset", gravityOffset)
         starFieldShader.setUniformValue("u_Time", timer.currentTime.toFloat())
 
         simplePlane.draw()
 
-        starFieldTexture.release(1)
+        starFieldTexture.release(0)
         starFieldShader.release()
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
 
         //remove all particles behind camera
-        sprites.removeAll { it.position.z < -1.0f }
+        cloudSprites.removeAll { it.position.z < -1.0f }
 
-        lastParticleSpawnTime += timer.deltaTime
+        lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
-        if(lastParticleSpawnTime >= maxParticleSpawnTime && sprites.size < maxParticlesCount) {
-            sprites.add(0, StarParticle.createRandom(5.0f))
-            lastParticleSpawnTime = 0.0
-            Log.debug("particlesCount = ${sprites.size}")
+        if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
+            cloudSprites.add(0, Particle.createCloud(5.0f))
+            lastCloudParticleSpawnTime = 0.0
+            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
+        }
+
+        //render cloud sprites
+
+        cloudSpriteShader.bind()
+        cloudSpritesTexture.bind(0)
+
+        cloudSpriteShader.setSampler("u_CloudSprites", 0)
+
+        var cloud = cloudSprites.iterator()
+        while(cloud.hasNext()) {
+
+            var sprite = cloud.next()
+
+            //face dir
+            var dir = eye.position - sprite.position
+            dir.normalize()
+
+            //normal
+            var normal = vector3f(0.0f, 0.0f , -1.0f)
+
+            var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+            var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
+
+
+            cloudSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.calculateBillboardModelMatrix(dir, normal))
+            cloudSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+            cloudSpriteShader.setUniformValue("u_Color", sprite.color)
+            cloudSpriteShader.setUniformValue("u_Fade", fadeIn * fadeOut)
+            simplePlane.draw()
+
+            sprite.tick(timer.deltaTime.toFloat())
+        }
+
+
+        cloudSpritesTexture.release(0)
+        cloudSpriteShader.release()
+
+
+        //remove all particles behind camera
+        starSprites.removeAll { it.position.z < -1.0f }
+
+        lastStarParticleSpawnTime += timer.deltaTime
+        //if its time spawn new particle
+        if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+            starSprites.add(0, Particle.createStar(5.0f))
+            lastStarParticleSpawnTime = 0.0
+            Log.debug("starParticlesCount = ${starSprites.size}")
         }
 
         //render stars sprites
 
         starSpriteShader.bind()
         starSpritesTexture.bind(0)
+        noiseTexture.bind(1)
 
         starSpriteShader.setSampler("u_StarSprites", 0)
-        starSpriteShader.setSampler("u_Noise", 2)
+        starSpriteShader.setSampler("u_Noise", 1)
 
-        var it = sprites.iterator()
-        while(it.hasNext()) {
+        var star = starSprites.iterator()
+        while(star.hasNext()) {
 
-            var sprite = it.next()
+            var sprite = star.next()
 
             //face dir
             var dir = eye.position - sprite.position
@@ -305,16 +361,16 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         }
 
 
+        noiseTexture.release(1)
         starSpritesTexture.release(0)
         starSpriteShader.release()
 
-        noiseTexture.release(2)
         simplePlane.release()
 
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        gravityOffset.minusAssign(vector2f(0.1f * (xOffset - lastXOffset), 0.0f))
+        gravityOffset.plusAssign(vector2f(0.1f * (xOffset - lastXOffset), 0.0f))
         lastXOffset = xOffset
     }
 

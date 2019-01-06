@@ -7,10 +7,12 @@ import kotlin.math.sqrt
 class vector4f(x : Float, y : Float, z : Float, w : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f)
+    constructor(v : vector3f, a : Float) : this(v[0], v[1], v[2], a)
     constructor(v : vector4f) : this(v.e[0], v.e[1], v.e[2], v.e[3])
     constructor(v : FloatArray) : this(v[0], v[1], v[2], v[3])
     constructor(v : FloatArray, offset : Int) : this(v[offset], v[offset + 1], v[offset + 2], v[offset + 3])
 
+    //ARGB color
     constructor(color : Int) : this() {
         e[0] = Color.red(color) / 255.0f
         e[1] = Color.green(color) / 255.0f
