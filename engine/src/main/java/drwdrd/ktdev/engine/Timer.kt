@@ -19,7 +19,6 @@ class Timer {
         private set
 
     var timeScale = 1.0
-        private set
 
     fun reset() {
         currentTime = 0.0

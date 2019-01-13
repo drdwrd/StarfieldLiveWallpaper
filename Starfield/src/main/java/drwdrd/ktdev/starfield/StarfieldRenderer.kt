@@ -19,7 +19,7 @@ import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
+class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener, Settings.OnSettingsChangedListener {
 
     private val context : Context = _context
     private val simplePlane = Plane3D()
@@ -31,7 +31,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     private lateinit var starSpritesTexture : Texture
     private lateinit var cloudSpritesTexture : Texture
     private lateinit var noiseTexture : Texture
-    private val timer = Timer(0.0002)
+    private val timer = Timer(0.0002 * Settings.timeScale)
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -40,12 +40,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     private var resetGyro  = true
     private var lastXOffset = 0.0f
 
-    private val maxStarParticlesCount = 1000        //hard limit just in case...
-    private val maxStarParticleSpawnTime = 0.01
-
-    private val maxCloudParticlesCount = 200        //hard limit just in case...
-    private val maxCloudParticleSpawnTime = 0.1
-
     private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
     private val lastGravity = vector2f(0.0f, 0.0f)
     private val sensorEventListener = StarfieldSensorEventListener()
@@ -53,6 +47,15 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
 
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
     private var randomBackgroundRotation = 0.0f
+
+    //global preferences
+    private var maxStarParticleSpawnTime = Settings.starParticlesSpawnTime
+    private var maxCloudParticleSpawnTime = Settings.cloudParticleSpawnTime
+    private var parallaxEffectScale = Settings.parallaxEffectMultiplier
+
+    private val maxStarParticlesCount = 1000        //hard limit just in case...
+    private val maxCloudParticlesCount = 200        //hard limit just in case...
+
 
     inner class StarfieldSensorEventListener : SensorEventListener {
 
@@ -191,8 +194,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         noiseTexture = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
-
-        //TODO: z of camera position as Camera Distance settings in customization
         eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         //opengl setup
@@ -233,7 +234,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
             gravityOffset = vector2f(0.0f, 0.0f)
         }
 
-        gravityOffset.plusAssign(dg)
+        gravityOffset.plusAssign(parallaxEffectScale * dg)
         eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(-gravityOffset.x, gravityOffset.y, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         timer.tick()
@@ -370,7 +371,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        gravityOffset.plusAssign(vector2f(0.1f * (xOffset - lastXOffset), 0.0f))
+        gravityOffset.plusAssign(vector2f(0.1f * parallaxEffectScale * (xOffset - lastXOffset), 0.0f))
         lastXOffset = xOffset
     }
 
@@ -379,5 +380,21 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     }
 
     override fun onPause() {
+    }
+
+    override fun onTimeScaleChanged(timeScale : Double) {
+        timer.timeScale = 0.0002 * timeScale
+    }
+
+    override fun onStarParticleSpawnTimeChanged(spawnTime : Double) {
+        maxStarParticleSpawnTime = spawnTime
+    }
+
+    override fun onCloudParticleSpawnTimeChanged(spawnTime : Double) {
+        maxCloudParticleSpawnTime = spawnTime
+    }
+
+    override fun onParallaxEffectMultiplierChanged(multiplier : Float) {
+        parallaxEffectScale = multiplier
     }
 }

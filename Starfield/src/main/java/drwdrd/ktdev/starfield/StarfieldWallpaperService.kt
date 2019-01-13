@@ -6,11 +6,12 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
+import java.lang.ref.WeakReference
 
 class StarfieldWallpaperService : GLWallpaperService() {
 
     init {
-        Log.tag = "StarfieldWallpaper"
+        Log.tag = "StarfieldWallpaperService"
         touchEventsEnabled = true
     }
 
@@ -23,6 +24,7 @@ class StarfieldWallpaperService : GLWallpaperService() {
 
     override fun createRenderer() : GLSurfaceView.Renderer {
         var renderer = StarfieldWallpaperService.rendererFactory(this)
+        Settings.onSettingsChangedListener = WeakReference(renderer)
         var gestureListener = renderer.createGestureListener()
         gestureDetector = GestureDetector(this, gestureListener)
         wallpaperLiveCycleListener = renderer
