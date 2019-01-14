@@ -17,8 +17,12 @@
                 android:layout_gravity="center"
                 android:text="Time Scale"/>
         <SeekBar
+                android:id="@+id/timeScaleSlider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:min="5"
+                android:max="50"
+                android:progress="10"/>
 
     </LinearLayout>
 
@@ -35,8 +39,12 @@
                 android:layout_gravity="center"
                 android:text="Stars"/>
         <SeekBar
+                android:id="@+id/starsSpawnTimeSlider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:min="1"
+                android:max="100"
+                android:progress="10"/>
 
     </LinearLayout>
 
@@ -53,8 +61,12 @@
                 android:layout_gravity="center"
                 android:text="Clouds"/>
         <SeekBar
+                android:id="@+id/cloudsSpawnTimeSlider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:min="1"
+                android:max="100"
+                android:progress="10"/>
 
     </LinearLayout>
 
@@ -71,8 +83,12 @@
                 android:layout_gravity="center"
                 android:text="Parallax Effect"/>
         <SeekBar
+                android:id="@+id/parallaxEffectMultiplierSlider"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:min="1"
+                android:max="100"
+                android:progress="10"/>
 
     </LinearLayout>
 

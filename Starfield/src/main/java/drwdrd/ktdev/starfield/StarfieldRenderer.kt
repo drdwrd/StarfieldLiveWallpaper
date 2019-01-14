@@ -8,6 +8,8 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import android.opengl.GLU
+import android.opengl.Matrix
 import android.view.GestureDetector
 import android.view.MotionEvent
 import drwdrd.ktdev.engine.*
@@ -19,7 +21,7 @@ import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener, Settings.OnSettingsChangedListener {
+class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
     private val context : Context = _context
     private val simplePlane = Plane3D()
@@ -194,7 +196,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         noiseTexture = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
-        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(2.0f, 3.0f, -3.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         //opengl setup
         GLES20.glDisable(GLES20.GL_CULL_FACE)
@@ -245,7 +247,6 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
         backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
 
-
         //render background
 
         simplePlane.bind()
@@ -269,10 +270,13 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         //remove all particles behind camera
         cloudSprites.removeAll { it.position.z < -1.0f }
 
+        val center = vector3f(0.0f, 0.0f, 5.0f)
+        val vc = vector3f(-gravityOffset.x, gravityOffset.y, 0.0f)
+
         lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-            cloudSprites.add(0, Particle.createCloud(5.0f))
+            cloudSprites.add(0, Particle.createCloud(center))
             lastCloudParticleSpawnTime = 0.0
             Log.debug("cloudParticlesCount = ${cloudSprites.size}")
         }
@@ -320,7 +324,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         lastStarParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
-            starSprites.add(0, Particle.createStar(5.0f))
+            starSprites.add(0, Particle.createStar(center))
             lastStarParticleSpawnTime = 0.0
             Log.debug("starParticlesCount = ${starSprites.size}")
         }
@@ -376,25 +380,14 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     }
 
     override fun onResume() {
+        timer.timeScale = 0.0002 * Settings.timeScale
+        maxStarParticleSpawnTime = Settings.starParticlesSpawnTime
+        maxCloudParticleSpawnTime = Settings.cloudParticleSpawnTime
+        parallaxEffectScale = Settings.parallaxEffectMultiplier
         timer.reset()
     }
 
     override fun onPause() {
-    }
 
-    override fun onTimeScaleChanged(timeScale : Double) {
-        timer.timeScale = 0.0002 * timeScale
-    }
-
-    override fun onStarParticleSpawnTimeChanged(spawnTime : Double) {
-        maxStarParticleSpawnTime = spawnTime
-    }
-
-    override fun onCloudParticleSpawnTimeChanged(spawnTime : Double) {
-        maxCloudParticleSpawnTime = spawnTime
-    }
-
-    override fun onParallaxEffectMultiplierChanged(multiplier : Float) {
-        parallaxEffectScale = multiplier
     }
 }

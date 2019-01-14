@@ -24,7 +24,6 @@ class StarfieldWallpaperService : GLWallpaperService() {
 
     override fun createRenderer() : GLSurfaceView.Renderer {
         var renderer = StarfieldWallpaperService.rendererFactory(this)
-        Settings.onSettingsChangedListener = WeakReference(renderer)
         var gestureListener = renderer.createGestureListener()
         gestureDetector = GestureDetector(this, gestureListener)
         wallpaperLiveCycleListener = renderer

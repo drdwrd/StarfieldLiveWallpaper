@@ -36,7 +36,6 @@ class StarfieldActivity : Activity() {
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
         var renderer = StarfieldWallpaperService.rendererFactory(this)
-        Settings.onSettingsChangedListener = WeakReference(renderer)
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
