@@ -270,13 +270,13 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         //remove all particles behind camera
         cloudSprites.removeAll { it.position.z < -1.0f }
 
-        val center = vector3f(0.0f, 0.0f, 5.0f)
-        val vc = vector3f(-gravityOffset.x, gravityOffset.y, 0.0f)
+        val spawningPoint = vector3f(-6.0f * gravityOffset.x, 6.0f * gravityOffset.y, 5.0f)
+        val targetPoint = vector3f(0.0f, 0.0f, -1.0f)
 
         lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-            cloudSprites.add(0, Particle.createCloud(center))
+            cloudSprites.add(0, Particle.createCloud(spawningPoint, targetPoint))
             lastCloudParticleSpawnTime = 0.0
             Log.debug("cloudParticlesCount = ${cloudSprites.size}")
         }
@@ -324,7 +324,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
         lastStarParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
-            starSprites.add(0, Particle.createStar(center))
+            starSprites.add(0, Particle.createStar(spawningPoint, targetPoint))
             lastStarParticleSpawnTime = 0.0
             Log.debug("starParticlesCount = ${starSprites.size}")
         }

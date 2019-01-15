@@ -56,41 +56,50 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         return translationMatrix * rotationMatrix2 * rotationMatrix * scaleMatrix
 
     }
-
+//TODO : fix hardcoded stuff...
     fun tick(deltaTime : Float) {
 
-        var r = sqrt(position.length())
+        val cg = vector3f(0.0f, 0.0f, -1.0f)
 
-        var ax = position.x / (r + 0.1f)
-        var ay = position.y / (r + 0.1f)
+        val r = (cg - position).length()
+
+        val ax = -(cg.x - position.x) / (r * r + 0.1f)
+        val ay = -(cg.y - position.y) / (r * r + 0.1f)
+        val az = -(cg.z - position.z) / (r * r + 0.1f)
+
 
         position += velocity * deltaTime
         velocity[0] += repulsiveForce * ax * deltaTime
         velocity[1] += repulsiveForce * ay * deltaTime
+        velocity[2] += repulsiveForce * az * deltaTime
 
         age += deltaTime
     }
 
     companion object {
 
-        fun createStar(center : vector3f) : Particle {
-            val pos = center + vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
-            val vel = vector3f(0.0f, 0.0f, -1.0f)
-            //val vel = -pos.normalized()
+        fun createStar(spawningPoint : vector3f, targetPoint : vector3f) : Particle {
+            val rp = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
+            val pos = spawningPoint + rp
+            val t = targetPoint + rp
+            //val vel = vector3f(0.0f, 0.0f, -1.0f)
+            val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.01f, 0.15f)
             val rot = RandomGenerator.randf(-1.5f, 1.5f)
             val i = RandomGenerator.rand(2) * 0.5f
             val j = RandomGenerator.rand(2) * 0.5f
             val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), vector3f(s, s, s), roi, 0.0f)
-            p.repulsiveForce = 0.1f
+            p.repulsiveForce = 0.0f
             return p
         }
 
-        fun createCloud(center: vector3f) : Particle {
-            val pos = center + vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
-            val vel = vector3f(0.0f, 0.0f, -1.0f)
-            //val vel = -pos.normalized()
+        fun createCloud(spawningPoint: vector3f, targetPoint: vector3f) : Particle {
+            val rp = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
+            val pos = spawningPoint + rp
+            val t = targetPoint + rp
+            //val vel = vector3f(0.0f, 0.0f, -1.0f)
+            val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.5f, 1.5f)
             val rot = RandomGenerator.randf(-0.5f, 0.5f)
 //            val i = RandomGenerator.rand(2) * 0.5f
