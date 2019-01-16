@@ -87,4 +87,10 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onStop() {
+        Settings.save(applicationContext,"starfield.ini")
+        super.onStop()
+    }
+
 }

@@ -7,8 +7,8 @@ class Eye() {
     var position : vector3f = vector3f()
         private set
 
-    var forward : vector3f = vector3f()
-        private set
+    val forward : vector3f
+        get() = direction
 
     var up : vector3f = vector3f()
         private set

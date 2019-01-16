@@ -33,7 +33,7 @@ class StarfieldWallpaperService : GLWallpaperService() {
 
     companion object {
 
-        fun rendererFactory(context: Context) = StarfieldRenderer(context)
+        fun rendererFactory(context: Context) = StarfieldRenderer(context, "starfield.ini")
 
     }
 

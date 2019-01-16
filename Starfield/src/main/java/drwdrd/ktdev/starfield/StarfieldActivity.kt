@@ -13,7 +13,6 @@ import android.view.WindowManager
 import android.widget.Button
 import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
-import java.lang.ref.WeakReference
 
 class StarfieldActivity : Activity() {
 
@@ -49,7 +48,7 @@ class StarfieldActivity : Activity() {
             intent.action = WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER
             var packageName = StarfieldWallpaperService::class.java.`package`.name
             var canonicalName = StarfieldWallpaperService::class.java.canonicalName
-            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName, canonicalName))
+            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName, canonicalName!!))
             startActivity(intent)
             finish()
             }

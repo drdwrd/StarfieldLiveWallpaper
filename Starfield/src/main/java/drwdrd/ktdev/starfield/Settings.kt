@@ -1,5 +1,10 @@
 package drwdrd.ktdev.starfield
 
+import android.content.Context
+import drwdrd.ktdev.engine.Log
+import java.io.File
+import java.io.FileNotFoundException
+
 object Settings {
 
     var timeScale = 1.0
@@ -9,5 +14,32 @@ object Settings {
     var cloudParticleSpawnTime = 0.1
 
     var parallaxEffectMultiplier = 1.0f
+
+    fun save(context : Context, filename : String) {
+        File(context.filesDir, filename).bufferedWriter().use {
+            it.write("timeScale=$timeScale\n")
+            it.write("starParticlesSpawnTime=$starParticlesSpawnTime\n")
+            it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
+            it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
+        }
+    }
+
+    fun load(context: Context, filename : String) {
+        try {
+            File(context.filesDir, filename).bufferedReader().useLines {
+                    lines -> lines.forEach {
+                val s = it.split("=")
+                when(s[0]) {
+                    "timeScale" -> timeScale = s[1].toDouble()
+                    "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
+                    "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
+                    "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
+                }
+            }
+            }
+        } catch(e : FileNotFoundException) {
+            Log.debug("No settings file found!\n")
+        }
+    }
 
 }

@@ -21,7 +21,11 @@ import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
 
-class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
+class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
+
+    constructor(_context : Context, file : String) : this(_context) {
+        Settings.load(_context, file)
+    }
 
     private val context : Context = _context
     private val simplePlane = Plane3D()
@@ -310,13 +314,12 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
             cloudSpriteShader.setUniformValue("u_Fade", fadeIn * fadeOut)
             simplePlane.draw()
 
-            sprite.tick(timer.deltaTime.toFloat())
+            sprite.tick(eye, timer.deltaTime.toFloat())
         }
 
 
         cloudSpritesTexture.release(0)
         cloudSpriteShader.release()
-
 
         //remove all particles behind camera
         starSprites.removeAll { it.position.z < -1.0f }
@@ -362,7 +365,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
             starSpriteShader.setUniformValue("u_FadeIn", fadeIn)
             simplePlane.draw()
 
-            sprite.tick(timer.deltaTime.toFloat())
+            sprite.tick(eye, timer.deltaTime.toFloat())
         }
 
 
@@ -375,7 +378,7 @@ class StarfieldRenderer(_context: Context) : GLSurfaceView.Renderer, GLWallpaper
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        gravityOffset.plusAssign(vector2f(0.1f * parallaxEffectScale * (xOffset - lastXOffset), 0.0f))
+        gravityOffset.plusAssign(vector2f(0.05f * parallaxEffectScale * (xOffset - lastXOffset), 0.0f))
         lastXOffset = xOffset
     }
 
