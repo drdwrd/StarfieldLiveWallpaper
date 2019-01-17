@@ -232,6 +232,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onDrawFrame(p0: GL10?) {
 
+        var culledCounter = 0
 
         var dg = 0.0005f * calculateGyroEffect()
         if(resetGyro) {
@@ -242,6 +243,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         gravityOffset.plusAssign(parallaxEffectScale * dg)
         eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(-gravityOffset.x, gravityOffset.y, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+
+        val frustum = Frustum(eye.viewProjectionMatrix)
 
         timer.tick()
 
@@ -295,7 +298,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         var cloud = cloudSprites.iterator()
         while(cloud.hasNext()) {
 
+
             var sprite = cloud.next()
+
 
             //face dir
             var dir = eye.position - sprite.position
@@ -307,12 +312,20 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
             var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
+            val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
-            cloudSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.calculateBillboardModelMatrix(dir, normal))
-            cloudSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-            cloudSpriteShader.setUniformValue("u_Color", sprite.color)
-            cloudSpriteShader.setUniformValue("u_Fade", fadeIn * fadeOut)
-            simplePlane.draw()
+            val boundingSphere = sprite.boundingSphere(modelMatrix)
+
+            if(frustum.contains(boundingSphere)) {
+
+                cloudSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * modelMatrix)
+                cloudSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                cloudSpriteShader.setUniformValue("u_Color", sprite.color)
+                cloudSpriteShader.setUniformValue("u_Fade", fadeIn * fadeOut)
+                simplePlane.draw()
+            } else {
+                culledCounter++
+            }
 
             sprite.tick(eye, timer.deltaTime.toFloat())
         }
@@ -358,12 +371,19 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             var rotMatrix = matrix3f()
             rotMatrix.setRotation(0.4f * timer.currentTime.toFloat())
 
+            val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
-            starSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * sprite.calculateBillboardModelMatrix(dir, normal))
-            starSpriteShader.setUniformValue("u_RotationMatrix", rotMatrix)
-            starSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-            starSpriteShader.setUniformValue("u_FadeIn", fadeIn)
-            simplePlane.draw()
+            val boundingSphere = sprite.boundingSphere(modelMatrix)
+
+            if(frustum.contains(boundingSphere)) {
+                starSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * modelMatrix)
+                starSpriteShader.setUniformValue("u_RotationMatrix", rotMatrix)
+                starSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                starSpriteShader.setUniformValue("u_FadeIn", fadeIn)
+                simplePlane.draw()
+            } else {
+                culledCounter++
+            }
 
             sprite.tick(eye, timer.deltaTime.toFloat())
         }
@@ -375,6 +395,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         simplePlane.release()
 
+        Log.debug("Culled $culledCounter sprites...")
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {

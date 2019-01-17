@@ -69,7 +69,6 @@ class Eye() {
     val viewProjectionMatrix : matrix4f
         get() = projectionMatrix * viewMatrix
 
-
     enum class Projection {
         Perspective,
         Orthogonal
