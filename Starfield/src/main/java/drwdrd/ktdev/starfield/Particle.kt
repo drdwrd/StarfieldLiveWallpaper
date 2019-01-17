@@ -6,11 +6,11 @@ import kotlin.math.sqrt
 
 class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f, _scale : vector3f, _uvRoI : Rectangle, _age : Float) {
 
-    val position = _position
-    val velocity = _velocity
-    val rotation = _rotation
-    val scale = _scale
-    val uvRoI = _uvRoI
+    var position = _position
+    var velocity = _velocity
+    var rotation = _rotation
+    var scale = _scale
+    var uvRoI = _uvRoI
 
     public var repulsiveForce = 0.0f
     public var color = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
@@ -67,10 +67,8 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
         val a = -q.normalized() / (r * r + 0.1f)
 
-        position += velocity * deltaTime
-        velocity[0] += repulsiveForce * a.x * deltaTime
-        velocity[1] += repulsiveForce * a.y * deltaTime
-        velocity[2] += repulsiveForce * a.z * deltaTime
+        position.plusAssign(velocity * deltaTime)
+        velocity = eye.forward +  repulsiveForce * a * deltaTime
 
         age += deltaTime
     }
