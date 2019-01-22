@@ -39,7 +39,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return rotationMatrix
         }
 
-    //TODO: optimize easily biggest offender when it comes to performance around 25% time spent here
+    //TODO: optimized usage down to 15%
     fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
         var rotationMatrix2 = matrix4f()
         rotationMatrix2.setAxisRotation(dir, normal)
@@ -57,17 +57,31 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
     }
 
-    fun boundingSphere(modelMatrix : matrix4f) = BoundingSphere(modelMatrix.transformed(vector3f(0.0f, 0.0f, 0.0f)), scale * sqrt(2.0f))
+/*
+    //TODO: faster but needs fixing, down to 10% with this one
+    fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
+        val rotationQuaternion2 = quaternion()
+        rotationQuaternion2.setAxisRotation(dir, normal)
 
-    //TODO : optimize around 14% here
+        val rotationQuaternion = quaternion()
+        rotationQuaternion.setEulerRotation(age * rotation.x, age * rotation.y, age * rotation.z)
+
+        val q = rotationQuaternion2 * rotationQuaternion
+
+        return q.getMatrix(position, scale)
+    }
+*/
+    fun boundingSphere() = BoundingSphere(position, scale * sqrt(2.0f))
+
+    //TODO : most time spent here right now ~33% atm
     fun tick(eye : Eye, deltaTime: Float) {
         val cosAlpha = vector3f.dot(position.normalized(), eye.forward)
 
         val q = eye.position + eye.forward * position.length() * cosAlpha - position
 
-        val r = q.length()
+        val r = vector3f.dot(q, q)
 
-        val a = -q.normalized() / (r * r + 0.1f)
+        val a = -q / (r + 0.1f)
 
         position.plusAssign(velocity * deltaTime)
         velocity = eye.forward +  repulsiveForce * a * deltaTime

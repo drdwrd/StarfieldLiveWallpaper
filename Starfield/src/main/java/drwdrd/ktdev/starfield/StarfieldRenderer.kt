@@ -175,9 +175,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         RandomGenerator.createSeed()
 
-        var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
-        sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+        //TODO: right now changing this setting requires restart to take effect, does not affect scrolling
+        if(Settings.enableParallaxEffect) {
+            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+        }
 
 
         val version = GLES20.glGetString(GLES20.GL_VERSION)
@@ -312,11 +315,11 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
             var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
-            val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
-
-            val boundingSphere = sprite.boundingSphere(modelMatrix)
+            val boundingSphere = sprite.boundingSphere()
 
             if(frustum.contains(boundingSphere)) {
+
+                val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
                 cloudSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * modelMatrix)
                 cloudSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
@@ -371,11 +374,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             var rotMatrix = matrix3f()
             rotMatrix.setRotation(0.4f * timer.currentTime.toFloat())
 
-            val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
-
-            val boundingSphere = sprite.boundingSphere(modelMatrix)
+            val boundingSphere = sprite.boundingSphere()
 
             if(frustum.contains(boundingSphere)) {
+
+                val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
+
                 starSpriteShader.setUniformValue("u_ModelViewProjectionMatrix", viewProjectionMatrix * modelMatrix)
                 starSpriteShader.setUniformValue("u_RotationMatrix", rotMatrix)
                 starSpriteShader.setUniformValue("u_uvRoI", vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))

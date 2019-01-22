@@ -3,6 +3,7 @@ package drwdrd.ktdev.starfield
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import android.widget.CheckBox
 import android.widget.SeekBar
 
 class StarfieldSettingsActivity : AppCompatActivity() {
@@ -61,6 +62,15 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         })
 
         val parallaxEffectMultiplierSlider = findViewById<SeekBar>(R.id.parallaxEffectMultiplierSlider)
+        parallaxEffectMultiplierSlider.isEnabled = Settings.enableParallaxEffect
+
+        val parallaxEffectEnabledCheckBox = findViewById<CheckBox>(R.id.parallaxEffectEnabledCheckBox)
+        parallaxEffectEnabledCheckBox.isChecked = Settings.enableParallaxEffect
+        parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            parallaxEffectMultiplierSlider.isEnabled = isChecked
+            Settings.enableParallaxEffect = isChecked
+        }
+
         parallaxEffectMultiplierSlider.progress = (Settings.parallaxEffectMultiplier * 10.0f).toInt()
         parallaxEffectMultiplierSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

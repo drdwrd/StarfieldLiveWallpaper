@@ -15,12 +15,15 @@ object Settings {
 
     var parallaxEffectMultiplier = 1.0f
 
+    var enableParallaxEffect = false
+
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
             it.write("timeScale=$timeScale\n")
             it.write("starParticlesSpawnTime=$starParticlesSpawnTime\n")
             it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
+            it.write("enableParallaxEffect = $enableParallaxEffect\n")
         }
     }
 
@@ -34,6 +37,7 @@ object Settings {
                     "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
                     "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
                     "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
+                    "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
                 }
             }
             }

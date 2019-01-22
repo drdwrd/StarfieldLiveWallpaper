@@ -404,11 +404,11 @@ class matrix4f {
         setAxisRotationPart(axis, angle)
     }
 
-
+    //assumes dir and normal are normalized
     fun setAxisRotationPart(dir : vector3f, normal: vector3f) {
-
+/*
         dir.normalize()
-        normal.normalize()
+        normal.normalize()*/
 
         var u = vector3f.cross(normal, dir)
         u.normalize()
