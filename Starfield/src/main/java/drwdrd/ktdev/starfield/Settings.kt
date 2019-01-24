@@ -23,7 +23,7 @@ object Settings {
             it.write("starParticlesSpawnTime=$starParticlesSpawnTime\n")
             it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
-            it.write("enableParallaxEffect = $enableParallaxEffect\n")
+            it.write("enableParallaxEffect=$enableParallaxEffect\n")
         }
     }
 

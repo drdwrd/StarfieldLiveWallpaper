@@ -21,7 +21,6 @@ class StarfieldActivity : Activity() {
     }
 
     private lateinit var glSurfaceView : GLSurfaceView
-    private lateinit var gestureDetector: GestureDetector
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
 
 
@@ -38,9 +37,6 @@ class StarfieldActivity : Activity() {
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-        val gestureListener = renderer.createGestureListener()
-        gestureDetector = GestureDetector(this, gestureListener)
-        gestureDetector.setOnDoubleTapListener(gestureListener)
 
         var setWallpaperButton = findViewById<Button>(R.id.setWallpaperButton)
         setWallpaperButton.setOnClickListener {
@@ -70,10 +66,5 @@ class StarfieldActivity : Activity() {
         super.onPause()
         glSurfaceView.onPause()
         liveCycleListener.onPause()
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        super.onTouchEvent(event)
-        return gestureDetector.onTouchEvent(event)
     }
 }

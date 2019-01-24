@@ -15,17 +15,8 @@ class StarfieldWallpaperService : GLWallpaperService() {
         touchEventsEnabled = true
     }
 
-    private lateinit var gestureDetector : GestureDetector
-
-    override fun onTouchEvent(event: MotionEvent?) {
-        super.onTouchEvent(event)
-        gestureDetector.onTouchEvent(event)
-    }
-
     override fun createRenderer() : GLSurfaceView.Renderer {
         var renderer = StarfieldWallpaperService.rendererFactory(this)
-        var gestureListener = renderer.createGestureListener()
-        gestureDetector = GestureDetector(this, gestureListener)
         wallpaperLiveCycleListener = renderer
         onOffsetChangedListener = renderer
         return renderer

@@ -149,7 +149,6 @@ class vector2f(x : Float, y : Float) {
         e[index] = value
     }
 
-
     companion object {
         fun mix(a : vector2f, b : vector2f, s : Float) : vector2f {
             require(s in 0.0f .. 1.0f)

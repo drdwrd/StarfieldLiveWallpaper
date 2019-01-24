@@ -2,6 +2,7 @@ package drwdrd.ktdev.starfield
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.drawable.GradientDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -19,7 +20,7 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-const val gravityFilter = 0.8f
+const val gravityFilter = 0.95f
 
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
@@ -42,13 +43,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
     private val cloudSprites : MutableList<Particle> = ArrayList()
-    private var eye = Eye()
+    private val eye = Eye()
     private var resetGyro  = true
     private var lastXOffset = 0.0f
 
-    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
-    private val lastGravity = vector2f(0.0f, 0.0f)
-    private val sensorEventListener = StarfieldSensorEventListener()
+//    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
+//    private val lastGravity = vector2f(0.0f, 0.0f)
+
+    private val rotationVector = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
+    private val lastRotationVector = vector2f(0.0f, 0.0f)
+    private var isDeviceRotated = false
+
+    private val sensorEventListener = RotationVectorSensorEventListener()
     private var gravityOffset = vector2f(0.0f, 0.0f)
 
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
@@ -62,7 +68,24 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val maxStarParticlesCount = 1000        //hard limit just in case...
     private val maxCloudParticlesCount = 200        //hard limit just in case...
 
+    inner class RotationVectorSensorEventListener : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
 
+        override fun onSensorChanged(event: SensorEvent?) {
+            when(event?.sensor?.type) {
+                Sensor.TYPE_ROTATION_VECTOR -> {
+                    rotationVector[0] = rotationVector[0] * gravityFilter + (1.0f - gravityFilter) * event.values[0]
+                    rotationVector[1] = rotationVector[1] * gravityFilter + (1.0f - gravityFilter) * event.values[1]
+                    rotationVector[2] = rotationVector[2] * gravityFilter + (1.0f - gravityFilter) * event.values[2]
+                    rotationVector[3] = rotationVector[3] * gravityFilter + (1.0f - gravityFilter) * event.values[3]
+                }
+            }
+        }
+    }
+
+//    fun createGestureListener() = StarfieldGestureListener()
+
+/*
     inner class StarfieldSensorEventListener : SensorEventListener {
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -129,59 +152,29 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         return dg
     }
 
+*/
 
-    inner class StarfieldGestureListener : GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
-        override fun onDown(p0: MotionEvent?): Boolean {
-            return false
+        private val rotationMatrix = matrix4f()
+
+        fun calculateGyroEffect(isRotated : Boolean) : vector2f {
+            val g = vector3f(0.0f, 0.0f, 0.0f)
+            SensorManager.getRotationMatrixFromVector(rotationMatrix.toFloatArray(), rotationVector.toFloatArray())
+            SensorManager.getOrientation(rotationMatrix.toFloatArray(), g.toFloatArray())
+            val roll = clamp(g[2] - lastRotationVector[0], -M_PI, M_PI)
+            val pitch = clamp(g[1] - lastRotationVector[1], -0.5f * M_PI, 0.5f * M_PI)
+
+            lastRotationVector[0] = g[2]
+            lastRotationVector[1] = g[1]
+            if(isRotated) {
+                return vector2f(pitch, roll)
+            }
+            return vector2f(roll, pitch)
         }
-
-        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
-            return false
-        }
-
-        override fun onLongPress(p0: MotionEvent?) {
-
-        }
-
-        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
-            return false
-        }
-
-        override fun onShowPress(p0: MotionEvent?) {
-
-        }
-
-        override fun onSingleTapUp(p0: MotionEvent?): Boolean {
-            return false
-        }
-
-        override fun onDoubleTap(p0: MotionEvent?): Boolean {
-            return false
-        }
-
-        override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
-            return false
-        }
-
-        override fun onSingleTapConfirmed(p0: MotionEvent?): Boolean {
-            return false
-        }
-    }
-
-    fun createGestureListener() = StarfieldGestureListener()
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         Log.debug("onSurfaceCreated()")
 
         RandomGenerator.createSeed()
-
-        //TODO: right now changing this setting requires restart to take effect, does not affect scrolling
-        if(Settings.enableParallaxEffect) {
-            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            var gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
-            sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST)
-        }
-
 
         val version = GLES20.glGetString(GLES20.GL_VERSION)
         val vendor = GLES20.glGetString(GLES20.GL_VENDOR)
@@ -222,6 +215,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
         resetGyro = true
+        isDeviceRotated = (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
         randomBackgroundOffset = RandomGenerator.rand2f(-1.0f, 1.0f)
         randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
@@ -237,7 +231,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         var culledCounter = 0
 
-        var dg = 0.0005f * calculateGyroEffect()
+//        var dg = 0.0005f * calculateGyroEffect()
+        var dg = 0.05f * calculateGyroEffect(isDeviceRotated)
         if(resetGyro) {
             dg = vector2f(0.0f, 0.0f)
             resetGyro = false
@@ -408,6 +403,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onResume() {
+        if(Settings.enableParallaxEffect) {
+            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            var rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+            sensorManager.registerListener(sensorEventListener, rotationVectorSensor, SensorManager.SENSOR_DELAY_FASTEST)
+        }
+
         timer.timeScale = 0.0002 * Settings.timeScale
         maxStarParticleSpawnTime = Settings.starParticlesSpawnTime
         maxCloudParticleSpawnTime = Settings.cloudParticleSpawnTime
@@ -416,6 +417,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onPause() {
-
+        if(Settings.enableParallaxEffect) {
+            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            sensorManager.unregisterListener(sensorEventListener)
+        }
     }
 }
