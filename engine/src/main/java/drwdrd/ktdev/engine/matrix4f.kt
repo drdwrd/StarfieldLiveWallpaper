@@ -618,6 +618,13 @@ class matrix4f {
             e[2] * v[0] + e[6] * v[1] + e[10] * v[2])
     }
 
+    fun inverseRotated(v : vector3f) : vector3f {
+        return vector3f(
+            e[0] * v[0] + e[1] * v[1] + e[2] * v[2],
+            e[4] * v[0] + e[5] * v[1] + e[6] * v[2],
+            e[8] * v[0] + e[9] * v[1] + e[10] * v[2])
+    }
+
     fun translated(v : vector3f) : vector3f {
         return vector3f(v[0] + e[12],v[1] + e[13],v[2] + e[14])
     }
@@ -626,11 +633,9 @@ class matrix4f {
         return vector3f(e[0] * v[0],e[5] * v[1],e[10] * v[2])
     }
 
-    fun getBillboardMVPMatrix() : matrix4f {
-        var d = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
-
-        return matrix4f(d,0.0f,0.0f,0.0f,0.0f, d,0.0f,0.0f,0.0f,0.0f, d,0.0f, e[12], e[13], e[14],1.0f)
-
+    companion object {
+        fun identity() = matrix4f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f)
+        fun zero() = matrix4f(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
     }
 
 }

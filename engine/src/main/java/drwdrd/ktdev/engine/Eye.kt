@@ -4,67 +4,68 @@ import android.R
 
 class Eye() {
 
-    var position : vector3f = vector3f()
+    var position = vector3f()
         private set
+
+    var up = vector3f()
+        private set
+
+    var right = vector3f()
+        private set
+
+    private var direction = vector3f()
+
+    private var frustum = Frustum()
 
     val forward : vector3f
-        get() = direction
+        get() = viewMatrix.inverseRotated(direction)
 
-    var up : vector3f = vector3f()
+    var viewMatrix = matrix4f()
         private set
 
-    var right : vector3f = vector3f()
+    var projectionMatrix = matrix4f()
         private set
 
-    private var direction : vector3f = vector3f()
+    private var rotation = matrix4f.identity()
 
-    private var frustum : Frustum = Frustum()
+    fun calculateViewMatrix() {
+        val rotationMatrix = matrix4f(
+            right[0], up[0], direction[0], 0.0f,
+            right[1], up[1], direction[1], 0.0f,
+            right[2], up[2], direction[2], 0.0f,
+            0.0f,       0.0f,    0.0f,1.0f)
 
+        val translationMatrix = matrix4f(
+            1.0f,           0.0f,           0.0f,          0.0f,
+            0.0f,           1.0f,           0.0f,          0.0f,
+            0.0f,           0.0f,           1.0f,          0.0f,
+            -position[0], -position[1], -position[2], 1.0f)
 
-    var viewMatrix : matrix4f = matrix4f()
-        private set
-        get() {
-            var rotationMatrix = matrix4f(
-                right[0], up[0], direction[0], 0.0f,
-                right[1], up[1], direction[1], 0.0f,
-                right[2], up[2], direction[2], 0.0f,
-                0.0f,       0.0f,    0.0f,1.0f)
+        viewMatrix = rotation * rotationMatrix * translationMatrix
+    }
 
-            var translationMatrix = matrix4f(
-                1.0f,           0.0f,           0.0f,          0.0f,
-                0.0f,           1.0f,           0.0f,          0.0f,
-                0.0f,           0.0f,           1.0f,          0.0f,
-                -position[0], -position[1], -position[2], 1.0f)
-
-            field = rotationMatrix * translationMatrix
-            return field
-        }
-
-    var projectionMatrix : matrix4f = matrix4f()
-        private set
-        get() {
-            require(frustum.viewportSize.x > 0.0f)
-            require(frustum.viewportSize.y > 0.0f)
-            require(frustum.fov > 0.0f)
-            when (frustum.projection) {
-                Projection.Perspective -> {
-                    val aspect = frustum.viewportSize.x / frustum.viewportSize.y
-                    field.setPerspectiveProjectionV(deg2rad(frustum.fov), aspect, frustum.znear, frustum.zfar)
-                }
-
-                Projection.Orthogonal -> {
-                    field.setOrthoProjection(
-                        frustum.left,
-                        frustum.right,
-                        frustum.bottom,
-                        frustum.top,
-                        frustum.znear,
-                        frustum.zfar
-                    )
-                }
+    fun calculateProjectionMatrix() {
+        require(frustum.viewportSize.x > 0.0f)
+        require(frustum.viewportSize.y > 0.0f)
+        require(frustum.fov > 0.0f)
+        when (frustum.projection) {
+            Projection.Perspective -> {
+                val aspect = frustum.viewportSize.x / frustum.viewportSize.y
+                projectionMatrix.setPerspectiveProjectionV(deg2rad(frustum.fov), aspect, frustum.znear, frustum.zfar)
             }
-            return field
+
+            Projection.Orthogonal -> {
+                projectionMatrix.setOrthoProjection(
+                    frustum.left,
+                    frustum.right,
+                    frustum.bottom,
+                    frustum.top,
+                    frustum.znear,
+                    frustum.zfar
+                )
+            }
         }
+    }
 
     val viewProjectionMatrix : matrix4f
         get() = projectionMatrix * viewMatrix
@@ -81,6 +82,7 @@ class Eye() {
 
     fun setViewport(size: vector2f) {
         frustum.viewportSize = size
+        calculateProjectionMatrix()
     }
 
     fun setPerspective(fovy : Float, znear : Float, zfar : Float) {
@@ -88,6 +90,7 @@ class Eye() {
         frustum.zfar = zfar
         frustum.fov = fovy
         frustum.projection = Projection.Perspective
+        calculateProjectionMatrix()
     }
 
     fun setOrtho(left : Float, right : Float, top : Float, bottom : Float, znear : Float, zfar : Float) {
@@ -98,6 +101,7 @@ class Eye() {
         frustum.znear = znear
         frustum.zfar = zfar
         frustum.projection = Projection.Orthogonal
+        calculateProjectionMatrix()
     }
 
     fun setLookAt(_position : vector3f , _target : vector3f , _up : vector3f) {
@@ -106,5 +110,13 @@ class Eye() {
         direction = dir.normalized()
         right = vector3f.cross(_up, direction).normalized()
         up = vector3f.cross(direction, right)
+        calculateViewMatrix()
+    }
+
+    fun rotate(angle : vector3f) {
+        val m = matrix4f()
+        m.setEulerRotation(angle.x, angle.y, angle.z)
+        rotation = m * rotation
+        calculateViewMatrix()
     }
 }

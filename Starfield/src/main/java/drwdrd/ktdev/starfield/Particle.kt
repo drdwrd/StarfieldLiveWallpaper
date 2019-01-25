@@ -75,16 +75,16 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
     //TODO : most time spent here right now ~33% atm
     fun tick(eye : Eye, deltaTime: Float) {
-        val cosAlpha = vector3f.dot(position.normalized(), eye.forward)
+        val cosAlpha = vector3f.dot(position.normalized(), -eye.forward)
 
-        val q = eye.position + eye.forward * position.length() * cosAlpha - position
+        val q = eye.position - eye.forward * position.length() * cosAlpha - position
 
         val r = vector3f.dot(q, q)
 
         val a = -q / (r + 0.1f)
 
         position.plusAssign(velocity * deltaTime)
-        velocity = eye.forward +  repulsiveForce * a * deltaTime
+        velocity = -eye.forward +  repulsiveForce * a * deltaTime
 
         age += deltaTime
     }
@@ -92,7 +92,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
     companion object {
 
         fun createStar(spawningPoint : vector3f, targetPoint : vector3f) : Particle {
-            val rp = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
+            val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
             val pos = spawningPoint + rp
             val t = targetPoint + rp
             //val vel = vector3f(0.0f, 0.0f, -1.0f)
@@ -103,12 +103,12 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val j = RandomGenerator.rand(2) * 0.5f
             val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
-            p.repulsiveForce = 0.02f
+            p.repulsiveForce = 0.0f//0.02f
             return p
         }
 
         fun createCloud(spawningPoint: vector3f, targetPoint: vector3f) : Particle {
-            val rp = vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
+            val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
             val pos = spawningPoint + rp
             val t = targetPoint + rp
             //val vel = vector3f(0.0f, 0.0f, -1.0f)

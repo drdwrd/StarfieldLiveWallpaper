@@ -134,6 +134,32 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
         e[2] = u.z
     }
 
+    fun getRotationMatrix() : matrix4f {
+        val m = matrix4f()
+
+        m[0] = 1.0f - 2.0f * e[1] * e[1] - 2.0f * e[2] * e[2]
+        m[1] = 2.0f * e[0] * e[1] + 2.0f * e[2] * e[3]
+        m[2] = 2.0f * e[0] * e[2] - 2.0f * e[1] * e[3]
+        m[3] = 0.0f
+
+        m[4] = 2.0f * e[0] * e[1] - 2.0f * e[2] * e[3]
+        m[5] = 1.0f - 2.0f * e[0] * e[0] - 2.0f * e[2] * e[2]
+        m[6] = 2.0f * e[2] * e[1] + 2.0f * e[0] * e[3]
+        m[7] = 0.0f
+
+        m[8] = 2.0f * e[0] * e[2] + 2.0f * e[1] * e[3]
+        m[9] = 2.0f * e[2] * e[1] - 2.0f * e[0] * e[3]
+        m[10] =1.0f - 2.0f * e[0] * e[0] - 2.0f * e[1] * e[1]
+        m[11] = 0.0f
+
+        m[12] = 0.0f
+        m[13] = 0.0f
+        m[14] = 0.0f
+        m[15] = 1.0f
+
+        return m
+    }
+
     fun getMatrix(center : vector3f, scale : Float) : matrix4f {
 
         val m = matrix4f()
