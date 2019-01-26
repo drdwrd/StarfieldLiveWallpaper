@@ -13,11 +13,14 @@ import android.opengl.GLU
 import android.opengl.Matrix
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.Toast
 import drwdrd.ktdev.engine.*
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.atan2
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
@@ -158,6 +161,22 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         return vector2f(dg.x, dg.y)
     }
 
+
+    fun getTextureBaseLevel() : Int {
+
+        val maxTextureSize = IntArray(1)
+        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
+
+        require(maxTextureSize[0] >= 512) { "Required GL_MAX_TEXTURE_SIZE >= 512" }
+
+        return when(maxTextureSize[0]) {
+            512 -> 3
+            1024 -> 2
+            2048 -> 1
+            else -> 0
+        }
+    }
+
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         Log.debug("onSurfaceCreated()")
 
@@ -171,16 +190,20 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info("OpenGL vendor: $vendor")
         Log.info("OpenGL renderer: $renderer")
 
+        val textureQuality = Settings.textureQualityLevel + getTextureBaseLevel()
+
+        Log.info("Texture quality level set to $textureQuality")
+
         simplePlane.create()
 
         starSpriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", simplePlane.vertexFormat)
         cloudSpriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", simplePlane.vertexFormat)
         starFieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", simplePlane.vertexFormat)
 
-        starSpritesTexture = Texture.loadFromAssets(context, "images/starsprites.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        cloudSpritesTexture = Texture.loadFromAssets(context, "images/cloud.png", Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        starFieldTexture = Texture.loadFromAssets(context, "images/starfield.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        noiseTexture = Texture.loadFromAssets(context, "images/noise.png", Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        starSpritesTexture = Texture.loadFromAssets(context, "images/starsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        cloudSpritesTexture = Texture.loadFromAssets(context, "images/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        starFieldTexture = Texture.loadFromAssets(context, "images/starfield.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        noiseTexture = Texture.loadFromAssets(context, "images/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
         eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
@@ -268,7 +291,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
             cloudSprites.add(0, Particle.createCloud(spawningPoint, targetPoint))
             lastCloudParticleSpawnTime = 0.0
-            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
+            Log.info("cloudParticlesCount = ${cloudSprites.size}")
         }
 
         //render cloud sprites
@@ -325,7 +348,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
             starSprites.add(0, Particle.createStar(spawningPoint, targetPoint))
             lastStarParticleSpawnTime = 0.0
-            Log.debug("starParticlesCount = ${starSprites.size}")
+            Log.info("starParticlesCount = ${starSprites.size}")
         }
 
         //render stars sprites
@@ -379,7 +402,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         simplePlane.release()
 
-        Log.debug("Culled $culledCounter sprites...")
+        Log.info("Culled $culledCounter sprites...")
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {

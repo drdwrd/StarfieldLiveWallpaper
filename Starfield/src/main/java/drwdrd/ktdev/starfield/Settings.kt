@@ -17,6 +17,8 @@ object Settings {
 
     var enableParallaxEffect = false
 
+    var textureQualityLevel = 0
+
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
             it.write("timeScale=$timeScale\n")
@@ -24,6 +26,7 @@ object Settings {
             it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
+            it.write("textureQualityLevel=$textureQualityLevel\n")
         }
     }
 
@@ -38,6 +41,7 @@ object Settings {
                     "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
                     "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
                     "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
+                    "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
                 }
             }
             }

@@ -129,7 +129,7 @@ class Texture() {
     }
 
     companion object {
-        fun loadFromAssets(context : Context, name : String, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+        fun loadFromAssets(context : Context, name : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
             var texture = Texture()
             texture.create()
             texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
@@ -140,10 +140,18 @@ class Texture() {
                 else -> true
 
             }
-
             var inputStream = context.assets.open(name)
             var bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
-            texture.createTexture2D(bitmap)
+            if(level > 0) {
+                val w = bitmap.width shr level
+                val h = bitmap.height shr level
+                val b = Bitmap.createScaledBitmap(bitmap, w, h, true)
+                texture.createTexture2D(b)
+                b.recycle()
+            } else {
+                texture.createTexture2D(bitmap)
+            }
+            bitmap.recycle()
             return texture
         }
     }

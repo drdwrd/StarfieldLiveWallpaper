@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.SeekBar
+import kotlinx.android.synthetic.main.settings_activity.*
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
@@ -85,6 +86,12 @@ class StarfieldSettingsActivity : AppCompatActivity() {
 
             }
         })
+
+        val highQualityTexturesCheckBox = findViewById<CheckBox>(R.id.highQualityTexturesCheckBox)
+        highQualityTexturesCheckBox.isChecked = (Settings.textureQualityLevel == 0)
+        highQualityTexturesCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            Settings.textureQualityLevel = if(isChecked) 0 else 1
+        }
     }
 
     private fun setupActionBar() {
