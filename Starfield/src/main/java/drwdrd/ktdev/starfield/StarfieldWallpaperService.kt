@@ -1,12 +1,8 @@
 package drwdrd.ktdev.starfield
 
-import android.content.Context
 import android.opengl.GLSurfaceView
-import android.view.GestureDetector
-import android.view.MotionEvent
 import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
-import java.lang.ref.WeakReference
 
 class StarfieldWallpaperService : GLWallpaperService() {
 
@@ -16,16 +12,9 @@ class StarfieldWallpaperService : GLWallpaperService() {
     }
 
     override fun createRenderer() : GLSurfaceView.Renderer {
-        val renderer = StarfieldWallpaperService.rendererFactory(this)
+        val renderer = StarfieldRenderer.createRenderer(this)
         wallpaperLiveCycleListener = renderer
         onOffsetChangedListener = renderer
         return renderer
     }
-
-    companion object {
-
-        fun rendererFactory(context: Context) = StarfieldRenderer(context, "starfield.ini")
-
-    }
-
 }

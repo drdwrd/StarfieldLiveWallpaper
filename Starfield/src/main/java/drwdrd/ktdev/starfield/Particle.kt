@@ -1,7 +1,6 @@
 package drwdrd.ktdev.starfield
 
 import drwdrd.ktdev.engine.*
-import kotlin.math.cos
 import kotlin.math.sqrt
 
 class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f, _scale : Float, _uvRoI : Rectangle, _age : Float) {

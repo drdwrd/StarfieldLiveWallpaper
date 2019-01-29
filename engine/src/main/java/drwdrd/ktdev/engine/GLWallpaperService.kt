@@ -44,15 +44,15 @@ abstract class GLWallpaperService : WallpaperService() {
             }
 
             override fun onPause() {
-                super.onPause()
                 wallpaperLiveCycleListener?.onPause()
                 Log.debug("GLWallpaperSurfaceView.onPause()")
+                super.onPause()
             }
 
             override fun onResume() {
-                super.onResume()
                 wallpaperLiveCycleListener?.onResume()
                 Log.debug("GLWallpaperSurfaceView.onResume()")
+                super.onResume()
             }
         }
 
@@ -79,18 +79,18 @@ abstract class GLWallpaperService : WallpaperService() {
         }
 
         override fun onDestroy() {
-            super.onDestroy()
             glSurfaceView.onDestroy()
+            super.onDestroy()
         }
 
         override fun onTouchEvent(event: MotionEvent?) {
-            super.onTouchEvent(event)
             this@GLWallpaperService.onTouchEvent(event)
+            super.onTouchEvent(event)
         }
 
         override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-            super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
             onOffsetChangedListener?.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
+            super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
         }
 
         private fun setRenderer(renderer : GLSurfaceView.Renderer) {

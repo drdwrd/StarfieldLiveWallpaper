@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.SeekBar
-import kotlinx.android.synthetic.main.settings_activity.*
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 

@@ -1,6 +1,5 @@
 package drwdrd.ktdev.starfield
 
-import android.graphics.Color
 import drwdrd.ktdev.engine.RandomGenerator
 
 object RandomColor {

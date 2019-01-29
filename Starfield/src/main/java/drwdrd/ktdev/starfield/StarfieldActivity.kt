@@ -6,8 +6,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
@@ -33,7 +31,7 @@ class StarfieldActivity : Activity() {
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        val renderer = StarfieldWallpaperService.rendererFactory(this)
+        val renderer = StarfieldRenderer.createRenderer(this)
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
@@ -57,14 +55,14 @@ class StarfieldActivity : Activity() {
     }
 
     override fun onResume() {
-        super.onResume()
         glSurfaceView.onResume()
         liveCycleListener.onResume()
+        super.onResume()
     }
 
     override fun onPause() {
-        super.onPause()
         glSurfaceView.onPause()
         liveCycleListener.onPause()
+        super.onPause()
     }
 }

@@ -2,25 +2,17 @@ package drwdrd.ktdev.starfield
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.drawable.GradientDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.opengl.GLU
-import android.opengl.Matrix
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.widget.Toast
 import drwdrd.ktdev.engine.*
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.atan2
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
@@ -428,5 +420,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             sensorManager.unregisterListener(accelerometerSensorEventListener)
         }
+    }
+
+    companion object {
+
+        fun createRenderer(context: Context) = StarfieldRenderer(context, "starfield.ini")
     }
 }
