@@ -28,7 +28,7 @@ class Eye() {
 
     private var rotation = matrix4f.identity()
 
-    fun calculateViewMatrix() {
+    private fun calculateViewMatrix() {
         val rotationMatrix = matrix4f(
             right[0], up[0], direction[0], 0.0f,
             right[1], up[1], direction[1], 0.0f,
@@ -44,7 +44,7 @@ class Eye() {
         viewMatrix = rotation * rotationMatrix * translationMatrix
     }
 
-    fun calculateProjectionMatrix() {
+    private fun calculateProjectionMatrix() {
         require(frustum.viewportSize.x > 0.0f)
         require(frustum.viewportSize.y > 0.0f)
         require(frustum.fov > 0.0f)

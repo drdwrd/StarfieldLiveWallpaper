@@ -33,23 +33,23 @@ class StarfieldActivity : Activity() {
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        var renderer = StarfieldWallpaperService.rendererFactory(this)
+        val renderer = StarfieldWallpaperService.rendererFactory(this)
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
-        var setWallpaperButton = findViewById<Button>(R.id.setWallpaperButton)
+        val setWallpaperButton = findViewById<Button>(R.id.setWallpaperButton)
         setWallpaperButton.setOnClickListener {
             val intent = Intent()
             intent.action = WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER
-            var packageName = StarfieldWallpaperService::class.java.`package`.name
-            var canonicalName = StarfieldWallpaperService::class.java.canonicalName
+            val packageName = StarfieldWallpaperService::class.java.`package`.name
+            val canonicalName = StarfieldWallpaperService::class.java.canonicalName
             intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName, canonicalName!!))
             startActivity(intent)
             finish()
             }
 
-        var editSettingsButton = findViewById<Button>(R.id.editSettingsButton)
+        val editSettingsButton = findViewById<Button>(R.id.editSettingsButton)
         editSettingsButton.setOnClickListener {
             val intent = Intent(this, StarfieldSettingsActivity::class.java)
             startActivity(intent)

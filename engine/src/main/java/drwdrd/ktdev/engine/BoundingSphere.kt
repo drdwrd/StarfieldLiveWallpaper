@@ -1,17 +1,10 @@
 package drwdrd.ktdev.engine
 
-class BoundingSphere {
+class BoundingSphere(c : vector3f, r : Float) {
 
-    var center : vector3f
-        private set
+    val center  = c
 
-    var radius : Float
-        private set
-
-    constructor(c : vector3f, r : Float) {
-        this.center = c
-        this.radius = r
-    }
+    val radius = r
 
     fun contains(p : vector3f) : Boolean {
         val dist = (p - center).length()

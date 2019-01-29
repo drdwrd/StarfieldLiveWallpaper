@@ -228,10 +228,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         randomBackgroundOffset = RandomGenerator.rand2f(-1.0f, 1.0f)
         randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
-        if(width < height) {
-            aspect = vector2f(width.toFloat() / height.toFloat(), 1.0f)
-        } else {
-            aspect = vector2f(1.0f, height.toFloat() / width.toFloat())
+        aspect = when(width < height) {
+            true -> vector2f(width.toFloat() / height.toFloat(), 1.0f)
+            false ->vector2f(1.0f, height.toFloat() / width.toFloat())
         }
         Log.debug("onSurfaceChanged(width = $width, height = $height)")
     }
@@ -257,7 +256,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         timer.tick()
 
 
-        var backgroundTextureMatrix = matrix3f()
+        val backgroundTextureMatrix = matrix3f()
         backgroundTextureMatrix.loadIdentity()
         backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
         backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
@@ -301,22 +300,22 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         cloudSpriteShader.setSampler("u_CloudSprites", 0)
 
-        var cloud = cloudSprites.iterator()
+        val cloud = cloudSprites.iterator()
         while(cloud.hasNext()) {
 
 
-            var sprite = cloud.next()
+            val sprite = cloud.next()
 
 
             //face dir
-            var dir = eye.position - sprite.position
+            val dir = eye.position - sprite.position
             dir.normalize()
 
             //normal
-            var normal = vector3f(0.0f, 0.0f , -1.0f)
+            val normal = vector3f(0.0f, 0.0f , -1.0f)
 
-            var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-            var fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
+            val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+            val fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
             val boundingSphere = sprite.boundingSphere()
 
@@ -360,21 +359,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starSpriteShader.setSampler("u_StarSprites", 0)
         starSpriteShader.setSampler("u_Noise", 1)
 
-        var star = starSprites.iterator()
+        val star = starSprites.iterator()
         while(star.hasNext()) {
 
-            var sprite = star.next()
+            val sprite = star.next()
 
             //face dir
-            var dir = eye.position - sprite.position
+            val dir = eye.position - sprite.position
             dir.normalize()
 
             //normal
-            var normal = vector3f(0.0f, 0.0f , -1.0f)
+            val normal = vector3f(0.0f, 0.0f , -1.0f)
 
-            var fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+            val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
 
-            var rotMatrix = matrix3f()
+            val rotMatrix = matrix3f()
             rotMatrix.setRotation(0.4f * timer.currentTime.toFloat())
 
             val boundingSphere = sprite.boundingSphere()
@@ -412,8 +411,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onResume() {
         if(Settings.enableParallaxEffect) {
-            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            var accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
             sensorManager.registerListener(accelerometerSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST)
         }
 
@@ -426,7 +425,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onPause() {
         if(Settings.enableParallaxEffect) {
-            var sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             sensorManager.unregisterListener(accelerometerSensorEventListener)
         }
     }
