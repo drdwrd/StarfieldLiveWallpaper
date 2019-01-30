@@ -20,7 +20,7 @@ const val gravityFilter = 0.8f
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
     constructor(_context : Context, file : String) : this(_context) {
-        Settings.load(_context, file)
+        SettingsProvider.load(_context, file)
     }
 
     private val context : Context = _context
@@ -33,7 +33,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private lateinit var starSpritesTexture : Texture
     private lateinit var cloudSpritesTexture : Texture
     private lateinit var noiseTexture : Texture
-    private val timer = Timer(0.0002 * Settings.timeScale)
+    private val timer = Timer(0.0002 * SettingsProvider.timeScale)
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -56,9 +56,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var randomBackgroundRotation = 0.0f
 
     //global preferences
-    private var maxStarParticleSpawnTime = Settings.starParticlesSpawnTime
-    private var maxCloudParticleSpawnTime = Settings.cloudParticleSpawnTime
-    private var parallaxEffectScale = Settings.parallaxEffectMultiplier
+    private var maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
+    private var maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
+    private var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
 
     private val maxStarParticlesCount = 1000        //hard limit just in case...
     private val maxCloudParticlesCount = 200        //hard limit just in case...
@@ -182,7 +182,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info("OpenGL vendor: $vendor")
         Log.info("OpenGL renderer: $renderer")
 
-        val textureQuality = Settings.textureQualityLevel + getTextureBaseLevel()
+        val textureQuality = SettingsProvider.textureQualityLevel + getTextureBaseLevel()
 
         Log.info("Texture quality level set to $textureQuality")
 
@@ -402,21 +402,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onResume() {
-        if(Settings.enableParallaxEffect) {
+        if(SettingsProvider.enableParallaxEffect) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
             sensorManager.registerListener(accelerometerSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST)
         }
 
-        timer.timeScale = 0.0002 * Settings.timeScale
-        maxStarParticleSpawnTime = Settings.starParticlesSpawnTime
-        maxCloudParticleSpawnTime = Settings.cloudParticleSpawnTime
-        parallaxEffectScale = Settings.parallaxEffectMultiplier
+        timer.timeScale = 0.0002 * SettingsProvider.timeScale
+        maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
+        maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
+        parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
         timer.reset()
     }
 
     override fun onPause() {
-        if(Settings.enableParallaxEffect) {
+        if(SettingsProvider.enableParallaxEffect) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             sensorManager.unregisterListener(accelerometerSensorEventListener)
         }

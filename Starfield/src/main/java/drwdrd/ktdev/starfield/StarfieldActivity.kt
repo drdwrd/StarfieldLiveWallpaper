@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
@@ -40,12 +41,17 @@ class StarfieldActivity : Activity() {
         setWallpaperButton.setOnClickListener {
             val intent = Intent()
             intent.action = WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER
-            val packageName = StarfieldWallpaperService::class.java.`package`.name
+            val packageName = StarfieldWallpaperService::class.java.`package`?.name
             val canonicalName = StarfieldWallpaperService::class.java.canonicalName
-            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName, canonicalName!!))
+            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName!!, canonicalName!!))
             startActivity(intent)
             finish()
-            }
+        }
+
+        val setDreamButton = findViewById<Button>(R.id.setDreamButton)
+        setDreamButton.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_DREAM_SETTINGS))
+        }
 
         val editSettingsButton = findViewById<Button>(R.id.editSettingsButton)
         editSettingsButton.setOnClickListener {

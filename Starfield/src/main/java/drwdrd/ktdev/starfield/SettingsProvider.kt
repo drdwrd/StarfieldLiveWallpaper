@@ -5,7 +5,7 @@ import drwdrd.ktdev.engine.Log
 import java.io.File
 import java.io.FileNotFoundException
 
-object Settings {
+object SettingsProvider {
 
     var timeScale = 1.0
 

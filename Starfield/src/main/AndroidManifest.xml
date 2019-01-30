@@ -36,7 +36,7 @@
 
             <meta-data
                     android:name="android.service.wallpaper"
-                    android:resource="@xml/starfield_wallpaper"/>
+                    android:resource="@xml/starfield_wallpaper_info"/>
         </service>
 
         <service
@@ -52,7 +52,7 @@
 
             <meta-data
                     android:name="android.service.dream"
-                    android:resource="@xml/starfield_dream"/>
+                    android:resource="@xml/starfield_dream_info"/>
         </service>
 
 

@@ -22,6 +22,12 @@
                 android:text="@string/btn_set_wallpaper"/>
 
         <Button
+                android:id="@+id/setDreamButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="Set Screensaver"/>
+
+        <Button
                 android:id="@+id/editSettingsButton"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
