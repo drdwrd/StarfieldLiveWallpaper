@@ -41,6 +41,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val eye = Eye()
     private var resetGyro  = true
     private var lastXOffset = 0.0f
+    private var dxOffset = 0.0f;
+    private var backgroundOffset = vector2f(0.0f, 0.0f)
 
     private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
     private var lastGravity = vector3f(0.0f, 0.0f, 0.0f)
@@ -50,7 +52,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 //    private var isDeviceRotated = false
 
     private val accelerometerSensorEventListener = AccelerometerSensorEventListener()
-    private var gravityOffset = vector2f(0.0f, 0.0f)
+//    private var gravityOffset = vector2f(0.0f, 0.0f)
 
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
     private var randomBackgroundRotation = 0.0f
@@ -235,12 +237,13 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(resetGyro) {
             dg = vector2f(0.0f, 0.0f)
             resetGyro = false
-            gravityOffset = vector2f(0.0f, 0.0f)
+            backgroundOffset = vector2f(0.0f, 0.0f)
         }
 
-        gravityOffset.plusAssign(dg)
+        backgroundOffset.plusAssign(dg)
+        backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
 
-        eye.rotate(vector3f(-dg.y, dg.x, 0.0f))
+        eye.rotate(vector3f(-dg.y,dg.x + dxOffset, 0.0f))
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
@@ -263,7 +266,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starFieldShader.setUniformValue("u_Aspect", aspect)
         starFieldShader.setSampler("u_Starfield", 0)
         starFieldShader.setUniformValue("u_TextureMatrix", backgroundTextureMatrix)
-        starFieldShader.setUniformValue("u_Offset", gravityOffset)
+        starFieldShader.setUniformValue("u_Offset", backgroundOffset)
         starFieldShader.setUniformValue("u_Time", timer.currentTime.toFloat())
 
         simplePlane.draw()
@@ -275,7 +278,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         cloudSprites.removeAll { it.position.z < -1.0f }
 
         val spawningPoint = 5.0f * eye.forward
-        val targetPoint = vector3f(0.0f, 0.0f, -1.0f)
+        val targetPoint = eye.position
 
         lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
@@ -397,7 +400,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        gravityOffset.plusAssign(vector2f(0.05f * parallaxEffectScale * (xOffset - lastXOffset), 0.0f))
+        dxOffset = 0.05f * parallaxEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
     }
 

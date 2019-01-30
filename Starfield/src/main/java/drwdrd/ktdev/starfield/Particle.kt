@@ -94,7 +94,6 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
             val pos = spawningPoint + rp
             val t = targetPoint + rp
-            //val vel = vector3f(0.0f, 0.0f, -1.0f)
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.01f, 0.15f)
             val rot = RandomGenerator.randf(-1.5f, 1.5f)
@@ -102,7 +101,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val j = RandomGenerator.rand(2) * 0.5f
             val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
-            p.repulsiveForce = 0.0f//0.02f
+            p.repulsiveForce = 0.02f
             return p
         }
 
@@ -110,13 +109,9 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
             val pos = spawningPoint + rp
             val t = targetPoint + rp
-            //val vel = vector3f(0.0f, 0.0f, -1.0f)
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.5f, 1.5f)
             val rot = RandomGenerator.randf(-0.5f, 0.5f)
-//            val i = RandomGenerator.rand(2) * 0.5f
-//            val j = RandomGenerator.rand(2) * 0.5f
-//            val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
             p.repulsiveForce = 0.02f
