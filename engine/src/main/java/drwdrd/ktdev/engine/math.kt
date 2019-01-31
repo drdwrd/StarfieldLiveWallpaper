@@ -29,6 +29,16 @@ fun clamp(value: Float, min: Float, max: Float): Float {
 }
 
 
+fun xclamp(value : Float, min : Float, max : Float) : Float {
+    if(value <= min || value >= max) {
+        return value
+    }
+    if(value <= (min + max) / 2 ) {
+        return min
+    }
+    return max
+}
+
 fun smoothstep(edge0: Float, edge1: Float, value: Float): Float {
     // Scale, bias and saturate x to 0..1 range
     var x = clamp((value - edge0) / (edge1 - edge0), 0.0f, 1.0f)

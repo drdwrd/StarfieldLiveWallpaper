@@ -13,6 +13,7 @@ import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.atan2
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 const val gravityFilter = 0.8f
@@ -61,6 +62,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
     private var maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
     private var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
+
+    //precession
+    private var precessionSpeed = 0.0f
 
     private val maxStarParticlesCount = 1000        //hard limit just in case...
     private val maxCloudParticlesCount = 200        //hard limit just in case...
@@ -245,6 +249,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         eye.rotate(vector3f(-dg.y,dg.x + dxOffset, 0.0f))
 
+        dxOffset = precessionSpeed
+
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
 
@@ -402,6 +408,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
         dxOffset = 0.05f * parallaxEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
+        precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
     }
 
     override fun onResume() {
@@ -410,7 +417,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
             sensorManager.registerListener(accelerometerSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST)
         }
-
         timer.timeScale = 0.0002 * SettingsProvider.timeScale
         maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
         maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime

@@ -7,17 +7,30 @@ import java.io.FileNotFoundException
 
 object SettingsProvider {
 
-    var timeScale = 1.0
+    var timeScale = 1.0                     // (0.1, 10.0) ????
 
-    var starParticlesSpawnTime = 0.01
+    var starParticlesSpawnTime = 0.01       //in ms time delay between star particles spawn
 
-    var cloudParticleSpawnTime = 0.1
+    var cloudParticleSpawnTime = 0.1        //in ms time delay between cloud particles spawn
 
     var parallaxEffectMultiplier = 1.0f
 
     var enableParallaxEffect = false
 
-    var textureQualityLevel = 0
+    var textureQualityLevel = 0             // 0 - high quality, 1 - low quality
+
+    //TODO: add to settings????
+    var precessionSpeed = 0.0002f
+
+    fun resetSettings() {
+        timeScale = 1.0
+        starParticlesSpawnTime = 0.01
+        cloudParticleSpawnTime = 0.1
+        parallaxEffectMultiplier = 1.0f
+        enableParallaxEffect = false
+        textureQualityLevel = 0
+        precessionSpeed = 0.0002f
+    }
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
@@ -27,6 +40,7 @@ object SettingsProvider {
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
+            it.write("precessionSpeed=$precessionSpeed")
         }
     }
 
@@ -42,6 +56,7 @@ object SettingsProvider {
                     "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
                     "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
                     "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
+                    "precessionSpeed" -> precessionSpeed = s[1].toFloat()
                 }
             }
             }
