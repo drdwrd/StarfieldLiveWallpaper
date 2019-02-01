@@ -7,29 +7,37 @@ import java.io.FileNotFoundException
 
 object SettingsProvider {
 
-    var timeScale = 1.0                     // (0.1, 10.0) ????
+    const val DEFAULT_TIMESCALE = 1.0
+    const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.02
+    const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 0.2
+    const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 1.0f
+    const val DEFAULT_ENABLE_PARALLAX_EFFECT = false
+    const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
+    const val DEFAULT_PRECESSION_SPEED = 0.0001f
 
-    var starParticlesSpawnTime = 0.01       //in ms time delay between star particles spawn
+    var timeScale = DEFAULT_TIMESCALE                     // (0.1, 10.0) ????
 
-    var cloudParticleSpawnTime = 0.1        //in ms time delay between cloud particles spawn
+    var starParticlesSpawnTime = DEFAULT_STAR_PARTICLE_SPAWN_TIME       //in ms time delay between star particles spawn
 
-    var parallaxEffectMultiplier = 1.0f
+    var cloudParticleSpawnTime = DEFAULT_CLOUD_PARTICLE_SPAWN_TIME        //in ms time delay between cloud particles spawn
 
-    var enableParallaxEffect = false
+    var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
 
-    var textureQualityLevel = 0             // 0 - high quality, 1 - low quality
+    var enableParallaxEffect = DEFAULT_ENABLE_PARALLAX_EFFECT
+
+    var textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL             // 0 - high quality, 1 - low quality
 
     //TODO: add to settings????
-    var precessionSpeed = 0.0002f
+    var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
-        timeScale = 1.0
-        starParticlesSpawnTime = 0.01
-        cloudParticleSpawnTime = 0.1
-        parallaxEffectMultiplier = 1.0f
-        enableParallaxEffect = false
-        textureQualityLevel = 0
-        precessionSpeed = 0.0002f
+        timeScale = DEFAULT_TIMESCALE
+        starParticlesSpawnTime = DEFAULT_STAR_PARTICLE_SPAWN_TIME
+        cloudParticleSpawnTime = DEFAULT_CLOUD_PARTICLE_SPAWN_TIME
+        parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
+        enableParallaxEffect = DEFAULT_ENABLE_PARALLAX_EFFECT
+        textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
+        precessionSpeed = DEFAULT_PRECESSION_SPEED
     }
 
     fun save(context : Context, filename : String) {

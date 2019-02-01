@@ -38,7 +38,6 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return rotationMatrix
         }
 
-    //TODO: optimized usage down to 15%
     fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
         var rotationMatrix2 = matrix4f()
         rotationMatrix2.setAxisRotation(dir, normal)
@@ -57,7 +56,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
     }
 
 /*
-    //TODO: faster but needs fixing, down to 10% with this one
+    //TODO: faster but needs fixing
     fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
         val rotationQuaternion2 = quaternion()
         rotationQuaternion2.setAxisRotation(dir, normal)
@@ -72,27 +71,20 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 */
     fun boundingSphere() = BoundingSphere(position, scale * sqrt(2.0f))
 
-    //TODO : most time spent here right now ~33% atm
-    fun tick(eye : Eye, deltaTime: Float) {
-        val cosAlpha = vector3f.dot(position.normalized(), -eye.forward)
-
-        val q = eye.position - eye.forward * position.length() * cosAlpha - position
-
-        val r = vector3f.dot(q, q)
-
-        val a = -q / (r + 0.1f)
-
+    fun tick(eyeForward : vector3f, deltaTime: Float) {
         position.plusAssign(velocity * deltaTime)
-        velocity = -eye.forward +  repulsiveForce * a * deltaTime
+        velocity = -eyeForward
 
         age += deltaTime
     }
 
     companion object {
 
-        fun createStar(spawningPoint : vector3f, targetPoint : vector3f) : Particle {
-            val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
-            val pos = spawningPoint + rp
+        fun createStar(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
+            //perturbate spawn direction by small vector then normalize and set distance
+            //TODO: make sure that rp is perpendicular to spawningDir
+            val rp = RandomGenerator.rand3f(-0.3f, 0.3f)
+            val pos = distance * (spawningDir + rp).normalized()
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.01f, 0.15f)
@@ -105,9 +97,9 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return p
         }
 
-        fun createCloud(spawningPoint: vector3f, targetPoint: vector3f) : Particle {
-            val rp = RandomGenerator.rand3f(-1.5f, 1.5f)//vector3f(RandomGenerator.randf(-1.5f, 1.5f), RandomGenerator.randf(-3.0f, 3.0f), 0.0f)
-            val pos = spawningPoint + rp
+        fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
+            val rp = RandomGenerator.rand3f(-0.3f, 0.3f)
+            val pos = distance * (spawningDir + rp).normalized()
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.5f, 1.5f)
