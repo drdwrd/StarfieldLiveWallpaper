@@ -25,15 +25,18 @@ const val starfieldTextureMatrixUniform = 2
 const val starfieldOffsetUniform  = 3
 const val starfieldTimeUniform = 4
 
-const val cloudSpriteModelViewProjectionMatrixUniform = 0
-const val cloudSpriteUvRoIUniform = 1
-const val cloudSpriteColorUniform = 2
-const val cloudSpriteFadeUniform = 3
+const val cloudspriteSampler = 0
+const val cloudspriteModelViewProjectionMatrixUniform = 1
+const val cloudspriteUvRoIUniform = 2
+const val cloudspriteColorUniform = 3
+const val cloudspriteFadeUniform = 4
 
-const val starSpriteModelViewProjectionMatrixUniform = 0
-const val starSpriteRotationMatrixUniform = 1
-const val starSpriteUvRoIUniform = 2
-const val starSpriteFadeInUniform = 3
+const val starspriteSampler = 0
+const val starspriteNoiseSampler = 1
+const val starspriteModelViewProjectionMatrixUniform = 2
+const val starspriteRotationMatrixUniform = 3
+const val starspriteUvRoIUniform = 4
+const val starspriteFadeInUniform = 5
 
 
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
@@ -43,14 +46,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     private val context : Context = _context
-    private val simplePlane = Plane3D()
+    private val plane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
-    private lateinit var starSpriteShader : ProgramObject
-    private lateinit var cloudSpriteShader : ProgramObject
-    private lateinit var starFieldShader : ProgramObject
-    private lateinit var starFieldTexture : Texture
-    private lateinit var starSpritesTexture : Texture
-    private lateinit var cloudSpritesTexture : Texture
+    private lateinit var starspriteShader : ProgramObject
+    private lateinit var cloudspriteShader : ProgramObject
+    private lateinit var starfieldShader : ProgramObject
+    private lateinit var starfieldTexture : Texture
+    private lateinit var starspritesTexture : Texture
+    private lateinit var cloudspritesTexture : Texture
     private lateinit var noiseTexture : Texture
     private val timer = Timer(0.0002 * SettingsProvider.timeScale)
     private var lastStarParticleSpawnTime = 1000.0
@@ -63,7 +66,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var dxOffset = 0.0f;
     private var backgroundOffset = vector2f(0.0f, 0.0f)
 
-    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
+    private val gravityVector = vector3f(0.0f, 0.0f, 1.0f)
     private var lastGravity = vector3f(0.0f, 0.0f, 0.0f)
 
 //    private val rotationVector = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
@@ -172,10 +175,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     fun calculateParallaxEffect() : vector2f {
         val g = gravityVector.normalized()
-        val dg = g - lastGravity
+        var dg : vector3f
+        if(resetGyro) {
+            dg = vector3f(0.0f, 0.0f, 0.0f)
+            backgroundOffset = vector2f(0.0f, 0.0f)
+            resetGyro = false
+        } else {
+            dg = g - lastGravity
+        }
         lastGravity = g
         return vector2f(dg.x, dg.y)
     }
+
 
 
     fun getTextureBaseLevel() : Int {
@@ -210,35 +221,38 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         Log.info("Texture quality level set to $textureQuality")
 
-        simplePlane.create()
+        plane.create()
 
-        starSpriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", simplePlane.vertexFormat)
-        starSpriteShader.registerUniform("u_ModelViewProjectionMatrix", starSpriteModelViewProjectionMatrixUniform)
-        starSpriteShader.registerUniform("u_RotationMatrix", starSpriteRotationMatrixUniform)
-        starSpriteShader.registerUniform("u_uvRoI", starSpriteUvRoIUniform)
-        starSpriteShader.registerUniform("u_FadeIn", starSpriteFadeInUniform)
+        starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
+        starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
+        starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
+        starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
+        starspriteShader.registerUniform("u_RotationMatrix", starspriteRotationMatrixUniform)
+        starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
+        starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
 
-        cloudSpriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", simplePlane.vertexFormat)
-        cloudSpriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudSpriteModelViewProjectionMatrixUniform)
-        cloudSpriteShader.registerUniform("u_uvRoI", cloudSpriteUvRoIUniform)
-        cloudSpriteShader.registerUniform("u_Color", cloudSpriteColorUniform)
-        cloudSpriteShader.registerUniform("u_Fade", cloudSpriteFadeUniform)
+        cloudspriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
+        cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
+        cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
+        cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
+        cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
+        cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
 
-        starFieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", simplePlane.vertexFormat)
-        starFieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
-        starFieldShader.registerUniform("u_Starfield", starfieldSampler)
-        starFieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
-        starFieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
-        starFieldShader.registerUniform("u_Time", starfieldTimeUniform)
+        starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
+        starfieldShader.registerUniform("u_Starfield", starfieldSampler)
+        starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
+        starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
+        starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
+        starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
 
-        starSpritesTexture = Texture.loadFromAssets(context, "images/starsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        cloudSpritesTexture = Texture.loadFromAssets(context, "images/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        starFieldTexture = Texture.loadFromAssets(context, "images/starfield.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        noiseTexture = Texture.loadFromAssets(context, "images/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        starspritesTexture = Texture.loadFromAssets2D(context, "images/starsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        cloudspritesTexture = Texture.loadFromAssets2D(context, "images/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        starfieldTexture = Texture.loadFromAssets2D(context, "images/starfield.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        noiseTexture = Texture.loadFromAssets2D(context, "images/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
-        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+        eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
 
         //opengl setup
         GLES20.glDisable(GLES20.GL_CULL_FACE)
@@ -268,20 +282,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onDrawFrame(p0: GL10?) {
+        GLES20.glClear(GL10.GL_COLOR_BUFFER_BIT)
 
         var culledCounter = 0
 
         var dg = 0.1f * parallaxEffectScale * calculateParallaxEffect()
-        if(resetGyro) {
-            dg = vector2f(0.0f, 0.0f)
-            resetGyro = false
-            backgroundOffset = vector2f(0.0f, 0.0f)
-        }
 
         backgroundOffset.plusAssign(dg)
         backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
 
-        eye.rotate(vector3f(-dg.y,dg.x + dxOffset, 0.0f))
+        eye.rotateBy(vector3f(-dg.y,dg.x + dxOffset, 0.0f))
 
         dxOffset = precessionSpeed
 
@@ -298,21 +308,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         //render background
 
-        simplePlane.bind()
+        plane.bind()
 
-        starFieldShader.bind()
-        starFieldTexture.bind(0)
+        starfieldShader.bind()
+        starfieldTexture.bind(0)
 
-        starFieldShader.setUniformValue(starfieldAspectUniform, aspect)
-        starFieldShader.setSampler(starfieldSampler, 0)
-        starFieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
-        starFieldShader.setUniformValue(starfieldOffsetUniform, backgroundOffset)
-        starFieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
+        starfieldShader.setSampler(starfieldSampler, 0)
+        starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
+        starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
+        starfieldShader.setUniformValue(starfieldOffsetUniform, backgroundOffset)
+        starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
 
-        simplePlane.draw()
+        plane.draw()
 
-        starFieldTexture.release(0)
-        starFieldShader.release()
+        starfieldTexture.release(0)
+        starfieldShader.release()
 
         //remove all particles behind camera
         cloudSprites.removeAll { !frustum.isInDistance(it.position, -1.0f) }
@@ -330,10 +340,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         //render cloud sprites
 
-        cloudSpriteShader.bind()
-        cloudSpritesTexture.bind(0)
+        cloudspriteShader.bind()
+        cloudspritesTexture.bind(0)
 
-        cloudSpriteShader.setSampler("u_CloudSprites", 0)
+        cloudspriteShader.setSampler(cloudspriteSampler, 0)
 
         val cloud = cloudSprites.iterator()
         while(cloud.hasNext()) {
@@ -358,12 +368,13 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
-                cloudSpriteShader.setUniformValue(cloudSpriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
-                cloudSpriteShader.setUniformValue(cloudSpriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                cloudSpriteShader.setUniformValue(cloudSpriteColorUniform, sprite.color)
-                cloudSpriteShader.setUniformValue(cloudSpriteFadeUniform, fadeIn * fadeOut)
+                cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
+                cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                cloudspriteShader.setUniformValue(cloudspriteColorUniform, sprite.color)
+                cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
-                simplePlane.draw()
+                plane.draw()
+
             } else {
                 culledCounter++
             }
@@ -372,8 +383,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
 
 
-        cloudSpritesTexture.release(0)
-        cloudSpriteShader.release()
+        cloudspritesTexture.release(0)
+        cloudspriteShader.release()
 
         //remove all particles behind camera
         starSprites.removeAll { !frustum.isInDistance(it.position, -1.0f) }
@@ -388,12 +399,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         //render stars sprites
 
-        starSpriteShader.bind()
-        starSpritesTexture.bind(0)
+        starspriteShader.bind()
+        starspritesTexture.bind(0)
         noiseTexture.bind(1)
 
-        starSpriteShader.setSampler("u_StarSprites", 0)
-        starSpriteShader.setSampler("u_Noise", 1)
+        starspriteShader.setSampler(starspriteSampler, 0)
+        starspriteShader.setSampler(starspriteNoiseSampler, 1)
 
         val star = starSprites.iterator()
         while(star.hasNext()) {
@@ -418,12 +429,13 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
-                starSpriteShader.setUniformValue(starSpriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
-                starSpriteShader.setUniformValue(starSpriteRotationMatrixUniform, rotMatrix)
-                starSpriteShader.setUniformValue(starSpriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                starSpriteShader.setUniformValue(starSpriteFadeInUniform, fadeIn)
+                starspriteShader.setUniformValue(starspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
+                starspriteShader.setUniformValue(starspriteRotationMatrixUniform, rotMatrix)
+                starspriteShader.setUniformValue(starspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                starspriteShader.setUniformValue(starspriteFadeInUniform, fadeIn)
 
-                simplePlane.draw()
+                plane.draw()
+
             } else {
                 culledCounter++
             }
@@ -433,10 +445,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
 
         noiseTexture.release(1)
-        starSpritesTexture.release(0)
-        starSpriteShader.release()
+        starspritesTexture.release(0)
+        starspriteShader.release()
 
-        simplePlane.release()
+        plane.release()
 
         Log.info("Culled $culledCounter sprites...")
     }
@@ -457,7 +469,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
         maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
         parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        eye.setLookAt(vector3f(0.0f, 0.0f, -1.0f), vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 1.0f, 0.0f))
+        eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
         timer.reset()
     }
 
