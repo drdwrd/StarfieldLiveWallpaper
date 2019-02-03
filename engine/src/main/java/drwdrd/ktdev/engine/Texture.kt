@@ -81,7 +81,7 @@ class Texture() {
         GLES20.glBindTexture(target.glTarget, 0)
     }
 
-    fun createTexture2D(_format : Format, width : Int, height : Int,  data : ByteBuffer) {
+    private fun createTexture2D(_format : Format, width : Int, height : Int,  data : ByteBuffer) {
         check(data.remaining() >= width * height * _format.typeSize)
         target = Target.Texture2D
         format = _format
@@ -98,7 +98,7 @@ class Texture() {
         GLES20.glBindTexture(target.glTarget, 0)
     }
 
-    fun createTexture2D(bitmap : Bitmap) {
+    private fun createTexture2D(bitmap : Bitmap) {
         target = Target.Texture2D
 
         var glFormat = GLUtils.getInternalFormat(bitmap)
@@ -128,8 +128,69 @@ class Texture() {
         GLES20.glBindTexture(target.glTarget, 0)
     }
 
+    private fun createCubemapFace(face : Int, bitmap : Bitmap) {
+        var glFormat = GLUtils.getInternalFormat(bitmap)
+        check(glFormat == GLES20.GL_RGBA || glFormat == GLES20.GL_RGB) { "Unsupported Bitmap pixel format!" }
+
+        var glType = GLUtils.getType(bitmap)
+        check(glType == GLES20.GL_UNSIGNED_BYTE) { "Unsupported Bitmap pixel type!" }
+
+
+        when (glType) {
+            GLES20.GL_UNSIGNED_BYTE -> when (glFormat) {
+                GLES20.GL_RGBA -> format = Format.RGBA8
+                GLES20.GL_RGB -> format = Format.RGB8
+            }
+        }
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, glFormat, bitmap, glType, 0)
+    }
+
     companion object {
-        fun loadFromAssets(context : Context, name : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+
+        fun loadFromAssetsCubemap(context : Context, name : Array<String>, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+            var texture = Texture()
+            texture.create()
+            texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
+            texture.filtering = arrayOf(minFilter, magFilter)
+            texture.mipmappingEnabled = when(minFilter) {
+                Filtering.Linear -> false
+                Filtering.Nearest -> false
+                else -> true
+
+            }
+
+            texture.target = Target.TextureCubemap
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+            GLES20.glBindTexture(texture.target.glTarget, texture.glTextureId)
+            GLES20.glTexParameteri(texture.target.glTarget, GLES20.GL_TEXTURE_WRAP_S, texture.wrapMode[0].glWrap)
+            GLES20.glTexParameteri(texture.target.glTarget, GLES20.GL_TEXTURE_WRAP_T, texture.wrapMode[1].glWrap)
+            GLES20.glTexParameteri(texture.target.glTarget, GLES20.GL_TEXTURE_MIN_FILTER, texture.filtering[0].glFilter)
+            GLES20.glTexParameteri(texture.target.glTarget, GLES20.GL_TEXTURE_MAG_FILTER, texture.filtering[1].glFilter)
+
+            for(i in 0 .. 5) {
+                var inputStream = context.assets.open(name[i])
+                var bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
+                if(level > 0) {
+                    val w = bitmap.width shr level
+                    val h = bitmap.height shr level
+                    val b = Bitmap.createScaledBitmap(bitmap, w, h, true)
+                    texture.createCubemapFace(i, b)
+                    b.recycle()
+                } else {
+                    texture.createCubemapFace(i, bitmap)
+                }
+                bitmap.recycle()
+
+
+            }
+            if(texture.mipmappingEnabled) {
+                GLES20.glGenerateMipmap(texture.target.glTarget)
+            }
+            GLES20.glBindTexture(texture.target.glTarget, 0)
+            return texture
+        }
+
+        fun loadFromAssets2D(context : Context, name : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
             var texture = Texture()
             texture.create()
             texture.wrapMode = arrayOf(wrapModeS, wrapModeT)

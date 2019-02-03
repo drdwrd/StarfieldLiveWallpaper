@@ -1,8 +1,6 @@
 package drwdrd.ktdev.engine
 
-import android.R
-
-class Eye() {
+class Eye {
 
     var position = vector3f()
         private set
@@ -113,10 +111,26 @@ class Eye() {
         calculateViewMatrix()
     }
 
-    fun rotate(angle : vector3f) {
+    fun rotateBy(eulerAngles : vector3f) {
         val m = matrix4f()
-        m.setEulerRotation(angle.x, angle.y, angle.z)
+        m.setEulerRotation(eulerAngles.x, eulerAngles.y, eulerAngles.z)
         rotation = m * rotation
+        calculateViewMatrix()
+    }
+
+    fun rotateBy(q : quaternion) {
+        val m = q.getRotationMatrix()
+        rotation = m * rotation
+        calculateViewMatrix()
+    }
+
+    fun rotateBy(m : matrix4f) {
+        rotation = m * rotation
+        calculateViewMatrix()
+    }
+
+    fun setRotation(m : matrix4f) {
+        rotation = m
         calculateViewMatrix()
     }
 }

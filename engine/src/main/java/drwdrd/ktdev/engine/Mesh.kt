@@ -12,7 +12,7 @@ abstract class Mesh {
 }
 
 
-class SimplePlane : Mesh() {
+class Plane2D : Mesh() {
 
     private lateinit var vertexBuffer : VertexBufferObject
     private lateinit var indexBuffer : IndexBufferObject
@@ -408,6 +408,188 @@ class InstancedPlane3D(_instanceCount : Int) : Mesh() {
 
             indexDataBuffer.put(indices)
         }
+        indexBuffer.flush()
+        indexBuffer.create()
+
+    }
+
+    override fun destroy() {
+        vertexBuffer.destroy()
+        indexBuffer.destroy()
+    }
+
+    override fun draw() {
+        indexBuffer.drawElements()
+    }
+
+    override fun bind() {
+        vertexBuffer.bind()
+        indexBuffer.bind()
+        vertexBuffer.enableVertexArray()
+    }
+
+    override fun release() {
+        vertexBuffer.disableVertexArray()
+        indexBuffer.release()
+        vertexBuffer.release()
+    }
+}
+
+
+class Sphere3D(res : Int) : Mesh() {
+
+    val meshResolution = res
+    private lateinit var vertexBuffer : VertexBufferObject
+    private lateinit var indexBuffer : IndexBufferObject
+
+    val vertexFormat : VertexFormat
+        get() = vertexBuffer.vertexFormat
+
+    override fun create() {
+
+        val vertexFormat = VertexFormat()
+        vertexFormat[VertexFormat.VertexAttribute.VertexPosition] = VertexFormat.VertexAttributeInfo("position", 0, VertexFormat.Type.Float, 3, false)
+        vertexFormat[VertexFormat.VertexAttribute.TexCoordUV] = VertexFormat.VertexAttributeInfo("uvCoord", 1, VertexFormat.Type.Float, 2, false)
+
+
+        vertexBuffer = VertexBufferObject(vertexFormat)
+
+
+        val d = 1.0f / (meshResolution - 1).toFloat()
+
+        vertexBuffer.alloc(6 * meshResolution * meshResolution)
+        val vertexDataBuffer = vertexBuffer.vertexData.asFloatBuffer()
+
+        //px
+        val pxFaceTransform = matrix3f(	0.0f,  0.0f,  1.0f,
+                                        0.0f,  1.0f,  0.0f,
+                                        1.0f,  0.0f,  0.0f)
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = pxFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * i,1.0f - d * j)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        //nx
+        val nxFaceTransform = matrix3f(	0.0f,  0.0f, -1.0f,
+                                        0.0f,  1.0f,  0.0f,
+                                        -1.0f,  0.0f,  0.0f)
+
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = nxFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * i,1.0f - d * j)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        //py
+        val pyFaceTransform = matrix3f(	-1.0f,  0.0f,  0.0f,
+                                        0.0f,  0.0f, -1.0f,
+                                        0.0f,  1.0f,  0.0f)
+
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = pyFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * j,1.0f - d * i)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        //ny
+        val nyFaceTransform = matrix3f(	-1.0f,  0.0f,  0.0f,
+                                        0.0f,  0.0f,  1.0f,
+                                        0.0f, -1.0f,  0.0f)
+
+
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = nyFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * j,1.0f - d * i)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        //pz
+        val pzFaceTransform = matrix3f(	-1.0f,  0.0f,  0.0f,
+                                        0.0f,  1.0f,  0.0f,
+                                        0.0f,  0.0f,  1.0f)
+
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = pzFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * i,1.0f - d * j)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        //nz
+        val nzFaceTransform = matrix3f(	1.0f,  0.0f,  0.0f,
+                                        0.0f,  1.0f,  0.0f,
+                                        0.0f,  0.0f, -1.0f)
+
+        for(j in 0 until meshResolution) {
+            for(i in 0 until meshResolution) {
+                val q = 1.0f - 2.0f * i * d
+                val p = 1.0f - 2.0f * j * d
+                val r = 1.0f
+                val pos = nzFaceTransform * vector3f(q, p, r).normalized()
+                val uv = vector2f(1.0f - d * i,1.0f - d * j)
+                vertexDataBuffer.put(pos.toFloatArray())
+                vertexDataBuffer.put(uv.toFloatArray())
+            }
+        }
+
+        vertexBuffer.flush()
+        vertexBuffer.create()
+
+        val indicesFormat = IndicesFormat(IndicesFormat.Layout.Triangles, IndicesFormat.Type.UShort)
+
+        indexBuffer = IndexBufferObject(indicesFormat)
+
+        indexBuffer.alloc(36 * (meshResolution - 1) * (meshResolution - 1))
+        val indexDataBuffer = indexBuffer.indexData.asShortBuffer()
+
+        for (k in 0 .. 5) {
+            var index = k * meshResolution * meshResolution
+            for (j in 0 until meshResolution - 1) {
+                for (i in 0 until meshResolution - 1) {
+                    indexDataBuffer.put(index.toShort())
+                    indexDataBuffer.put((index + 1).toShort())
+                    indexDataBuffer.put((index + meshResolution).toShort())
+
+                    indexDataBuffer.put((index + meshResolution).toShort())
+                    indexDataBuffer.put((index + 1).toShort())
+                    indexDataBuffer.put((index + meshResolution + 1).toShort())
+
+                    index++
+                }
+                index++
+            }
+        }
+
         indexBuffer.flush()
         indexBuffer.create()
 

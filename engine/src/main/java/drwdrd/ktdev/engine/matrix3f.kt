@@ -91,6 +91,11 @@ class matrix3f {
 
     operator fun times(s : Float) = matrix3f(e[0] * s, e[1] * s, e[2] * s, e[3] * s, e[4] * s, e[5] * s, e[6] * s, e[7] * s, e[8] * s)
 
+    operator fun times(v : vector3f) = vector3f(e[0] * v[0] + e[3] * v[1] + e[6] * v[2],
+                                                e[1] * v[0] + e[4] * v[1] + e[7] * v[2],
+                                                e[2] * v[0] + e[5] * v[1] + e[8] * v[2])
+
+
     operator fun plusAssign(m : matrix3f) {
         e[0] += m.e[0]
         e[1] += m.e[1]
