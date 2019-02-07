@@ -108,6 +108,14 @@ class vector3f(x : Float, y : Float, z : Float) {
         return vector3f(0.0f, 0.0f, 0.0f)
     }
 
+    fun normalized(u : vector3f) : vector3f  {
+        var l = length()
+        if(l < 0.00001f) {
+            return div(l)
+        }
+        return u
+    }
+
     fun toFloatArray() = e
 
     fun put(buffer : FloatArray, offset : Int) {

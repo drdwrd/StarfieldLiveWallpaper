@@ -149,11 +149,15 @@ class vector2f(x : Float, y : Float) {
         e[index] = value
     }
 
+    fun dot(v : vector2f) = e[0] * v.e[0] + e[1] * v.e[1]
+
     companion object {
         fun mix(a : vector2f, b : vector2f, s : Float) : vector2f {
             require(s in 0.0f .. 1.0f)
             return vector2f(s * a.e[0] + (1.0f - s) * b.e[0],s * a.e[1] + (1.0f - s) * b.e[1])
         }
+
+        fun dot(v1 : vector2f, v2 : vector2f) = v1.dot(v2)
     }
 
 }
