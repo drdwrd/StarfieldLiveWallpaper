@@ -411,6 +411,11 @@ class matrix4f {
         normal.normalize()*/
 
         var u = vector3f.cross(normal, dir)
+
+        if(u.length() < 0.001f) {
+            return
+        }
+
         u.normalize()
 
         //angle

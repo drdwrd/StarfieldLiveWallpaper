@@ -133,4 +133,9 @@ class Eye {
         rotation = m
         calculateViewMatrix()
     }
+
+    fun setRotation(eulerAngles : vector3f) {
+        rotation.setEulerRotation(eulerAngles.x, eulerAngles.y, eulerAngles.z)
+        calculateViewMatrix()
+    }
 }

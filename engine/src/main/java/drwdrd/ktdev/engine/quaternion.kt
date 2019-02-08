@@ -7,6 +7,9 @@ import kotlin.math.sqrt
 class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
 
     constructor() : this(0.0f, 0.0f, 0.0f, 0.0f)
+    constructor(v : FloatArray) : this(v[0], v[1], v[2], v[3])
+    constructor(v : FloatArray, offset : Int) : this(v[offset], v[offset + 1], v[offset + 2], v[offset + 3])
+    constructor(s : Float , u : vector3f) : this(u[0], u[1], u[2], s)
 
     val x get() = e[0]
     val y get() = e[1]
@@ -15,6 +18,18 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
 
     var e = floatArrayOf(_x, _y, _z, _w)
 
+    operator fun get(index : Int) : Float {
+        require(index in 0 .. 3)
+        return e[index]
+    }
+
+    operator fun set(index : Int, value : Float) {
+        require(index in 0 .. 3)
+        e[index] = value
+    }
+
+
+    fun toFloatArray() = e
 
     operator fun plus(q: quaternion) = quaternion(e[0] + q.e[0], e[1] + q.e[1], e[2] + q.e[2], e[3] + q.e[3])
     operator fun minus(q: quaternion) = quaternion(e[0] - q.e[0], e[1] - q.e[1], e[2] - q.e[2], e[3] - q.e[3])
@@ -186,5 +201,6 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
 
         return m
     }
-
 }
+
+operator fun Float.times(q : quaternion) = q.times(this)

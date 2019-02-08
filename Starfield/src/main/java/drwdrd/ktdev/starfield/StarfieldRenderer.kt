@@ -58,7 +58,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val cloudSprites : MutableList<Particle> = ArrayList()
     private val eye = Eye()
 
-    private val parallaxEffect : StarfieldParallaxEffect = StarfieldParallaxEffectSimple()
+    private val parallaxEffect = StarfieldParallaxEffectSimple()
 
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
     private var randomBackgroundRotation = 0.0f
@@ -170,6 +170,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         parallaxEffect.onTick()
 
         eye.rotateBy(parallaxEffect.offset)
+
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
