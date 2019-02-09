@@ -406,17 +406,18 @@ class matrix4f {
 
     //assumes dir and normal are normalized
     fun setAxisRotationPart(dir : vector3f, normal: vector3f) {
-/*
-        dir.normalize()
-        normal.normalize()*/
 
         var u = vector3f.cross(normal, dir)
 
-        if(u.length() < 0.001f) {
+        var du = u.length()
+
+        if(du < 0.001f) {
             return
         }
 
-        u.normalize()
+        du = 1.0f / du
+
+        u.timesAssign(du)
 
         //angle
         var cosAngle = vector3f.dot(dir, normal)

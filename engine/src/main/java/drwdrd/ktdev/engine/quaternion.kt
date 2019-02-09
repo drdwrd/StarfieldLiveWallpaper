@@ -85,16 +85,39 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
     fun inversed() = quaternion(-e[0], -e[1], -e[2], e[3])
 
     fun normalize() {
-        val d = 1.0f / sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
-        e[0] *= d
-        e[1] *= d
-        e[2] *= d
-        e[3] *= d
+        var d = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
+
+        if(d < 0.001f) {
+
+            e[0] = 0.0f
+            e[1] = 0.0f
+            e[2] = 0.0f
+            e[3] = 1.0f
+
+        } else {
+
+            d = 1.0f / d
+
+            e[0] *= d
+            e[1] *= d
+            e[2] *= d
+            e[3] *= d
+        }
     }
 
     fun normalized(): quaternion {
-        val d = 1.0f / sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
-        return this * d
+        var d = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
+
+        if(d < 0.001f) {
+
+            return quaternion(0.0f, 0.0f, 0.0f, 1.0f)
+
+        } else {
+
+            d = 1.0f / d
+
+            return this * d
+        }
     }
 
     fun dot(q: quaternion) = (e[0] * q.e[0] + e[1] * q.e[1] + e[2] * q.e[2] + e[3] * q.e[3])
@@ -133,14 +156,18 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
 
     //dir and normal are normalized
     fun setAxisRotation(dir : vector3f, normal: vector3f) {
-/*
-        dir.normalize()
-        normal.normalize()*/
 
         val half = normal + dir
         half.normalize()
 
         var u = vector3f.cross(dir, half)
+
+        if(u.length() < 0.001f) {
+            e[3] = 1.0f
+            e[0] = 0.0f
+            e[1] = 0.0f
+            e[2] = 0.0f
+        }
 
         //angle
         e[3] = vector3f.dot(dir, half)

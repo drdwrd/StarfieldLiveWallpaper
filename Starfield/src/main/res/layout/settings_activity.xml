@@ -42,8 +42,8 @@
                 android:id="@+id/starsSpawnTimeSlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="1"
-                android:max="100"
+                android:min="2"
+                android:max="50"
                 android:progress="10"/>
 
     </LinearLayout>
@@ -64,8 +64,8 @@
                 android:id="@+id/cloudsSpawnTimeSlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="1"
-                android:max="100"
+                android:min="2"
+                android:max="50"
                 android:progress="10"/>
 
     </LinearLayout>
@@ -89,8 +89,8 @@
                 android:id="@+id/parallaxEffectMultiplierSlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="1"
-                android:max="100"
+                android:min="2"
+                android:max="50"
                 android:progress="10"/>
 
     </LinearLayout>

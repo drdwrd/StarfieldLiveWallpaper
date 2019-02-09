@@ -1,10 +1,7 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import android.content.res.Configuration
 import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
@@ -12,28 +9,33 @@ import drwdrd.ktdev.engine.*
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.*
 
 
-const val starfieldSampler = 0
-const val starfieldAspectUniform = 1
-const val starfieldTextureMatrixUniform = 2
-const val starfieldOffsetUniform  = 3
-const val starfieldTimeUniform = 4
+private const val starfieldSampler = 0
+private const val starfieldAspectUniform = 1
+private const val starfieldTextureMatrixUniform = 2
+private const val starfieldOffsetUniform  = 3
+private const val starfieldTimeUniform = 4
 
-const val cloudspriteSampler = 0
-const val cloudspriteModelViewProjectionMatrixUniform = 1
-const val cloudspriteUvRoIUniform = 2
-const val cloudspriteColorUniform = 3
-const val cloudspriteFadeUniform = 4
+private const val cloudspriteSampler = 0
+private const val cloudspriteModelViewProjectionMatrixUniform = 1
+private const val cloudspriteUvRoIUniform = 2
+private const val cloudspriteColorUniform = 3
+private const val cloudspriteFadeUniform = 4
 
-const val starspriteSampler = 0
-const val starspriteNoiseSampler = 1
-const val starspriteModelViewProjectionMatrixUniform = 2
-const val starspriteRotationMatrixUniform = 3
-const val starspriteUvRoIUniform = 4
-const val starspriteFadeInUniform = 5
+private const val starspriteSampler = 0
+private const val starspriteNoiseSampler = 1
+private const val starspriteModelViewProjectionMatrixUniform = 2
+private const val starspriteRotationMatrixUniform = 3
+private const val starspriteUvRoIUniform = 4
+private const val starspriteFadeInUniform = 5
 
+
+private const val particleSpawnDistance = 10.0f
+private const val maxStarParticlesCount = 1000        //hard limit just in case...
+private const val maxCloudParticlesCount = 200        //hard limit just in case...
+
+//TODO: add gamma correction as a feature
 
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
@@ -58,7 +60,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val cloudSprites : MutableList<Particle> = ArrayList()
     private val eye = Eye()
 
-    private val parallaxEffect = StarfieldParallaxEffectSimple()
+    private val parallaxEffectEngine = GyroParallaxEffectEngine()
 
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
     private var randomBackgroundRotation = 0.0f
@@ -67,11 +69,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
     private var maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
 
-
-    private val maxStarParticlesCount = 1000        //hard limit just in case...
-    private val maxCloudParticlesCount = 200        //hard limit just in case...
-
-    fun getTextureBaseLevel() : Int {
+    fun getTextureBaseQualityLevel() : Int {
 
         val maxTextureSize = IntArray(1)
         GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
@@ -99,7 +97,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info("OpenGL vendor: $vendor")
         Log.info("OpenGL renderer: $renderer")
 
-        val textureQuality = SettingsProvider.textureQualityLevel + getTextureBaseLevel()
+        val textureQuality = SettingsProvider.textureQualityLevel + getTextureBaseQualityLevel()
 
         Log.info("Texture quality level set to $textureQuality")
 
@@ -152,7 +150,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        parallaxEffect.reset = true
+        parallaxEffectEngine.reset = true
         randomBackgroundOffset = RandomGenerator.rand2f(-1.0f, 1.0f)
         randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
@@ -167,15 +165,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         var culledCounter = 0
 
-        parallaxEffect.onTick()
+        timer.tick()
 
-        eye.rotateBy(parallaxEffect.offset)
+        parallaxEffectEngine.onTick(timer.deltaTime.toFloat())
+
+        eye.rotateBy(parallaxEffectEngine.offset)
 
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
 
-        timer.tick()
 
 
         val backgroundTextureMatrix = matrix3f()
@@ -193,7 +192,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.setSampler(starfieldSampler, 0)
         starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
         starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
-        starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffect.backgroundOffset)
+        starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
         starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
 
         plane.draw()
@@ -210,7 +209,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-            cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, 5.0f))
+            cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
             lastCloudParticleSpawnTime = 0.0
             Log.info("cloudParticlesCount = ${cloudSprites.size}")
         }
@@ -269,7 +268,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         lastStarParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
-            starSprites.add(0, Particle.createStar(eyeForward, eyePosition, 5.0f))
+            starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
             lastStarParticleSpawnTime = 0.0
             Log.info("starParticlesCount = ${starSprites.size}")
         }
@@ -331,13 +330,13 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        parallaxEffect.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
+        parallaxEffectEngine.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
     }
 
     override fun onResume() {
         if(SettingsProvider.enableParallaxEffect) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            parallaxEffect.connect(sensorManager)
+            parallaxEffectEngine.connect(sensorManager)
         }
         timer.timeScale = 0.0002 * SettingsProvider.timeScale
         maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
@@ -349,7 +348,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     override fun onPause() {
         if(SettingsProvider.enableParallaxEffect) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            parallaxEffect.disconnect(sensorManager)
+            parallaxEffectEngine.disconnect(sensorManager)
         }
     }
 
@@ -358,3 +357,5 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         fun createRenderer(context: Context) = StarfieldRenderer(context, "starfield.ini")
     }
 }
+
+

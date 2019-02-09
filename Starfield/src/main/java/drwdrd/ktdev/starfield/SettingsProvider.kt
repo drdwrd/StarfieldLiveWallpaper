@@ -4,6 +4,7 @@ import android.content.Context
 import drwdrd.ktdev.engine.Log
 import java.io.File
 import java.io.FileNotFoundException
+import java.lang.NumberFormatException
 
 object SettingsProvider {
 
@@ -27,7 +28,6 @@ object SettingsProvider {
 
     var textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL             // 0 - high quality, 1 - low quality
 
-    //TODO: add to settings????
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
@@ -48,29 +48,32 @@ object SettingsProvider {
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
-            it.write("precessionSpeed=$precessionSpeed")
+            it.write("precessionSpeed=$precessionSpeed\n")
         }
     }
 
     fun load(context: Context, filename : String) {
         try {
             File(context.filesDir, filename).bufferedReader().useLines {
-                    lines -> lines.forEach {
-                val s = it.split("=")
-                when(s[0]) {
-                    "timeScale" -> timeScale = s[1].toDouble()
-                    "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
-                    "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
-                    "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
-                    "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
-                    "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
-                    "precessionSpeed" -> precessionSpeed = s[1].toFloat()
+                lines -> lines.forEach {
+                    val s = it.split("=")
+                    if(s.size >= 2) {
+                        when (s[0]) {
+                            "timeScale" -> timeScale = s[1].toDouble()
+                            "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
+                            "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
+                            "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
+                            "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
+                            "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
+                            "precessionSpeed" -> precessionSpeed = s[1].toFloat()
+                        }
+                    }
                 }
-            }
             }
         } catch(e : FileNotFoundException) {
             Log.debug("No settings file found!\n")
+        } catch(e : NumberFormatException) {
+            Log.debug("Cannot parse settings!\n")
         }
     }
-
 }
