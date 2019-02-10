@@ -8,7 +8,7 @@ import java.lang.NumberFormatException
 
 object SettingsProvider {
 
-    const val DEFAULT_TIMESCALE = 1.0
+    const val DEFAULT_PARTICLE_SPEED = 1.0f
     const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.02
     const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 0.2
     const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 1.0f
@@ -16,7 +16,7 @@ object SettingsProvider {
     const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
     const val DEFAULT_PRECESSION_SPEED = 0.0001f
 
-    var timeScale = DEFAULT_TIMESCALE                     // (0.1, 10.0) ????
+    var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
     var starParticlesSpawnTime = DEFAULT_STAR_PARTICLE_SPAWN_TIME       //in ms time delay between star particles spawn
 
@@ -31,7 +31,7 @@ object SettingsProvider {
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
-        timeScale = DEFAULT_TIMESCALE
+        particleSpeed = DEFAULT_PARTICLE_SPEED
         starParticlesSpawnTime = DEFAULT_STAR_PARTICLE_SPAWN_TIME
         cloudParticleSpawnTime = DEFAULT_CLOUD_PARTICLE_SPAWN_TIME
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
@@ -42,7 +42,7 @@ object SettingsProvider {
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
-            it.write("timeScale=$timeScale\n")
+            it.write("particleSpeed=$particleSpeed\n")
             it.write("starParticlesSpawnTime=$starParticlesSpawnTime\n")
             it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
@@ -59,7 +59,7 @@ object SettingsProvider {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
-                            "timeScale" -> timeScale = s[1].toDouble()
+                            "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
                             "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
                             "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()

@@ -1,5 +1,6 @@
 package drwdrd.ktdev.starfield
 
+import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,6 +13,7 @@ import kotlin.math.sign
 interface ParallaxEffectEngine {
 
     var reset : Boolean
+    var orientation : Int
     val offset : vector3f
     val backgroundOffset : vector2f
     val parallaxEffectScale : Float
@@ -28,6 +30,8 @@ private const val kFilter = 0.8f
 class EmptyParallaxEffectEngine : ParallaxEffectEngine {
 
     override var reset = false
+
+    override var orientation = Configuration.ORIENTATION_UNDEFINED
 
     override var offset = vector3f(0.0f, 0.0f, 0.0f)
         private set
@@ -77,6 +81,8 @@ class GravityParallaxEffectEngine : ParallaxEffectEngine {
 
     override var reset = true
 
+    override var orientation = Configuration.ORIENTATION_UNDEFINED
+
     override var offset = vector3f(0.0f, 0.0f, 0.0f)
         private set
 
@@ -114,27 +120,38 @@ class GravityParallaxEffectEngine : ParallaxEffectEngine {
 
     override fun onTick(deltaTime: Float) {
         val g = gravityVector.normalized()
-        val dg : vector2f
+        val dx : Float
+        val dy : Float
         if(reset) {
             backgroundOffset = vector2f(0.0f, 0.0f)
-            dg = vector2f(0.0f, 0.0f)
+            dx = 0.0f
+            dy = 0.0f
             reset = false
         } else {
             val v = vector3f()
             val rotationMatrix = matrix4f()
             rotationMatrix.setAxisRotation(g, lastGravity)
             SensorManager.getOrientation(rotationMatrix.toFloatArray(), v.toFloatArray())
-            dg = vector2f(parallaxEffectScale * v[2], parallaxEffectScale * v[1])
+            dx = parallaxEffectScale * v[2]
+            dy = parallaxEffectScale * v[1]
         }
-        backgroundOffset.plusAssign(dg)
-        backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
-        offset = vector3f(-dg.y,dg.x + dxOffset, 0.0f)
+        when(orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
+                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+            }
+
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
+                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+            }
+        }
         dxOffset = precessionSpeed
         lastGravity = g
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.05f * parallaxEffectScale * (xOffset - lastXOffset)
+        dxOffset = 0.1f * parallaxEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
         precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
     }
@@ -152,6 +169,8 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
         private set
 
     override var reset = true
+
+    override var orientation = Configuration.ORIENTATION_UNDEFINED
 
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
     private var lastXOffset = 0.0f
@@ -188,23 +207,35 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.05f * parallaxEffectScale * (xOffset - lastXOffset)
+        dxOffset = 0.1f * parallaxEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
         precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
     }
 
     override fun onTick(deltaTime: Float) {
-        val dg : vector2f
+        val dx : Float
+        val dy : Float
         if(reset) {
             backgroundOffset = vector2f(0.0f, 0.0f)
-            dg = vector2f(0.0f, 0.0f)
+            rotationVector = vector3f(0.0f, 0.0f, 0.0f)
+            dx = 0.0f
+            dy = 0.0f
             reset = false
         } else {
-            dg = vector2f(parallaxEffectScale * rotationVector[1] * deltaTime, -parallaxEffectScale * rotationVector[0] * deltaTime)
+            dx = parallaxEffectScale * rotationVector[1] * deltaTime
+            dy = -parallaxEffectScale * rotationVector[0] * deltaTime
         }
-        backgroundOffset.plusAssign(dg)
-        backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
-        offset = vector3f(-dg.y,dg.x + dxOffset, 0.0f)
+        when(orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
+                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+            }
+
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
+                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+            }
+        }
         dxOffset = precessionSpeed
     }
 }

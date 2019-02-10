@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Starfield</string>
-    <string name="wallpaper_description">Starscape Live Wallpaper</string>
-    <string name="dream_description">Starscape Live Wallpaper</string>
+    <string name="app_name">Starfield 3D Live Wallpaper</string>
+    <string name="wallpaper_description">Starfield 3D Live Wallpaper</string>
+    <string name="dream_description">Starfield 3D Live Wallpaper</string>
     <string name="author">drdwrd</string>
     <string name="settings_activity_title">Settings</string>
 

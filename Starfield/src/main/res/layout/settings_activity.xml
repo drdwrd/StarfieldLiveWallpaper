@@ -1,106 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
 
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="16dp">
+            android:layout_height="match_parent">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Time Scale"/>
-        <SeekBar
-                android:id="@+id/timeScaleSlider"
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="5"
-                android:max="50"
-                android:progress="10"/>
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp">
 
-    </LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Particle Speed"
+                    android:textSize="24sp"/>
+            <SeekBar
+                    android:id="@+id/particleSpeedSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:min="5"
+                    android:max="50"
+                    android:progress="10"/>
 
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp">
+        </LinearLayout>
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Stars"/>
-        <SeekBar
-                android:id="@+id/starsSpawnTimeSlider"
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="2"
-                android:max="50"
-                android:progress="10"/>
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
 
-    </LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Stars"
+                    android:textSize="24sp"/>
+            <SeekBar
+                    android:id="@+id/starsSpawnTimeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:min="2"
+                    android:max="50"
+                    android:progress="10"/>
 
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp">
+        </LinearLayout>
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Clouds"/>
-        <SeekBar
-                android:id="@+id/cloudsSpawnTimeSlider"
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:min="2"
-                android:max="50"
-                android:progress="10"/>
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
 
-    </LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Clouds"
+                    android:textSize="24sp"/>
+            <SeekBar
+                    android:id="@+id/cloudsSpawnTimeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:min="2"
+                    android:max="50"
+                    android:progress="10"/>
 
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp">
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
+
+            <CheckBox
+                    android:id="@+id/parallaxEffectEnabledCheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Parallax Effect"
+                    android:textSize="24sp"/>
+
+            <SeekBar
+                    android:id="@+id/parallaxEffectMultiplierSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:min="2"
+                    android:max="50"
+                    android:progress="10"/>
+
+        </LinearLayout>
 
         <CheckBox
-                android:id="@+id/parallaxEffectEnabledCheckBox"
+                android:id="@+id/highQualityTexturesCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="Parallax Effect"/>
-
-        <SeekBar
-                android:id="@+id/parallaxEffectMultiplierSlider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="2"
-                android:max="50"
-                android:progress="10"/>
+                android:text="High Quality Textures(requires restart)"
+                android:textSize="24sp"/>
 
     </LinearLayout>
-
-    <CheckBox
-            android:id="@+id/highQualityTexturesCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="High Quality Textures(requires restart)"/>
-
-</LinearLayout>
+</ScrollView>

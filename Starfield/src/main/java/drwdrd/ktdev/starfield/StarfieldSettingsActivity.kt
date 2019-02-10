@@ -22,11 +22,11 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         setupActionBar()
         setContentView(R.layout.settings_activity)
 
-        timeScaleSlider = findViewById(R.id.timeScaleSlider)
-        timeScaleSlider.progress = (SettingsProvider.timeScale * 10.0).toInt()
+        timeScaleSlider = findViewById(R.id.particleSpeedSlider)
+        timeScaleSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
         timeScaleSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.timeScale = progress.toDouble() / 10.0
+                SettingsProvider.particleSpeed = progress.toFloat() / 10.0f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -117,7 +117,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         }
         if(item?.itemId == R.id.menuResetSettings) {
             SettingsProvider.resetSettings()
-            timeScaleSlider.progress = (SettingsProvider.timeScale * 10.0).toInt()
+            timeScaleSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
             starsSpawnTimeSlider.progress = (SettingsProvider.starParticlesSpawnTime * 1000.0).toInt()
             cloudsSpawnTimeSlider.progress = (SettingsProvider.cloudParticleSpawnTime * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
