@@ -43,6 +43,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     constructor(_context : Context, file : String) : this(_context) {
         SettingsProvider.load(_context, file)
         parallaxEffectEngine = getParallaxEffectEngine()
+        fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
+            override fun onMeasure(frameTime: Double) {
+                if(frameTime > 17.0) {
+                    maxStarParticleSpawnTime += 0.01
+                    maxCloudParticleSpawnTime += 0.1
+                } else {
+                    maxStarParticleSpawnTime -= 0.01
+                    maxCloudParticleSpawnTime -= 0.1
+                }
+                Log.debug("frameTime=%.2f ms".format(frameTime))
+            }
+        }
     }
 
     private val context : Context = _context
@@ -55,7 +67,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private lateinit var starspritesTexture : Texture
     private lateinit var cloudspritesTexture : Texture
     private lateinit var noiseTexture : Texture
-    private val timer = Timer(0.0002)
+    private val timer = Timer()
+    private val fpsCounter = FpsCounter()
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -308,7 +321,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
 
             val rotMatrix = matrix3f()
-            rotMatrix.setRotation(0.4f * timer.currentTime.toFloat())
+            rotMatrix.setRotation(0.1f * timer.currentTime.toFloat())
 
             val boundingSphere = sprite.boundingSphere()
 
@@ -337,7 +350,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         plane.release()
 
-        Log.info("Culled $culledCounter sprites...")
+        fpsCounter.tick(timer.deltaTime)
+//        Log.info("Culled $culledCounter sprites...")
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {

@@ -8,10 +8,10 @@ import java.lang.NumberFormatException
 
 object SettingsProvider {
 
-    const val DEFAULT_PARTICLE_SPEED = 1.0f
-    const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.02
-    const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 0.2
-    const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 1.0f
+    const val DEFAULT_PARTICLE_SPEED = 0.2f
+    const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.075
+    const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 0.75
+    const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.2f
     const val DEFAULT_ENABLE_PARALLAX_EFFECT = false
     const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
     const val DEFAULT_PRECESSION_SPEED = 0.0001f

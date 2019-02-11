@@ -10,7 +10,7 @@ import android.widget.Toast
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
-    private lateinit var timeScaleSlider : SeekBar
+    private lateinit var particleSpeedSlider : SeekBar
     private lateinit var starsSpawnTimeSlider : SeekBar
     private lateinit var cloudsSpawnTimeSlider : SeekBar
     private lateinit var parallaxEffectMultiplierSlider : SeekBar
@@ -22,9 +22,9 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         setupActionBar()
         setContentView(R.layout.settings_activity)
 
-        timeScaleSlider = findViewById(R.id.particleSpeedSlider)
-        timeScaleSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
-        timeScaleSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        particleSpeedSlider = findViewById(R.id.particleSpeedSlider)
+        particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
+        particleSpeedSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 SettingsProvider.particleSpeed = progress.toFloat() / 10.0f
             }
@@ -80,10 +80,10 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             SettingsProvider.enableParallaxEffect = isChecked
         }
 
-        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 10.0f).toInt()
+        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
         parallaxEffectMultiplierSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.parallaxEffectMultiplier = progress.toFloat() / 10.0f
+                SettingsProvider.parallaxEffectMultiplier = progress.toFloat() / 50.0f
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -117,12 +117,12 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         }
         if(item?.itemId == R.id.menuResetSettings) {
             SettingsProvider.resetSettings()
-            timeScaleSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
+            particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
             starsSpawnTimeSlider.progress = (SettingsProvider.starParticlesSpawnTime * 1000.0).toInt()
             cloudsSpawnTimeSlider.progress = (SettingsProvider.cloudParticleSpawnTime * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
-            parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 10.0f).toInt()
+            parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
             highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
             Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
         }
