@@ -24,7 +24,13 @@ class StarfieldDreamService : DreamService() {
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         setContentView(glSurfaceView)
+        liveCycleListener.onStart()
         super.onAttachedToWindow()
+    }
+
+    override fun onDetachedFromWindow() {
+        liveCycleListener.onStop()
+        super.onDetachedFromWindow()
     }
 
     override fun onDreamingStarted() {

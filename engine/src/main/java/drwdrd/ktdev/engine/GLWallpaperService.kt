@@ -18,6 +18,8 @@ abstract class GLWallpaperService : WallpaperService() {
     }
 
     interface WallpaperLiveCycleListener {
+        fun onStart()
+        fun onStop()
         fun onPause()
         fun onResume()
     }
@@ -102,6 +104,16 @@ abstract class GLWallpaperService : WallpaperService() {
 
     override fun onCreateEngine(): Engine {
         return GLWallaperServiceEngine()
+    }
+
+    override fun onCreate() {
+        wallpaperLiveCycleListener?.onStart()
+        super.onCreate()
+    }
+
+    override fun onDestroy() {
+        wallpaperLiveCycleListener?.onStop()
+        super.onDestroy()
     }
 
     open fun onTouchEvent(event: MotionEvent?) { }
