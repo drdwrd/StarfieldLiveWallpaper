@@ -71,4 +71,14 @@ class StarfieldActivity : Activity() {
         liveCycleListener.onPause()
         super.onPause()
     }
+
+    override fun onStart() {
+        liveCycleListener.onStart()
+        super.onStart()
+    }
+
+    override fun onStop() {
+        liveCycleListener.onStop()
+        super.onStop()
+    }
 }

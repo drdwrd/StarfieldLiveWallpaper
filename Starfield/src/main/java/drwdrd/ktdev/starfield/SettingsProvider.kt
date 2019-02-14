@@ -8,13 +8,34 @@ import java.lang.NumberFormatException
 
 object SettingsProvider {
 
-    const val DEFAULT_PARTICLE_SPEED = 0.2f
-    const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.075
-    const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 0.75
-    const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.2f
-    const val DEFAULT_ENABLE_PARALLAX_EFFECT = false
-    const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
-    const val DEFAULT_PRECESSION_SPEED = 0.0001f
+    private const val DEFAULT_PARTICLE_SPEED = 0.2f
+    private const val DEFAULT_STAR_PARTICLE_SPAWN_TIME = 0.1
+    private const val DEFAULT_CLOUD_PARTICLE_SPAWN_TIME = 1.0
+    private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.2f
+    private const val DEFAULT_ENABLE_PARALLAX_EFFECT = false
+    private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
+    private const val DEFAULT_PRECESSION_SPEED = 0.0001f
+    const val TEXTURE_QUALITY_UNKNOWN = 100
+
+    enum class ParallaxEffectEngineType(val type : Int) {
+        None(0),
+        Gravity(1),
+        Gyro(2),
+        Unknown(3);
+
+        companion object {
+            fun fromInt(type: Int): ParallaxEffectEngineType {
+                return when(type) {
+                    0 -> None
+                    1 -> Gravity
+                    2 -> Gyro
+                    else -> Unknown
+                }
+            }
+        }
+    }
+
+    var parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
 
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
@@ -26,11 +47,14 @@ object SettingsProvider {
 
     var enableParallaxEffect = DEFAULT_ENABLE_PARALLAX_EFFECT
 
+    var baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
+
     var textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL             // 0 - high quality, 1 - low quality
 
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
+        parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
         particleSpeed = DEFAULT_PARTICLE_SPEED
         starParticlesSpawnTime = DEFAULT_STAR_PARTICLE_SPAWN_TIME
         cloudParticleSpawnTime = DEFAULT_CLOUD_PARTICLE_SPAWN_TIME
@@ -42,11 +66,13 @@ object SettingsProvider {
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
+            it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("starParticlesSpawnTime=$starParticlesSpawnTime\n")
             it.write("cloudParticleSpawnTime=$cloudParticleSpawnTime\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
+            it.write("baseTextureQualityLevel=$baseTextureQualityLevel\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
             it.write("precessionSpeed=$precessionSpeed\n")
         }
@@ -59,11 +85,13 @@ object SettingsProvider {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
+                            "parallaxEffectEngineType" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "starParticlesSpawnTime" -> starParticlesSpawnTime = s[1].toDouble()
                             "cloudParticleSpawnTime" -> cloudParticleSpawnTime = s[1].toDouble()
                             "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
                             "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
+                            "baseTextureQualityLevel" -> baseTextureQualityLevel = s[1].toInt()
                             "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
                             "precessionSpeed" -> precessionSpeed = s[1].toFloat()
                         }

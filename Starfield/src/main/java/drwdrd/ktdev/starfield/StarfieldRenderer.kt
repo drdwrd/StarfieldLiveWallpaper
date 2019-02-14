@@ -42,7 +42,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     constructor(_context : Context, file : String) : this(_context) {
         SettingsProvider.load(_context, file)
-        parallaxEffectEngine = getParallaxEffectEngine()
+        if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
+            SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
+        }
+        parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
+            SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
+            SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
+            else -> EmptyParallaxEffectEngine()
+        }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(frameTime > 17.0) {
@@ -68,7 +75,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private lateinit var cloudspritesTexture : Texture
     private lateinit var noiseTexture : Texture
     private val timer = Timer()
-    private val fpsCounter = FpsCounter()
+    private val fpsCounter = FpsCounter(5.0)
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -85,17 +92,17 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
     private var maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
 
-    fun getParallaxEffectEngine() : ParallaxEffectEngine {
+    private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         if(sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
-            return GyroParallaxEffectEngine()
+            return SettingsProvider.ParallaxEffectEngineType.Gyro
         } else if(sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null) {
-            return GravityParallaxEffectEngine()
+            return SettingsProvider.ParallaxEffectEngineType.Gravity
         }
-        return EmptyParallaxEffectEngine()
+        return SettingsProvider.ParallaxEffectEngineType.None
     }
 
-    fun getTextureBaseQualityLevel() : Int {
+    private fun getTextureBaseQualityLevel() : Int {
 
         val maxTextureSize = IntArray(1)
         GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
@@ -106,7 +113,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             512 -> 3
             1024 -> 2
             2048 -> 1
-            else -> 0
+            else -> 0       // >= 4096
         }
     }
 
@@ -123,7 +130,11 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info("OpenGL vendor: $vendor")
         Log.info("OpenGL renderer: $renderer")
 
-        val textureQuality = SettingsProvider.textureQualityLevel + getTextureBaseQualityLevel()
+        if(SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
+            SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
+        }
+
+        val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
 
         Log.info("Texture quality level set to $textureQuality")
 
@@ -356,6 +367,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
         parallaxEffectEngine.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
+    }
+
+    override fun onStart() {
+
+    }
+
+    override fun onStop() {
+        SettingsProvider.save(context, "starfield.ini")
     }
 
     override fun onResume() {
