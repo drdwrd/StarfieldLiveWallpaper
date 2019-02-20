@@ -40,19 +40,12 @@ class matrix4f {
         e[index] = value
     }
 
-    fun equals(m : matrix4f) : Boolean {
+    fun isEqual(m : matrix4f) : Boolean {
         return ((e[0] == m.e[0]) && (e[4] == m.e[4]) && (e[8] == m.e[8]) && (e[12] == m.e[12]) &&
                 (e[1] == m.e[1]) && (e[5] == m.e[5]) && (e[9] == m.e[9]) && (e[13] == m.e[13]) &&
                 (e[2] == m.e[2]) && (e[6] == m.e[6]) && (e[10] == m.e[10]) && (e[14] == m.e[14]) &&
                 (e[3] == m.e[3]) && (e[7] == m.e[7]) && (e[11] == m.e[11]) && (e[15] == m.e[15]))
 
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return when(other) {
-            is matrix4f -> this.equals(other)
-            else -> false
-        }
     }
 
     fun loadIdentity() {
@@ -82,25 +75,25 @@ class matrix4f {
     e[12] - m.e[12], e[13] - m.e[13], e[14] - m.e[14], e[15] - m.e[15])
 
     operator fun times(m : matrix4f) : matrix4f {
-        var ne0 = e[0] * m.e[0] + e[4] * m.e[1] + e[8] * m.e[2] + e[12] * m.e[3]
-        var ne1 = e[1] * m.e[0] + e[5] * m.e[1] + e[9] * m.e[2] + e[13] * m.e[3]
-        var ne2 = e[2] * m.e[0] + e[6] * m.e[1] + e[10] * m.e[2] + e[14] * m.e[3]
-        var ne3 = e[3] * m.e[0] + e[7] * m.e[1] + e[11] * m.e[2] + e[15] * m.e[3]
+        val ne0 = e[0] * m.e[0] + e[4] * m.e[1] + e[8] * m.e[2] + e[12] * m.e[3]
+        val ne1 = e[1] * m.e[0] + e[5] * m.e[1] + e[9] * m.e[2] + e[13] * m.e[3]
+        val ne2 = e[2] * m.e[0] + e[6] * m.e[1] + e[10] * m.e[2] + e[14] * m.e[3]
+        val ne3 = e[3] * m.e[0] + e[7] * m.e[1] + e[11] * m.e[2] + e[15] * m.e[3]
 
-        var ne4 = e[0] * m.e[4] + e[4] * m.e[5] + e[8] * m.e[6] + e[12] * m.e[7]
-        var ne5 = e[1] * m.e[4] + e[5] * m.e[5] + e[9] * m.e[6] + e[13] * m.e[7]
-        var ne6 = e[2] * m.e[4] + e[6] * m.e[5] + e[10] * m.e[6] + e[14] * m.e[7]
-        var ne7 = e[3] * m.e[4] + e[7] * m.e[5] + e[11] * m.e[6] + e[15] * m.e[7]
+        val ne4 = e[0] * m.e[4] + e[4] * m.e[5] + e[8] * m.e[6] + e[12] * m.e[7]
+        val ne5 = e[1] * m.e[4] + e[5] * m.e[5] + e[9] * m.e[6] + e[13] * m.e[7]
+        val ne6 = e[2] * m.e[4] + e[6] * m.e[5] + e[10] * m.e[6] + e[14] * m.e[7]
+        val ne7 = e[3] * m.e[4] + e[7] * m.e[5] + e[11] * m.e[6] + e[15] * m.e[7]
 
-        var ne8 = e[0] * m.e[8] + e[4] * m.e[9] + e[8] * m.e[10] + e[12] * m.e[11]
-        var ne9 = e[1] * m.e[8] + e[5] * m.e[9] + e[9] * m.e[10] + e[13] * m.e[11]
-        var ne10 = e[2] * m.e[8] + e[6] * m.e[9] + e[10] * m.e[10] + e[14] * m.e[11]
-        var ne11 = e[3] * m.e[8] + e[7] * m.e[9] + e[11] * m.e[10] + e[15] * m.e[11]
+        val ne8 = e[0] * m.e[8] + e[4] * m.e[9] + e[8] * m.e[10] + e[12] * m.e[11]
+        val ne9 = e[1] * m.e[8] + e[5] * m.e[9] + e[9] * m.e[10] + e[13] * m.e[11]
+        val ne10 = e[2] * m.e[8] + e[6] * m.e[9] + e[10] * m.e[10] + e[14] * m.e[11]
+        val ne11 = e[3] * m.e[8] + e[7] * m.e[9] + e[11] * m.e[10] + e[15] * m.e[11]
 
-        var ne12 = e[0] * m.e[12] + e[4] * m.e[13] + e[8] * m.e[14] + e[12] * m.e[15]
-        var ne13 = e[1] * m.e[12] + e[5] * m.e[13] + e[9] * m.e[14] + e[13] * m.e[15]
-        var ne14 = e[2] * m.e[12] + e[6] * m.e[13] + e[10] * m.e[14] + e[14] * m.e[15]
-        var ne15 = e[3] * m.e[12] + e[7] * m.e[13] + e[11] * m.e[14] + e[15] * m.e[15]
+        val ne12 = e[0] * m.e[12] + e[4] * m.e[13] + e[8] * m.e[14] + e[12] * m.e[15]
+        val ne13 = e[1] * m.e[12] + e[5] * m.e[13] + e[9] * m.e[14] + e[13] * m.e[15]
+        val ne14 = e[2] * m.e[12] + e[6] * m.e[13] + e[10] * m.e[14] + e[14] * m.e[15]
+        val ne15 = e[3] * m.e[12] + e[7] * m.e[13] + e[11] * m.e[14] + e[15] * m.e[15]
 
         return  matrix4f(ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10, ne11, ne12, ne13, ne14, ne15)
     }
@@ -147,25 +140,25 @@ class matrix4f {
     }
 
     operator fun timesAssign(m : matrix4f) {
-        var ne0 = e[0] * m.e[0] + e[4] * m.e[1] + e[8] * m.e[2] + e[12] * m.e[3]
-        var ne1 = e[1] * m.e[0] + e[5] * m.e[1] + e[9] * m.e[2] + e[13] * m.e[3]
-        var ne2 = e[2] * m.e[0] + e[6] * m.e[1] + e[10] * m.e[2] + e[14] * m.e[3]
-        var ne3 = e[3] * m.e[0] + e[7] * m.e[1] + e[11] * m.e[2] + e[15] * m.e[3]
+        val ne0 = e[0] * m.e[0] + e[4] * m.e[1] + e[8] * m.e[2] + e[12] * m.e[3]
+        val ne1 = e[1] * m.e[0] + e[5] * m.e[1] + e[9] * m.e[2] + e[13] * m.e[3]
+        val ne2 = e[2] * m.e[0] + e[6] * m.e[1] + e[10] * m.e[2] + e[14] * m.e[3]
+        val ne3 = e[3] * m.e[0] + e[7] * m.e[1] + e[11] * m.e[2] + e[15] * m.e[3]
 
-        var ne4 = e[0] * m.e[4] + e[4] * m.e[5] + e[8] * m.e[6] + e[12] * m.e[7]
-        var ne5 = e[1] * m.e[4] + e[5] * m.e[5] + e[9] * m.e[6] + e[13] * m.e[7]
-        var ne6 = e[2] * m.e[4] + e[6] * m.e[5] + e[10] * m.e[6] + e[14] * m.e[7]
-        var ne7 = e[3] * m.e[4] + e[7] * m.e[5] + e[11] * m.e[6] + e[15] * m.e[7]
+        val ne4 = e[0] * m.e[4] + e[4] * m.e[5] + e[8] * m.e[6] + e[12] * m.e[7]
+        val ne5 = e[1] * m.e[4] + e[5] * m.e[5] + e[9] * m.e[6] + e[13] * m.e[7]
+        val ne6 = e[2] * m.e[4] + e[6] * m.e[5] + e[10] * m.e[6] + e[14] * m.e[7]
+        val ne7 = e[3] * m.e[4] + e[7] * m.e[5] + e[11] * m.e[6] + e[15] * m.e[7]
 
-        var ne8 = e[0] * m.e[8] + e[4] * m.e[9] + e[8] * m.e[10] + e[12] * m.e[11]
-        var ne9 = e[1] * m.e[8] + e[5] * m.e[9] + e[9] * m.e[10] + e[13] * m.e[11]
-        var ne10 = e[2] * m.e[8] + e[6] * m.e[9] + e[10] * m.e[10] + e[14] * m.e[11]
-        var ne11 = e[3] * m.e[8] + e[7] * m.e[9] + e[11] * m.e[10] + e[15] * m.e[11]
+        val ne8 = e[0] * m.e[8] + e[4] * m.e[9] + e[8] * m.e[10] + e[12] * m.e[11]
+        val ne9 = e[1] * m.e[8] + e[5] * m.e[9] + e[9] * m.e[10] + e[13] * m.e[11]
+        val ne10 = e[2] * m.e[8] + e[6] * m.e[9] + e[10] * m.e[10] + e[14] * m.e[11]
+        val ne11 = e[3] * m.e[8] + e[7] * m.e[9] + e[11] * m.e[10] + e[15] * m.e[11]
 
-        var ne12 = e[0] * m.e[12] + e[4] * m.e[13] + e[8] * m.e[14] + e[12] * m.e[15]
-        var ne13 = e[1] * m.e[12] + e[5] * m.e[13] + e[9] * m.e[14] + e[13] * m.e[15]
-        var ne14 = e[2] * m.e[12] + e[6] * m.e[13] + e[10] * m.e[14] + e[14] * m.e[15]
-        var ne15 = e[3] * m.e[12] + e[7] * m.e[13] + e[11] * m.e[14] + e[15] * m.e[15]
+        val ne12 = e[0] * m.e[12] + e[4] * m.e[13] + e[8] * m.e[14] + e[12] * m.e[15]
+        val ne13 = e[1] * m.e[12] + e[5] * m.e[13] + e[9] * m.e[14] + e[13] * m.e[15]
+        val ne14 = e[2] * m.e[12] + e[6] * m.e[13] + e[10] * m.e[14] + e[14] * m.e[15]
+        val ne15 = e[3] * m.e[12] + e[7] * m.e[13] + e[11] * m.e[14] + e[15] * m.e[15]
 
         e[0] = ne0
         e[1] = ne1
@@ -407,7 +400,7 @@ class matrix4f {
     //assumes dir and normal are normalized
     fun setAxisRotationPart(dir : vector3f, normal: vector3f) {
 
-        var u = vector3f.cross(normal, dir)
+        val u = vector3f.cross(normal, dir)
 
         var du = u.length()
 
@@ -420,7 +413,7 @@ class matrix4f {
         u.timesAssign(du)
 
         //angle
-        var cosAngle = vector3f.dot(dir, normal)
+        val cosAngle = vector3f.dot(dir, normal)
 
         val sinAngle = sqrt(1.0f - cosAngle * cosAngle)
         val oneMinusCosAngle = 1.0f - cosAngle
@@ -439,7 +432,7 @@ class matrix4f {
     }
 
     fun setAxisRotationPart(axis : vector3f, angle : Float) {
-        var u = vector3f(axis)
+        val u = vector3f(axis)
         u.normalize()
 
         val sinAngle = sin(angle)

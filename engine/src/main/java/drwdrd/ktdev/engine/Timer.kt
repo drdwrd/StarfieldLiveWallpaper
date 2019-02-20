@@ -1,7 +1,6 @@
 package drwdrd.ktdev.engine
 
 import android.os.SystemClock
-import android.R.attr.tag
 
 
 class Timer {

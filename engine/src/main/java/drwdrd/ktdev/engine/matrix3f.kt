@@ -34,18 +34,11 @@ class matrix3f {
         e[index] = value
     }
 
-    fun equals(m : matrix3f) : Boolean {
+    fun isEqual(m : matrix3f) : Boolean {
         return ((e[0] == m.e[0]) && (e[3] == m.e[3]) && (e[6] == m.e[6]) &&
                 (e[1] == m.e[1]) && (e[4] == m.e[4]) && (e[7] == m.e[7]) &&
                 (e[2] == m.e[2]) && (e[5] == m.e[5]) && (e[8] == m.e[8]))
 
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return when(other) {
-            is matrix3f -> this.equals(other)
-            else -> false
-        }
     }
 
     fun loadIdentity() {

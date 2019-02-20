@@ -40,12 +40,8 @@ class Rectangle(_left : Float, _top : Float, _right : Float, _bottom : Float) {
     val halfSize
         get() = Size((right - left) / 2.0f, (bottom - top) / 2.0f)
 
-
-    override operator fun equals(other : Any?) : Boolean {
-        return when(other) {
-            is Rectangle -> ((left == other.left) && (top == other.top) && (right == other.right) && (bottom == other.bottom))
-            else -> false
-        }
+    fun isEqual(r : Rectangle) : Boolean {
+        return (left == r.left) && (top == r.top) && (right == r.right) && (bottom == r.bottom)
     }
 
     fun contains(px : Float, py : Float) : Boolean {

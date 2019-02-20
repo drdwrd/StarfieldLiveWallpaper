@@ -33,11 +33,8 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
 
     fun toColor()  = Color.argb(Math.round(255.0f * e[3]), Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
-    override operator fun equals(other : Any?) : Boolean {
-        return when(other) {
-            is vector4f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]) && (e[3] == other.e[3]))
-            else -> false
-        }
+    fun isEqual(v : vector4f) : Boolean {
+        return (e[0] == v.e[0]) && (e[1] == v.e[1]) && (e[2] == v.e[2]) && (e[3] == v.e[3])
     }
 
     operator fun plus(v : vector4f) = vector4f(e[0] + v.e[0], e[1] + v.e[1], e[2] + v.e[2], e[3] + v.e[3])

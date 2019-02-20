@@ -28,11 +28,8 @@ class vector3f(x : Float, y : Float, z : Float) {
 
     fun toColor()  = Color.rgb(Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
-    override operator fun equals(other : Any?) : Boolean {
-        return when(other) {
-            is vector3f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]) && (e[2] == other.e[2]))
-            else -> false
-        }
+    fun isEqual(v : vector3f) : Boolean {
+        return (e[0] == v.e[0]) && (e[1] == v.e[1]) && (e[2] == v.e[2])
     }
 
     operator fun plus(v : vector3f) = vector3f(e[0] + v.e[0], e[1] + v.e[1], e[2] + v.e[2])
@@ -94,14 +91,14 @@ class vector3f(x : Float, y : Float, z : Float) {
     fun length() = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
 
     fun normalize()  {
-        var l = length()
+        val l = length()
         if(l != 0.0f) {
             divAssign(l)
         }
     }
 
     fun normalized() : vector3f  {
-        var l = length()
+        val l = length()
         if(l != 0.0f) {
             return div(l)
         }
@@ -109,7 +106,7 @@ class vector3f(x : Float, y : Float, z : Float) {
     }
 
     fun normalized(u : vector3f) : vector3f  {
-        var l = length()
+        val l = length()
         if(l < 0.00001f) {
             return div(l)
         }

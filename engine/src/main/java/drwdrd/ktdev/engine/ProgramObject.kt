@@ -5,7 +5,7 @@ import android.opengl.GLES20
 
 
 fun Array<vector2f>.toFloatArray() : FloatArray {
-    var array = FloatArray(2 * this.size)
+    val array = FloatArray(2 * this.size)
     for(index in this.indices) {
         this[index].put(array, 2 * index)
     }
@@ -14,7 +14,7 @@ fun Array<vector2f>.toFloatArray() : FloatArray {
 
 
 fun Array<vector3f>.toFloatArray() : FloatArray {
-    var array = FloatArray(3 * this.size)
+    val array = FloatArray(3 * this.size)
     for(index in this.indices) {
         this[index].put(array, 3 * index)
     }
@@ -22,7 +22,7 @@ fun Array<vector3f>.toFloatArray() : FloatArray {
 }
 
 fun Array<vector4f>.toFloatArray() : FloatArray {
-    var array = FloatArray(4 * this.size)
+    val array = FloatArray(4 * this.size)
     for(index in this.indices) {
         this[index].put(array, 4 * index)
     }
@@ -30,7 +30,7 @@ fun Array<vector4f>.toFloatArray() : FloatArray {
 }
 
 fun Array<matrix2f>.toFloatArray() : FloatArray {
-    var array = FloatArray(4 * this.size)
+    val array = FloatArray(4 * this.size)
     for(index in this.indices) {
         this[index].put(array, 4 * index)
     }
@@ -38,7 +38,7 @@ fun Array<matrix2f>.toFloatArray() : FloatArray {
 }
 
 fun Array<matrix3f>.toFloatArray() : FloatArray {
-    var array = FloatArray(12 * this.size)
+    val array = FloatArray(12 * this.size)
     for(index in this.indices) {
         this[index].put(array, 12 * index)
     }
@@ -46,7 +46,7 @@ fun Array<matrix3f>.toFloatArray() : FloatArray {
 }
 
 fun Array<matrix4f>.toFloatArray() : FloatArray {
-    var array = FloatArray(16 * this.size)
+    val array = FloatArray(16 * this.size)
     for(index in this.indices) {
         this[index].put(array, 16 * index)
     }
@@ -115,11 +115,11 @@ class ProgramObject(_name : String = "") {
             Log.error("Cannot link program: $info")
             return false
         }
-        var count = intArrayOf(1)
+        val count = intArrayOf(1)
         GLES20.glGetProgramiv(glProgramId, GLES20.GL_ACTIVE_UNIFORMS, count, 0)
-        var buf = intArrayOf(2)
+        val buf = intArrayOf(2)
         for(index in 0 until count[0]) {
-            var name = GLES20.glGetActiveUniform(glProgramId, index, buf, 0, buf, 1)
+            val name = GLES20.glGetActiveUniform(glProgramId, index, buf, 0, buf, 1)
             uniformMap[name] = index
         }
         uniforms = Array(count[0]) { Uniform() }

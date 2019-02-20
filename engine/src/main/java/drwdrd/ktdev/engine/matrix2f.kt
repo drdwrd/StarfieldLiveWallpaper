@@ -22,14 +22,7 @@ class matrix2f(e0 : Float, e1 : Float, e2 : Float, e3 : Float) {
         e[index] = value
     }
 
-    fun equals(m : matrix2f) = ((e[0] == m.e[0]) && (e[1] == m.e[1]) && (e[2] == m.e[2]) && (e[3] == m.e[3]))
-
-    override operator fun equals(other: Any?): Boolean {
-        return when(other) {
-            is matrix2f -> this.equals(other)
-            else -> false
-        }
-    }
+    fun isEqual(m : matrix2f) = ((e[0] == m.e[0]) && (e[1] == m.e[1]) && (e[2] == m.e[2]) && (e[3] == m.e[3]))
 
     fun loadIdentity() {
         e[0] = 1.0f

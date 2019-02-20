@@ -8,7 +8,7 @@ object RandomColor {
 
     fun randomColor() : Int {
         require(colorTable.isNotEmpty())
-        var index = RandomGenerator.rand(colorTable.size - 1)
+        val index = RandomGenerator.rand(colorTable.size - 1)
         return colorTable[index].toInt()
     }
 

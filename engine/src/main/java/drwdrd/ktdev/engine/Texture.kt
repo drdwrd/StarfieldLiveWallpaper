@@ -6,10 +6,9 @@ import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import java.nio.ByteBuffer
-import java.util.logging.Filter
 
 
-class Texture() {
+class Texture {
 
     lateinit var target : Target
         private set
@@ -101,10 +100,10 @@ class Texture() {
     private fun createTexture2D(bitmap : Bitmap) {
         target = Target.Texture2D
 
-        var glFormat = GLUtils.getInternalFormat(bitmap)
+        val glFormat = GLUtils.getInternalFormat(bitmap)
         check(glFormat == GLES20.GL_RGBA || glFormat == GLES20.GL_RGB) { "Unsupported Bitmap pixel format!" }
 
-        var glType = GLUtils.getType(bitmap)
+        val glType = GLUtils.getType(bitmap)
         check(glType == GLES20.GL_UNSIGNED_BYTE) { "Unsupported Bitmap pixel type!" }
 
 
@@ -129,10 +128,10 @@ class Texture() {
     }
 
     private fun createCubemapFace(face : Int, bitmap : Bitmap) {
-        var glFormat = GLUtils.getInternalFormat(bitmap)
+        val glFormat = GLUtils.getInternalFormat(bitmap)
         check(glFormat == GLES20.GL_RGBA || glFormat == GLES20.GL_RGB) { "Unsupported Bitmap pixel format!" }
 
-        var glType = GLUtils.getType(bitmap)
+        val glType = GLUtils.getType(bitmap)
         check(glType == GLES20.GL_UNSIGNED_BYTE) { "Unsupported Bitmap pixel type!" }
 
 
@@ -148,7 +147,7 @@ class Texture() {
     companion object {
 
         fun loadFromAssetsCubemap(context : Context, name : Array<String>, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
-            var texture = Texture()
+            val texture = Texture()
             texture.create()
             texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
             texture.filtering = arrayOf(minFilter, magFilter)
@@ -168,8 +167,8 @@ class Texture() {
             GLES20.glTexParameteri(texture.target.glTarget, GLES20.GL_TEXTURE_MAG_FILTER, texture.filtering[1].glFilter)
 
             for(i in 0 .. 5) {
-                var inputStream = context.assets.open(name[i])
-                var bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
+                val inputStream = context.assets.open(name[i])
+                val bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
                 if(level > 0) {
                     val w = bitmap.width shr level
                     val h = bitmap.height shr level
@@ -191,7 +190,7 @@ class Texture() {
         }
 
         fun loadFromAssets2D(context : Context, name : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
-            var texture = Texture()
+            val texture = Texture()
             texture.create()
             texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
             texture.filtering = arrayOf(minFilter, magFilter)
@@ -201,8 +200,8 @@ class Texture() {
                 else -> true
 
             }
-            var inputStream = context.assets.open(name)
-            var bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
+            val inputStream = context.assets.open(name)
+            val bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
             if(level > 0) {
                 val w = bitmap.width shr level
                 val h = bitmap.height shr level

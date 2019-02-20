@@ -8,7 +8,7 @@ object RandomGenerator {
     private val m_Random = Random(0)
 
     fun createSeed(): Long {
-        var seed = System.currentTimeMillis()
+        val seed = System.currentTimeMillis()
         m_Random.setSeed(seed)
         return seed
     }

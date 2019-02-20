@@ -9,11 +9,7 @@ class Size(w : Float, h : Float) {
     val width = w
     val height = h
 
-
-    override operator fun equals(other : Any?) : Boolean {
-        return when(other) {
-            is Size -> ((width == other.width) && (height == other.height))
-            else -> false
-        }
+    fun isEqual(sz : Size) : Boolean {
+        return (width == sz.width) && (height == sz.height)
     }
 }

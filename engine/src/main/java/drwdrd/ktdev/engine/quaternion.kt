@@ -108,15 +108,11 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
     fun normalized(): quaternion {
         var d = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2] + e[3] * e[3])
 
-        if(d < 0.001f) {
-
-            return quaternion(0.0f, 0.0f, 0.0f, 1.0f)
-
+        return if(d < 0.001f) {
+            quaternion(0.0f, 0.0f, 0.0f, 1.0f)
         } else {
-
             d = 1.0f / d
-
-            return this * d
+            this * d
         }
     }
 
@@ -160,7 +156,7 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
         val half = normal + dir
         half.normalize()
 
-        var u = vector3f.cross(dir, half)
+        val u = vector3f.cross(dir, half)
 
         if(u.length() < 0.001f) {
             e[3] = 1.0f

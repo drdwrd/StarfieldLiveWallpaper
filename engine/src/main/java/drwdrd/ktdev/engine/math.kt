@@ -41,7 +41,7 @@ fun xclamp(value : Float, min : Float, max : Float) : Float {
 
 fun smoothstep(edge0: Float, edge1: Float, value: Float): Float {
     // Scale, bias and saturate x to 0..1 range
-    var x = clamp((value - edge0) / (edge1 - edge0), 0.0f, 1.0f)
+    val x = clamp((value - edge0) / (edge1 - edge0), 0.0f, 1.0f)
     // Evaluate polynomial
     return x * x * (3 - 2 * x)
 }

@@ -28,7 +28,7 @@ abstract class GLWallpaperService : WallpaperService() {
     var wallpaperLiveCycleListener : WallpaperLiveCycleListener? = null
     var onOffsetChangedListener : OnOffsetChangedListener? = null
 
-    inner class GLWallaperServiceEngine : Engine() {
+    inner class GLWallpaperServiceEngine : Engine() {
 
         inner class GLWallpaperSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -58,7 +58,7 @@ abstract class GLWallpaperService : WallpaperService() {
             }
         }
 
-        private lateinit var glSurfaceView : GLWallaperServiceEngine.GLWallpaperSurfaceView
+        private lateinit var glSurfaceView : GLWallpaperServiceEngine.GLWallpaperSurfaceView
         private var rendererHasBeenSet : Boolean = false
 
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
@@ -103,7 +103,7 @@ abstract class GLWallpaperService : WallpaperService() {
     }
 
     override fun onCreateEngine(): Engine {
-        return GLWallaperServiceEngine()
+        return GLWallpaperServiceEngine()
     }
 
     override fun onCreate() {

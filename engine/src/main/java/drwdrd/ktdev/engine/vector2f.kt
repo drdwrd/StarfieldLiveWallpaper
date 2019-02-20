@@ -14,11 +14,9 @@ class vector2f(x : Float, y : Float) {
     val y : Float
         get() = e[1]
 
-    override operator fun equals(other : Any?) : Boolean {
-        return when(other) {
-            is vector2f -> ((e[0] == other.e[0]) && (e[1] == other.e[1]))
-            else -> false
-        }
+
+    fun isEqual(v : vector2f) : Boolean {
+        return (e[0] == v.e[0]) && (e[1] == v.e[1])
     }
 
     operator fun plus(v : vector2f) = vector2f(e[0] + v.e[0], e[1] + v.e[1])
