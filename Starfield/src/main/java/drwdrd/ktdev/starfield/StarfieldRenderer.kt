@@ -36,8 +36,6 @@ private const val maxStarParticlesCount = 1000        //hard limit just in case.
 private const val maxCloudParticlesCount = 200        //hard limit just in case...
 
 
-//TODO: adaptive fps...
-
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
     constructor(_context : Context, file : String) : this(_context) {
@@ -52,12 +50,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
-                if(frameTime > 17.0) {
-                    maxStarParticleSpawnTime += 0.01
-                    maxCloudParticleSpawnTime += 0.1
-                } else {
-                    maxStarParticleSpawnTime -= 0.01
-                    maxCloudParticleSpawnTime -= 0.1
+                if(frameTime > 16.7) {
+                    maxStarParticleSpawnTime += 0.001
+                    maxCloudParticleSpawnTime += 0.01
+                } else if(frameTime < 16.6) {
+                    maxStarParticleSpawnTime -= 0.001
+                    maxCloudParticleSpawnTime -= 0.01
                 }
                 Log.debug("frameTime=%.2f ms".format(frameTime))
             }
@@ -75,7 +73,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private lateinit var cloudspritesTexture : Texture
     private lateinit var noiseTexture : Texture
     private val timer = Timer()
-    private val fpsCounter = FpsCounter(5.0)
+    private val fpsCounter = FpsCounter(2.0)
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -89,8 +87,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
-    private var maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
-    private var maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
+    private var maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+    private var maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -125,10 +123,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val version = GLES20.glGetString(GLES20.GL_VERSION)
         val vendor = GLES20.glGetString(GLES20.GL_VENDOR)
         val renderer = GLES20.glGetString(GLES20.GL_RENDERER)
+        val extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS)
 
         Log.info("OpenGL version: $version")
         Log.info("OpenGL vendor: $vendor")
         Log.info("OpenGL renderer: $renderer")
+        Log.info("OpenGL extensions: $extensions")
 
         if(SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
             SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
@@ -383,8 +383,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             parallaxEffectEngine.connect(sensorManager)
         }
         particleSpeed = SettingsProvider.particleSpeed
-        maxStarParticleSpawnTime = SettingsProvider.starParticlesSpawnTime
-        maxCloudParticleSpawnTime = SettingsProvider.cloudParticleSpawnTime
+        maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+        maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
         timer.reset()
     }

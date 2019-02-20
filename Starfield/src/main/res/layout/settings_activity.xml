@@ -6,7 +6,7 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         <LinearLayout
                 android:orientation="vertical"
@@ -19,13 +19,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Particle Speed"
+                    android:text="@string/label_stars_speed"
                     android:textSize="24sp"/>
             <SeekBar
                     android:id="@+id/particleSpeedSlider"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:min="1"
                     android:max="10"
                     android:progress="2"/>
 
@@ -38,42 +37,26 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp">
 
+            <CheckBox
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/btn_adaptive_fps"
+                    android:textSize="24sp"/>
+
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Stars"
+                    android:text="@string/label_stars_density"
                     android:textSize="24sp"/>
             <SeekBar
                     android:id="@+id/starsSpawnTimeSlider"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:min="10"
-                    android:max="250"
-                    android:progress="50"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Clouds"
-                    android:textSize="24sp"/>
-            <SeekBar
-                    android:id="@+id/cloudsSpawnTimeSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:min="10"
-                    android:max="250"
-                    android:progress="50"/>
+                    android:max="25"
+                    android:progress="10"/>
 
         </LinearLayout>
 
@@ -90,14 +73,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:text="Parallax Effect"
+                    android:text="@string/label_parallax_effect"
                     android:textSize="24sp"/>
 
             <SeekBar
                     android:id="@+id/parallaxEffectMultiplierSlider"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:min="1"
                     android:max="25"
                     android:progress="10"/>
 
@@ -109,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="High Quality Textures(requires restart)"
+                android:text="@string/btn_texture_quality"
                 android:textSize="24sp"/>
 
     </LinearLayout>

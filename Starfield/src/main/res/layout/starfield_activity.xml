@@ -25,7 +25,7 @@
                 android:id="@+id/setDreamButton"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
-                android:text="Set Screensaver"/>
+                android:text="@string/btn_set_screensaver"/>
 
         <Button
                 android:id="@+id/editSettingsButton"

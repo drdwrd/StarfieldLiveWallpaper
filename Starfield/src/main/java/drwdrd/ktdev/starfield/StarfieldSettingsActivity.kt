@@ -12,7 +12,6 @@ class StarfieldSettingsActivity : AppCompatActivity() {
 
     private lateinit var particleSpeedSlider : SeekBar
     private lateinit var starsSpawnTimeSlider : SeekBar
-    private lateinit var cloudsSpawnTimeSlider : SeekBar
     private lateinit var parallaxEffectMultiplierSlider : SeekBar
     private lateinit var parallaxEffectEnabledCheckBox : CheckBox
     private  lateinit var highQualityTexturesCheckBox : CheckBox
@@ -39,26 +38,10 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         })
 
         starsSpawnTimeSlider = findViewById(R.id.starsSpawnTimeSlider)
-        starsSpawnTimeSlider.progress = (SettingsProvider.starParticlesSpawnTime * 1000.0).toInt()
+        starsSpawnTimeSlider.progress = (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
         starsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.starParticlesSpawnTime = progress.toDouble() / 1000.0
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
-
-        cloudsSpawnTimeSlider = findViewById(R.id.cloudsSpawnTimeSlider)
-        cloudsSpawnTimeSlider.progress = (SettingsProvider.cloudParticleSpawnTime * 100.0).toInt()
-        cloudsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.cloudParticleSpawnTime = progress.toDouble() / 100.0
+                SettingsProvider.particlesSpawnTimeMultiplier = progress.toDouble() / 100.0
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -118,8 +101,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         if(item?.itemId == R.id.menuResetSettings) {
             SettingsProvider.resetSettings()
             particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
-            starsSpawnTimeSlider.progress = (SettingsProvider.starParticlesSpawnTime * 1000.0).toInt()
-            cloudsSpawnTimeSlider.progress = (SettingsProvider.cloudParticleSpawnTime * 100.0).toInt()
+            starsSpawnTimeSlider.progress = (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
