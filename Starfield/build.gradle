@@ -19,7 +19,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
+
+    //TODO: get rid of this
+    aaptOptions {
+        noCompress "ktx"
+    }}
 
 //workaround for https://issuetracker.google.com/issues/117685087
 configurations.all {

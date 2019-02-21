@@ -65,6 +65,12 @@ class Texture {
         check(glTextureId != 0) { "Cannot create TextureObject" }
     }
 
+    fun create(target : Target) {
+        this.target = target
+        GLES20.glGenTextures(1, _glTextureId, 0)
+        check(glTextureId != 0) { "Cannot create TextureObject" }
+    }
+
     fun delete() {
         GLES20.glDeleteTextures(1, _glTextureId, 0)
         _glTextureId[0] = 0
