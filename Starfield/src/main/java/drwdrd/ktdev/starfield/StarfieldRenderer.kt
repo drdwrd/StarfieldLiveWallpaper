@@ -3,6 +3,7 @@ package drwdrd.ktdev.starfield
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.opengl.ETC1
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.*
@@ -50,12 +51,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
-                if(frameTime > 16.7) {
-                    maxStarParticleSpawnTime += 0.001
-                    maxCloudParticleSpawnTime += 0.01
-                } else if(frameTime < 16.6) {
-                    maxStarParticleSpawnTime -= 0.001
-                    maxCloudParticleSpawnTime -= 0.01
+                if(SettingsProvider.adaptiveFPS) {
+                    if (frameTime > 16.7) {
+                        maxStarParticleSpawnTime += 0.001
+                        maxCloudParticleSpawnTime += 0.01
+                    } else if (frameTime < 16.6) {
+                        maxStarParticleSpawnTime -= 0.001
+                        maxCloudParticleSpawnTime -= 0.01
+                    }
                 }
                 Log.debug("frameTime=%.2f ms".format(frameTime))
             }
@@ -100,6 +103,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         return SettingsProvider.ParallaxEffectEngineType.None
     }
 
+    private fun getTextureCompressionMode(version : String, extensions : String) : SettingsProvider.TextureCompressionMode {
+        if(extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
+            return SettingsProvider.TextureCompressionMode.ASTC
+        } else if(version.contains("OpenGL ES 3")) {
+            return SettingsProvider.TextureCompressionMode.ETC2
+        } else if(extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture")) {
+            return SettingsProvider.TextureCompressionMode.ETC2
+        } else if(version.contains("OpenGL ES 2")) {
+            return SettingsProvider.TextureCompressionMode.ETC1
+        } else if(extensions.contains("OES_compressed_ETC1_RGB8_texture")) {
+            return SettingsProvider.TextureCompressionMode.ETC1
+        }
+        return SettingsProvider.TextureCompressionMode.NONE
+    }
+
     private fun getTextureBaseQualityLevel() : Int {
 
         val maxTextureSize = IntArray(1)
@@ -134,14 +152,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
         }
 
+        if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.UNKNOWN) {
+            SettingsProvider.textureCompressionMode = getTextureCompressionMode(version, extensions)
+        }
+
         val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
 
+        Log.info("Texture compression mode set to ${SettingsProvider.textureCompressionMode}")
         Log.info("Texture quality level set to $textureQuality")
 
         plane.create()
 
-        //TODO: automatic texture mode detection...
-        if(SettingsProvider.textureCompression == SettingsProvider.TextureCompression.ASTC || SettingsProvider.textureCompression == SettingsProvider.TextureCompression.ETC2) {
+        if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ASTC || SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ETC2) {
             starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
         } else {
             starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
@@ -167,8 +189,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
-        when(SettingsProvider.textureCompression) {
-            SettingsProvider.TextureCompression.ASTC -> {
+        when(SettingsProvider.textureCompressionMode) {
+            SettingsProvider.TextureCompressionMode.ASTC -> {
                 //astc
                 starspritesTexture = KTXLoader.loadFromAssets(
                     context,
@@ -189,7 +211,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     Texture.Filtering.Linear
                 )
             }
-            SettingsProvider.TextureCompression.ETC2 -> {
+            SettingsProvider.TextureCompressionMode.ETC2 -> {
                 //etc2
                 starspritesTexture = KTXLoader.loadFromAssets(
                     context,
@@ -210,7 +232,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     Texture.Filtering.Linear
                 )
             }
-            SettingsProvider.TextureCompression.ETC -> {
+            SettingsProvider.TextureCompressionMode.ETC1 -> {
                 //etc
                 starspritesTexture = Texture.loadFromAssets2D(
                     context,
@@ -231,7 +253,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     Texture.Filtering.Linear
                 )
             }
-            SettingsProvider.TextureCompression.NONE -> {
+            SettingsProvider.TextureCompressionMode.NONE -> {
                 //png
                 starspritesTexture = Texture.loadFromAssets2D(
                     context,
@@ -473,8 +495,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             parallaxEffectEngine.connect(sensorManager)
         }
         particleSpeed = SettingsProvider.particleSpeed
-        maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-        maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
+        if(!SettingsProvider.adaptiveFPS) {
+            maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+            maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
+        }
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
         timer.reset()
     }

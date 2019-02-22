@@ -34,16 +34,31 @@ object SettingsProvider {
         }
     }
 
-    enum class TextureCompression {
-        NONE,
-        ETC,
-        ETC2,
-        ASTC;
+    enum class TextureCompressionMode(val type : Int) {
+        NONE(0),
+        ETC1(1),
+        ETC2(2),
+        ASTC(3),
+        UNKNOWN(4);
+
+        companion object {
+            fun fromInt(type : Int) : TextureCompressionMode {
+                return when(type) {
+                    0 -> NONE
+                    1 -> ETC1
+                    2 -> ETC2
+                    3 -> ASTC
+                    else -> UNKNOWN
+                }
+            }
+        }
     }
 
-    var textureCompression = TextureCompression.ASTC
+    var textureCompressionMode = TextureCompressionMode.UNKNOWN
 
     var parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
+
+    var adaptiveFPS = true
 
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
@@ -60,7 +75,9 @@ object SettingsProvider {
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
+        textureCompressionMode = SettingsProvider.TextureCompressionMode.UNKNOWN
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
+        adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
         particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
@@ -71,7 +88,9 @@ object SettingsProvider {
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
+            it.write("textureCompressionMode=$textureCompressionMode")
             it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
+            it.write("adaptiveFPS=$adaptiveFPS")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
@@ -89,7 +108,9 @@ object SettingsProvider {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
+                            "textureCompressionMode" -> TextureCompressionMode.fromInt(s[1].toInt())
                             "parallaxEffectEngineType" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
+                            "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "particlesSpawnTimeMultiplier" -> particlesSpawnTimeMultiplier = s[1].toDouble()
                             "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()

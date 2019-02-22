@@ -8,11 +8,13 @@ import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.Toast
 
+//TODO: finish
 class StarfieldSettingsActivity : AppCompatActivity() {
 
     private lateinit var particleSpeedSlider : SeekBar
     private lateinit var starsSpawnTimeSlider : SeekBar
     private lateinit var parallaxEffectMultiplierSlider : SeekBar
+    private lateinit var adaptiveFPS : CheckBox
     private lateinit var parallaxEffectEnabledCheckBox : CheckBox
     private  lateinit var highQualityTexturesCheckBox : CheckBox
 
@@ -38,6 +40,15 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         })
 
         starsSpawnTimeSlider = findViewById(R.id.starsSpawnTimeSlider)
+        starsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
+
+        adaptiveFPS = findViewById(R.id.adaptiveFPSCheckbox)
+        adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
+        adaptiveFPS.setOnCheckedChangeListener { buttonView, isChecked ->
+            starsSpawnTimeSlider.isEnabled = !isChecked
+            SettingsProvider.adaptiveFPS = isChecked
+        }
+
         starsSpawnTimeSlider.progress = (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
         starsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -101,6 +112,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         if(item?.itemId == R.id.menuResetSettings) {
             SettingsProvider.resetSettings()
             particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
+            adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
             starsSpawnTimeSlider.progress = (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
