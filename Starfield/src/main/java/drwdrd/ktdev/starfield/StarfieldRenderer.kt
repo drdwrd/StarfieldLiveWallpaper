@@ -140,7 +140,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         plane.create()
 
-        starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
+        //TODO: automatic texture mode detection...
+        if(SettingsProvider.textureCompression == SettingsProvider.TextureCompression.ASTC || SettingsProvider.textureCompression == SettingsProvider.TextureCompression.ETC2) {
+            starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
+        } else {
+            starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
+        }
         starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
         starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
         starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
@@ -162,16 +167,96 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
+        when(SettingsProvider.textureCompression) {
+            SettingsProvider.TextureCompression.ASTC -> {
+                //astc
+                starspritesTexture = KTXLoader.loadFromAssets(
+                    context,
+                    "images/astc/starsprites.ktx",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+                starfieldTexture = KTXLoader.loadFromAssets(
+                    context,
+                    "images/astc/starfield.ktx",
+                    textureQuality,
+                    Texture.WrapMode.Repeat,
+                    Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            SettingsProvider.TextureCompression.ETC2 -> {
+                //etc2
+                starspritesTexture = KTXLoader.loadFromAssets(
+                    context,
+                    "images/etc2/starsprites.ktx",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+                starfieldTexture = KTXLoader.loadFromAssets(
+                    context,
+                    "images/etc2/starfield.ktx",
+                    textureQuality,
+                    Texture.WrapMode.Repeat,
+                    Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            SettingsProvider.TextureCompression.ETC -> {
+                //etc
+                starspritesTexture = Texture.loadFromAssets2D(
+                    context,
+                    "images/png/starsprites.png",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+                starfieldTexture = KTXLoader.loadFromAssets(
+                    context,
+                    "images/etc/starfield.ktx",
+                    textureQuality,
+                    Texture.WrapMode.Repeat,
+                    Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            SettingsProvider.TextureCompression.NONE -> {
+                //png
+                starspritesTexture = Texture.loadFromAssets2D(
+                    context,
+                    "images/png/starsprites.png",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+                starfieldTexture = Texture.loadFromAssets2D(
+                    context,
+                    "images/png/starfield.png",
+                    textureQuality,
+                    Texture.WrapMode.Repeat,
+                    Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+        }
 
-//        starspritesTexture = Texture.loadFromAssets2D(context, "images/starsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        starspritesTexture = KTXLoader.loadFromAssets(context, "images/astc/starsprites.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-
-        cloudspritesTexture = Texture.loadFromAssets2D(context, "images/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-
-//        starfieldTexture = Texture.loadFromAssets2D(context, "images/starfield.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        starfieldTexture = KTXLoader.loadFromAssets(context, "images/astc/starfield.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-
-        noiseTexture = Texture.loadFromAssets2D(context, "images/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        //misc
+        cloudspritesTexture = Texture.loadFromAssets2D(context, "images/png/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        noiseTexture = Texture.loadFromAssets2D(context, "images/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))

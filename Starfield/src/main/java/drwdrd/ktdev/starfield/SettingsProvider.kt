@@ -34,6 +34,15 @@ object SettingsProvider {
         }
     }
 
+    enum class TextureCompression {
+        NONE,
+        ETC,
+        ETC2,
+        ASTC;
+    }
+
+    var textureCompression = TextureCompression.ASTC
+
     var parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
 
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????

@@ -18,6 +18,9 @@ void main() {
 
     vec4 star = texture2D(u_StarSprites, tex);
 
+    //multiply by alpha for astc/etc2 textures, png are premulitplied already
+    star.rgb *= star.a;
+
     vec3 p = u_RotationMatrix * vec3(uv, 1.0);
 
     vec4 noise = texture2D(u_Noise, p.xy);
