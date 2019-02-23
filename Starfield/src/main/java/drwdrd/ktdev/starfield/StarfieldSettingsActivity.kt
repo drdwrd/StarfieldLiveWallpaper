@@ -68,6 +68,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
 
         parallaxEffectEnabledCheckBox = findViewById(R.id.parallaxEffectEnabledCheckBox)
+        parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             parallaxEffectMultiplierSlider.isEnabled = isChecked
@@ -115,6 +116,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
             starsSpawnTimeSlider.progress = (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
+            parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
             highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)

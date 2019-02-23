@@ -11,14 +11,13 @@ object SettingsProvider {
     private const val DEFAULT_PARTICLE_SPEED = 0.2f
     private const val DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER = 0.1
     private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.2f
-    private const val DEFAULT_ENABLE_PARALLAX_EFFECT = false
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
     private const val DEFAULT_PRECESSION_SPEED = 0.0001f
     const val TEXTURE_QUALITY_UNKNOWN = 100
 
     enum class ParallaxEffectEngineType(val type : Int) {
         None(0),
-        Gravity(1),
+        Accelerometer(1),
         Gyro(2),
         Unknown(3);
 
@@ -26,7 +25,7 @@ object SettingsProvider {
             fun fromInt(type: Int): ParallaxEffectEngineType {
                 return when(type) {
                     0 -> None
-                    1 -> Gravity
+                    1 -> Accelerometer
                     2 -> Gyro
                     else -> Unknown
                 }
@@ -66,7 +65,7 @@ object SettingsProvider {
 
     var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
 
-    var enableParallaxEffect = DEFAULT_ENABLE_PARALLAX_EFFECT
+    var enableParallaxEffect = false
 
     var baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
 
@@ -75,13 +74,11 @@ object SettingsProvider {
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
-        textureCompressionMode = SettingsProvider.TextureCompressionMode.UNKNOWN
-        parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
         adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
         particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
-        enableParallaxEffect = DEFAULT_ENABLE_PARALLAX_EFFECT
+        enableParallaxEffect = false
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
         precessionSpeed = DEFAULT_PRECESSION_SPEED
     }

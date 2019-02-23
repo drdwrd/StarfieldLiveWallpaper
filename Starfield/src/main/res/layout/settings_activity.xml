@@ -40,7 +40,7 @@
             <CheckBox
                     android:id="@+id/adaptiveFPSCheckbox"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
                     android:text="@string/btn_adaptive_fps"
@@ -71,7 +71,7 @@
             <CheckBox
                     android:id="@+id/parallaxEffectEnabledCheckBox"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
                     android:text="@string/label_parallax_effect"
@@ -90,6 +90,7 @@
                 android:id="@+id/highQualityTexturesCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/btn_texture_quality"

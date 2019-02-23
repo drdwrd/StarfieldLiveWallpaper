@@ -7,6 +7,7 @@ import android.opengl.ETC1
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.*
+import java.lang.Exception
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -46,7 +47,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
-            SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
+            SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
             else -> EmptyParallaxEffectEngine()
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
@@ -95,27 +96,22 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        if(sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
-            return SettingsProvider.ParallaxEffectEngineType.Gyro
-        } else if(sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null) {
-            return SettingsProvider.ParallaxEffectEngineType.Gravity
+        return when {
+            sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null -> SettingsProvider.ParallaxEffectEngineType.Gyro
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null -> SettingsProvider.ParallaxEffectEngineType.Accelerometer
+            else -> SettingsProvider.ParallaxEffectEngineType.None
         }
-        return SettingsProvider.ParallaxEffectEngineType.None
     }
 
     private fun getTextureCompressionMode(version : String, extensions : String) : SettingsProvider.TextureCompressionMode {
-        if(extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
-            return SettingsProvider.TextureCompressionMode.ASTC
-        } else if(version.contains("OpenGL ES 3")) {
-            return SettingsProvider.TextureCompressionMode.ETC2
-        } else if(extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture")) {
-            return SettingsProvider.TextureCompressionMode.ETC2
-        } else if(version.contains("OpenGL ES 2")) {
-            return SettingsProvider.TextureCompressionMode.ETC1
-        } else if(extensions.contains("OES_compressed_ETC1_RGB8_texture")) {
-            return SettingsProvider.TextureCompressionMode.ETC1
+        return when {
+            extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc") -> SettingsProvider.TextureCompressionMode.ASTC
+            version.contains("OpenGL ES 3") -> SettingsProvider.TextureCompressionMode.ETC2
+            extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture") -> SettingsProvider.TextureCompressionMode.ETC2
+            version.contains("OpenGL ES 2") -> SettingsProvider.TextureCompressionMode.ETC1
+            extensions.contains("OES_compressed_ETC1_RGB8_texture") -> SettingsProvider.TextureCompressionMode.ETC1
+            else -> SettingsProvider.TextureCompressionMode.NONE
         }
-        return SettingsProvider.TextureCompressionMode.NONE
     }
 
     private fun getTextureBaseQualityLevel() : Int {
@@ -253,7 +249,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     Texture.Filtering.Linear
                 )
             }
-            SettingsProvider.TextureCompressionMode.NONE -> {
+            else -> {
                 //png
                 starspritesTexture = Texture.loadFromAssets2D(
                     context,
