@@ -111,6 +111,8 @@ object KTXLoader {
                 inputStream.read(db, 0, imageSize)
                 db.rewind()
                 GLES20.glCompressedTexImage2D(texture.target.glTarget, mip - level, glInternalFormat, width, height, 0, imageSize, db)
+            } else {
+                inputStream.skip(imageSize)
             }
             inputStream.skip(imagePadding)
         }
