@@ -88,9 +88,9 @@ object SettingsProvider {
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
-            it.write("textureCompressionMode=$textureCompressionMode")
+            it.write("textureCompressionMode=${textureCompressionMode.type}\n")
             it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
-            it.write("adaptiveFPS=$adaptiveFPS")
+            it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
