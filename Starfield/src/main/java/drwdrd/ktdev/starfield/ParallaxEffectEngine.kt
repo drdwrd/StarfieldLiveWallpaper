@@ -6,6 +6,8 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import drwdrd.ktdev.engine.*
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 
 
@@ -25,8 +27,6 @@ interface ParallaxEffectEngine {
 }
 
 private const val gFilter = 0.8f
-private const val aFilter = 0.95f
-private const val mFilter = 0.95f
 
 
 class EmptyParallaxEffectEngine : ParallaxEffectEngine {
@@ -73,10 +73,31 @@ class EmptyParallaxEffectEngine : ParallaxEffectEngine {
     }
 }
 
+class SensorDataBuffer(size : Int) {
+
+    private val buffer = Array(size) { vector3f() }
+    private var bufferDataPos = 0
+
+    fun putEventData(data : FloatArray) {
+        buffer[bufferDataPos++] = vector3f(data[0], data[1], data[2])
+        bufferDataPos %= buffer.size
+    }
+
+    fun getData() : vector3f {
+        val v = vector3f(0.0f, 0.0f, 0.0f)
+        for(i in bufferDataPos until bufferDataPos + buffer.size) {
+            v += buffer[i % buffer.size]
+        }
+        return v / buffer.size.toFloat()
+    }
+
+}
+
 class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
 
-    private val gravityVector = vector3f(0.0f, 0.0f, 0.0f)
-    private val magneticVector = vector3f(0.0f, 0.0f, 0.0f)
+    private val gravitySensorData = SensorDataBuffer(24)
+    private val magnetometerSensorData = SensorDataBuffer(24)
+    private val gyroSensorData = SensorDataBuffer(12)
     private var prevRotationMatrix = matrix4f()
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
     private var lastXOffset = 0.0f
@@ -102,14 +123,10 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
         override fun onSensorChanged(event: SensorEvent?) {
             when(event?.sensor?.type) {
                 Sensor.TYPE_ACCELEROMETER -> {
-                    gravityVector[0] = aFilter * gravityVector[0] + (1.0f - aFilter) * event.values[0]
-                    gravityVector[1] = aFilter * gravityVector[1] + (1.0f - aFilter) * event.values[1]
-                    gravityVector[2] = aFilter * gravityVector[2] + (1.0f - aFilter) * event.values[2]
+                    gravitySensorData.putEventData(event.values)
                 }
                 Sensor.TYPE_MAGNETIC_FIELD -> {
-                    magneticVector[0] = mFilter * magneticVector[0] + (1.0f - mFilter) * event.values[0]
-                    magneticVector[1] = mFilter * magneticVector[1] + (1.0f - mFilter) * event.values[1]
-                    magneticVector[2] = mFilter * magneticVector[2] + (1.0f - mFilter) * event.values[2]
+                    magnetometerSensorData.putEventData(event.values)
                 }
             }
         }
@@ -135,10 +152,16 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
         val rotationMatrix = matrix4f()
         val rotAngles = vector3f(0.0f, 0.0f, 0.0f)
 
+        val gravityVector = gravitySensorData.getData()
+        val magneticVector = magnetometerSensorData.getData()
+
         SensorManager.getRotationMatrix(rotationMatrix.toFloatArray(), null, gravityVector.toFloatArray(), magneticVector.toFloatArray())
         SensorManager.getAngleChange(rotAngles.toFloatArray(), rotationMatrix.toFloatArray(), prevRotationMatrix.toFloatArray())
         prevRotationMatrix = rotationMatrix
-        rotationVector = gFilter * rotationVector + (1.0f - gFilter) * rotAngles
+
+        gyroSensorData.putEventData(rotAngles.toFloatArray())
+
+        rotationVector = gyroSensorData.getData()
 
         val dx : Float
         val dy : Float
@@ -189,6 +212,7 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
     override var orientation = Configuration.ORIENTATION_UNDEFINED
 
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
+    private val gyroSensorDataBuffer = SensorDataBuffer(8)
     private var lastXOffset = 0.0f
     private var dxOffset = 0.0f
     private var precessionSpeed = 0.0f
@@ -201,9 +225,7 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
         override fun onSensorChanged(event: SensorEvent?) {
             when(event?.sensor?.type) {
                 Sensor.TYPE_GYROSCOPE -> {
-                    rotationVector[0] = gFilter * rotationVector[0] + (1.0f - gFilter) * event.values[0]
-                    rotationVector[1] = gFilter * rotationVector[1] + (1.0f - gFilter) * event.values[1]
-                    rotationVector[2] = gFilter * rotationVector[2] + (1.0f - gFilter) * event.values[2]
+                    gyroSensorDataBuffer.putEventData(event.values)
                 }
             }
         }
@@ -231,6 +253,7 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
     override fun onTick(deltaTime: Float) {
         val dx : Float
         val dy : Float
+        rotationVector = gyroSensorDataBuffer.getData()
         if(reset) {
             backgroundOffset = vector2f(0.0f, 0.0f)
             rotationVector = vector3f(0.0f, 0.0f, 0.0f)

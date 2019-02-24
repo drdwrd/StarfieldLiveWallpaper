@@ -45,6 +45,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
         }
+        Log.info("Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()

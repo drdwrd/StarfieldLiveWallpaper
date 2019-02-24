@@ -10,7 +10,7 @@ object SettingsProvider {
 
     private const val DEFAULT_PARTICLE_SPEED = 0.2f
     private const val DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER = 0.1
-    private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.2f
+    private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
     private const val DEFAULT_PRECESSION_SPEED = 0.0001f
     const val TEXTURE_QUALITY_UNKNOWN = 100

@@ -81,8 +81,8 @@
                     android:id="@+id/parallaxEffectMultiplierSlider"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:max="25"
-                    android:progress="10"/>
+                    android:max="50"
+                    android:progress="25"/>
 
         </LinearLayout>
 
