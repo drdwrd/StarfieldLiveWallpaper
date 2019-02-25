@@ -31,6 +31,13 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
     val w : Float
         get() = e[3]
 
+    fun zero() {
+        e[0] = 0.0f
+        e[1] = 0.0f
+        e[2] = 0.0f
+        e[3] = 0.0f
+    }
+
     fun toColor()  = Color.argb(Math.round(255.0f * e[3]), Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     fun isEqual(v : vector4f) : Boolean {
@@ -132,6 +139,8 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
             require(s in 0.0f .. 1.0f)
             return vector4f(s * a.e[0] + (1.0f - s) * b.e[0],s * a.e[1] + (1.0f - s) * b.e[1], s * a.e[2] + (1.0f - s) * b.e[2], s * a.e[3] + (1.0f - s) * b.e[3])
         }
+
+        fun zero() = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
     }
 
 }

@@ -51,6 +51,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
             else -> EmptyParallaxEffectEngine()
         }
+        parallaxEffectEngine = AccelerometerParallaxEffectEngine()
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {

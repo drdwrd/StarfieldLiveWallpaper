@@ -14,6 +14,10 @@ class vector2f(x : Float, y : Float) {
     val y : Float
         get() = e[1]
 
+    fun zero() {
+        e[0] = 0.0f
+        e[1] = 0.0f
+    }
 
     fun isEqual(v : vector2f) : Boolean {
         return (e[0] == v.e[0]) && (e[1] == v.e[1])
@@ -156,6 +160,8 @@ class vector2f(x : Float, y : Float) {
         }
 
         fun dot(v1 : vector2f, v2 : vector2f) = v1.dot(v2)
+
+        fun zero() = vector2f(0.0f, 0.0f)
     }
 
 }

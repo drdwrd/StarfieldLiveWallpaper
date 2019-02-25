@@ -26,6 +26,12 @@ class vector3f(x : Float, y : Float, z : Float) {
     val z : Float
         get() = e[2]
 
+    fun zero() {
+        e[0] = 0.0f
+        e[1] = 0.0f
+        e[2] = 0.0f
+    }
+
     fun toColor()  = Color.rgb(Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     fun isEqual(v : vector3f) : Boolean {
@@ -151,6 +157,8 @@ class vector3f(x : Float, y : Float, z : Float) {
         fun dot(v1 : vector3f, v2 : vector3f) = v1.dot(v2)
 
         fun cross(v1 : vector3f, v2 : vector3f) = v1.cross(v2)
+
+        fun zero() = vector3f(0.0f, 0.0f, 0.0f)
     }
 
 }

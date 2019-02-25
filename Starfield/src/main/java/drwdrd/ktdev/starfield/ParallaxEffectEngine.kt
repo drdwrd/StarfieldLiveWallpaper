@@ -1,10 +1,13 @@
 package drwdrd.ktdev.starfield
 
+import android.content.Context
 import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.view.Display
+import android.view.WindowManager
 import drwdrd.ktdev.engine.*
 import kotlin.math.max
 import kotlin.math.min
@@ -64,7 +67,8 @@ class EmptyParallaxEffectEngine : ParallaxEffectEngine {
 
     override fun onTick(deltaTime: Float) {
         if(reset) {
-            backgroundOffset = vector2f(0.0f, 0.0f)
+            backgroundOffset.zero()
+            offset.zero()
             reset = false
         }
         backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
@@ -77,6 +81,11 @@ class SensorDataBuffer(size : Int) {
 
     private val buffer = Array(size) { vector3f() }
     private var bufferDataPos = 0
+
+    fun clear() {
+        bufferDataPos = 0
+        buffer.forEach { it.zero() }
+    }
 
     fun putEventData(data : FloatArray) {
         buffer[bufferDataPos++] = vector3f(data[0], data[1], data[2])
@@ -93,9 +102,10 @@ class SensorDataBuffer(size : Int) {
 
 }
 
+//TODO: still wonky, remapping????
 class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
 
-    private val gravitySensorData = SensorDataBuffer(24)
+    private val accelerometerSensorData = SensorDataBuffer(24)
     private val magnetometerSensorData = SensorDataBuffer(24)
     private val gyroSensorData = SensorDataBuffer(12)
     private var prevRotationMatrix = matrix4f()
@@ -123,7 +133,7 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
         override fun onSensorChanged(event: SensorEvent?) {
             when(event?.sensor?.type) {
                 Sensor.TYPE_ACCELEROMETER -> {
-                    gravitySensorData.putEventData(event.values)
+                    accelerometerSensorData.putEventData(event.values)
                 }
                 Sensor.TYPE_MAGNETIC_FIELD -> {
                     magnetometerSensorData.putEventData(event.values)
@@ -152,10 +162,15 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
         val rotationMatrix = matrix4f()
         val rotAngles = vector3f(0.0f, 0.0f, 0.0f)
 
-        val gravityVector = gravitySensorData.getData()
-        val magneticVector = magnetometerSensorData.getData()
+        val accelerometerValues = accelerometerSensorData.getData()
+        val magneticValues = magnetometerSensorData.getData()
 
-        SensorManager.getRotationMatrix(rotationMatrix.toFloatArray(), null, gravityVector.toFloatArray(), magneticVector.toFloatArray())
+        val rm = matrix3f()
+        val gravity = vector3f(0f, 0f, 9.81f)
+
+        SensorManager.getRotationMatrix(rm.toFloatArray(), null, accelerometerValues.toFloatArray(), magneticValues.toFloatArray())
+        val gravityVector = rm * gravity
+        SensorManager.getRotationMatrix(rotationMatrix.toFloatArray(), null, gravityVector.toFloatArray(), magneticValues.toFloatArray())
         SensorManager.getAngleChange(rotAngles.toFloatArray(), rotationMatrix.toFloatArray(), prevRotationMatrix.toFloatArray())
         prevRotationMatrix = rotationMatrix
 
@@ -166,8 +181,10 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
         val dx : Float
         val dy : Float
         if(reset) {
-            backgroundOffset = vector2f(0.0f, 0.0f)
-            rotationVector = vector3f(0.0f, 0.0f, 0.0f)
+            backgroundOffset.zero()
+            rotationVector.zero()
+            accelerometerSensorData.clear()
+            magnetometerSensorData.clear()
             dx = 0.0f
             dy = 0.0f
             reset = false
@@ -255,8 +272,9 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
         val dy : Float
         rotationVector = gyroSensorDataBuffer.getData()
         if(reset) {
-            backgroundOffset = vector2f(0.0f, 0.0f)
-            rotationVector = vector3f(0.0f, 0.0f, 0.0f)
+            backgroundOffset.zero()
+            rotationVector.zero()
+            gyroSensorDataBuffer.clear()
             dx = 0.0f
             dy = 0.0f
             reset = false
