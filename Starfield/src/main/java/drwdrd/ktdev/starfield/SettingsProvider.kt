@@ -120,9 +120,9 @@ object SettingsProvider {
                 }
             }
         } catch(e : FileNotFoundException) {
-            Log.debug("No settings file found!\n")
+            Log.warning("No settings file found!\n")
         } catch(e : NumberFormatException) {
-            Log.debug("Cannot parse settings!\n")
+            Log.warning("Cannot parse settings!\n")
         }
     }
 }

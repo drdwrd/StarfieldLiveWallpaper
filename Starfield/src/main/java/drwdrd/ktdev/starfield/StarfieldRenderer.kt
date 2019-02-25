@@ -51,7 +51,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
             else -> EmptyParallaxEffectEngine()
         }
-        parallaxEffectEngine = AccelerometerParallaxEffectEngine()
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
@@ -63,7 +62,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                         maxCloudParticleSpawnTime -= 0.01
                     }
                 }
-                Log.debug("frameTime=%.2f ms".format(frameTime))
+//                Log.debug("frameTime=%.2f ms".format(frameTime))
             }
         }
     }
@@ -132,7 +131,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        Log.debug("onSurfaceCreated()")
+//        Log.debug("onSurfaceCreated()")
 
         RandomGenerator.createSeed()
 
@@ -303,7 +302,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
         aspect = vector2f(width.toFloat() / height.toFloat(), 1.0f)
-        Log.debug("onSurfaceChanged(width = $width, height = $height)")
+//        Log.debug("onSurfaceChanged(width = $width, height = $height)")
     }
 
     override fun onDrawFrame(p0: GL10?) {
@@ -356,7 +355,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
             cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
             lastCloudParticleSpawnTime = 0.0
-            Log.info("cloudParticlesCount = ${cloudSprites.size}")
+//            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
         }
 
         //render cloud sprites
@@ -415,7 +414,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
             starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
             lastStarParticleSpawnTime = 0.0
-            Log.info("starParticlesCount = ${starSprites.size}")
+//            Log.debug("starParticlesCount = ${starSprites.size}")
         }
 
         //render stars sprites
@@ -472,7 +471,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         plane.release()
 
         fpsCounter.tick(timer.deltaTime)
-//        Log.info("Culled $culledCounter sprites...")
+//        Log.debug("Culled $culledCounter sprites...")
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {

@@ -47,13 +47,13 @@ abstract class GLWallpaperService : WallpaperService() {
 
             override fun onPause() {
                 wallpaperLiveCycleListener?.onPause()
-                Log.debug("GLWallpaperSurfaceView.onPause()")
+//                Log.debug("GLWallpaperSurfaceView.onPause()")
                 super.onPause()
             }
 
             override fun onResume() {
                 wallpaperLiveCycleListener?.onResume()
-                Log.debug("GLWallpaperSurfaceView.onResume()")
+//                Log.debug("GLWallpaperSurfaceView.onResume()")
                 super.onResume()
             }
         }

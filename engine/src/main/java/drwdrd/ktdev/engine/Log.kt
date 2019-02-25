@@ -7,7 +7,9 @@ class Log {
         lateinit var tag : String
 
         fun debug(msg: String) {
-            android.util.Log.d(tag, msg)
+            if(BuildConfig.DEBUG) {
+                android.util.Log.d(tag, msg)
+            }
         }
 
         fun info(msg: String) {
