@@ -18,15 +18,17 @@ object SettingsProvider {
     enum class ParallaxEffectEngineType(val type : Int) {
         None(0),
         Accelerometer(1),
-        Gyro(2),
-        Unknown(3);
+        Gravity(2),
+        Gyro(3),
+        Unknown(4);
 
         companion object {
             fun fromInt(type: Int): ParallaxEffectEngineType {
                 return when(type) {
                     0 -> None
                     1 -> Accelerometer
-                    2 -> Gyro
+                    2 -> Gravity
+                    3 -> Gyro
                     else -> Unknown
                 }
             }

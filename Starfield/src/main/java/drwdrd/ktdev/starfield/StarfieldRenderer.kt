@@ -48,9 +48,11 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info("Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
+            SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
             else -> EmptyParallaxEffectEngine()
         }
+        parallaxEffectEngine = GravityParallaxEffectEngine()
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
@@ -99,6 +101,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         return when {
             sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null -> SettingsProvider.ParallaxEffectEngineType.Gyro
+            sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null -> SettingsProvider.ParallaxEffectEngineType.Gravity
             sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null -> SettingsProvider.ParallaxEffectEngineType.Accelerometer
             else -> SettingsProvider.ParallaxEffectEngineType.None
         }
