@@ -50,9 +50,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
-            else -> EmptyParallaxEffectEngine()
+            else -> ScrollingWallpaperEffectEngine()
         }
-        parallaxEffectEngine = GravityParallaxEffectEngine()
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
@@ -490,10 +489,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onResume() {
-        if(SettingsProvider.enableParallaxEffect) {
-            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            parallaxEffectEngine.connect(sensorManager)
-        }
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        parallaxEffectEngine.connect(sensorManager)
         particleSpeed = SettingsProvider.particleSpeed
         if(!SettingsProvider.adaptiveFPS) {
             maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
@@ -504,10 +501,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onPause() {
-        if(SettingsProvider.enableParallaxEffect) {
-            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            parallaxEffectEngine.disconnect(sensorManager)
-        }
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        parallaxEffectEngine.disconnect(sensorManager)
     }
 
     companion object {

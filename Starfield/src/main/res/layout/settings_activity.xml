@@ -87,6 +87,16 @@
         </LinearLayout>
 
         <CheckBox
+                android:id="@+id/scrollingEffectCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/btn_scrolling_effect"
+                android:textSize="24sp"/>
+
+        <CheckBox
                 android:id="@+id/highQualityTexturesCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -10,9 +10,10 @@
     <string name="btn_edit_settings">Settings</string>
 
     <string name="label_stars_speed">Stars Speed</string>
-    <string name="btn_adaptive_fps">Adpative FPS</string>
+    <string name="btn_adaptive_fps">Adaptive FPS</string>
     <string name="label_stars_density">Stars Density</string>
     <string name="label_parallax_effect">Parallax Effect</string>
+    <string name="btn_scrolling_effect">Wallpaper Scrolling</string>
     <string name="btn_texture_quality">High Quality Textures(requires restart)</string>
 
     <string name="menu_reset">Reset</string>

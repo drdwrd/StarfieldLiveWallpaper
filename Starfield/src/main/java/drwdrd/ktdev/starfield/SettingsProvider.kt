@@ -12,7 +12,8 @@ object SettingsProvider {
     private const val DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER = 0.1
     private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
-    private const val DEFAULT_PRECESSION_SPEED = 0.0001f
+    private const val DEFAULT_SLIDE_EFFECT_MULTIPLIER = 0.5f
+    private const val DEFAULT_PRECESSION_SPEED = 0.005f
     const val TEXTURE_QUALITY_UNKNOWN = 100
 
     enum class ParallaxEffectEngineType(val type : Int) {
@@ -73,6 +74,10 @@ object SettingsProvider {
 
     var textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL             // 0 - high quality, 1 - low quality
 
+    var scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
+
+    var enableScrollingEffect = true
+
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
@@ -82,6 +87,8 @@ object SettingsProvider {
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
         enableParallaxEffect = false
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
+        enableScrollingEffect = true
+        scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
         precessionSpeed = DEFAULT_PRECESSION_SPEED
     }
 
@@ -96,6 +103,8 @@ object SettingsProvider {
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
             it.write("baseTextureQualityLevel=$baseTextureQualityLevel\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
+            it.write("enableScrollingEffect=$enableScrollingEffect\n")
+            it.write("scrollingEffectMultiplier=$scrollingEffectMultiplier\n")
             it.write("precessionSpeed=$precessionSpeed\n")
         }
     }
@@ -116,6 +125,8 @@ object SettingsProvider {
                             "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
                             "baseTextureQualityLevel" -> baseTextureQualityLevel = s[1].toInt()
                             "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
+                            "enableScrollingEffect" -> enableScrollingEffect = s[1].toBoolean()
+                            "scrollingEffectMultiplier" -> scrollingEffectMultiplier = s[1].toFloat()
                             "precessionSpeed" -> precessionSpeed = s[1].toFloat()
                         }
                     }

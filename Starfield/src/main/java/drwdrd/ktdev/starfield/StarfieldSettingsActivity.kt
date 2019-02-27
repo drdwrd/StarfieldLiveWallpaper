@@ -16,6 +16,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     private lateinit var parallaxEffectMultiplierSlider : SeekBar
     private lateinit var adaptiveFPS : CheckBox
     private lateinit var parallaxEffectEnabledCheckBox : CheckBox
+    private lateinit var scrollingEffectEnableCheckBox : CheckBox
     private  lateinit var highQualityTexturesCheckBox : CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +91,12 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             }
         })
 
+        scrollingEffectEnableCheckBox = findViewById(R.id.scrollingEffectCheckBox)
+        scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
+        scrollingEffectEnableCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            SettingsProvider.enableScrollingEffect = isChecked
+        }
+
         highQualityTexturesCheckBox = findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
         highQualityTexturesCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -119,6 +126,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
             parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
+            scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
             highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
             Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
         }

@@ -24,27 +24,41 @@ interface ParallaxEffectEngine {
 }
 
 
-class EmptyParallaxEffectEngine : ParallaxEffectEngine {
+open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
 
     override var reset = false
 
     override var orientation = Configuration.ORIENTATION_UNDEFINED
 
     override var offset = vector3f(0.0f, 0.0f, 0.0f)
-        private set
+        protected set
 
     override var backgroundOffset = vector2f(0.0f, 0.0f)
-        private set
+        protected set
 
     override var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        private set
+        protected set
 
-    private var lastXOffset = 0.0f
     private var dxOffset = 0.0f
+    private var lastXOffset = 0.0f
+    private var scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
+    private var basePrecessionSpeed = SettingsProvider.precessionSpeed
     private var precessionSpeed = 0.0f
 
-    override fun connect(sensorManager: SensorManager) {
+    protected fun calculateWallpaperOffset(deltaTime: Float) : Float {
+        val wallpaperOffset = dxOffset
+        dxOffset = precessionSpeed * deltaTime
+        return wallpaperOffset
+    }
 
+    override fun connect(sensorManager: SensorManager) {
+        if(SettingsProvider.enableScrollingEffect) {
+            scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
+            basePrecessionSpeed = SettingsProvider.precessionSpeed
+        } else {
+            scrollingEffectScale = 0.0f
+            basePrecessionSpeed = 0.0f
+        }
     }
 
     override fun disconnect(sensorManager: SensorManager) {
@@ -52,9 +66,9 @@ class EmptyParallaxEffectEngine : ParallaxEffectEngine {
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.05f * parallaxEffectScale * (xOffset - lastXOffset)
+        dxOffset = scrollingEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
-        precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
+        precessionSpeed = sign(dxOffset) * basePrecessionSpeed
     }
 
     override fun onTick(deltaTime: Float) {
@@ -63,9 +77,9 @@ class EmptyParallaxEffectEngine : ParallaxEffectEngine {
             offset.zero()
             reset = false
         }
-        backgroundOffset.plusAssign(vector2f(dxOffset, 0.0f))
-        offset = vector3f(0.0f, dxOffset, 0.0f)
-        dxOffset = precessionSpeed
+        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
+        backgroundOffset.plusAssign(vector2f(wallpaperOffset, 0.0f))
+        offset = vector3f(0.0f, wallpaperOffset, 0.0f)
     }
 }
 
@@ -78,11 +92,9 @@ class SensorDataBuffer(_weights : FloatArray) {
     private val buffer = Array(_weights.size) { vector3f() }
     private var bufferDataPos = 0
 
-    private fun calculateNormalizationFactor(w : FloatArray) : Float {
+    private fun calculateNormalizationFactor(_weights: FloatArray) : Float {
         var n = 0.0f
-        for(w in weights) {
-            n += w
-        }
+        _weights.forEach { n += it }
         return n
     }
 
@@ -108,29 +120,17 @@ class SensorDataBuffer(_weights : FloatArray) {
 }
 
 //TODO: still wonky, remapping????
-class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
+class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 
     private val gravitySensorData = SensorDataBuffer(12)
     private val magnetometerSensorData = SensorDataBuffer(12)
     private val gyroSensorData = SensorDataBuffer(18)
     private var prevRotationMatrix = matrix3f()
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
-    private var lastXOffset = 0.0f
-    private var dxOffset = 0.0f
-    private var precessionSpeed = 0.0f
 
     override var reset = true
 
     override var orientation = Configuration.ORIENTATION_UNDEFINED
-
-    override var offset = vector3f(0.0f, 0.0f, 0.0f)
-        private set
-
-    override var backgroundOffset = vector2f(0.0f, 0.0f)
-        private set
-
-    override var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        private set
 
     private var sensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
@@ -148,19 +148,25 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
     }
 
     override fun connect(sensorManager: SensorManager) {
+        super.connect(sensorManager)
         parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        if (!sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
-            Log.error("Cannot connect to accelerometer sensor.\n")
-        }
-        val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-        if (!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
-            Log.error("Cannot connect to magnetic sensor.\n")
+        if(SettingsProvider.enableParallaxEffect) {
+            val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            if (!sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
+                Log.error("Cannot connect to accelerometer sensor.\n")
+            }
+            val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+            if (!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
+                Log.error("Cannot connect to magnetic sensor.\n")
+            }
         }
     }
 
     override fun disconnect(sensorManager: SensorManager) {
-        sensorManager.unregisterListener(sensorEventListener)
+        super.disconnect(sensorManager)
+        if(SettingsProvider.enableParallaxEffect) {
+            sensorManager.unregisterListener(sensorEventListener)
+        }
     }
 
     override fun onTick(deltaTime: Float) {
@@ -197,51 +203,33 @@ class AccelerometerParallaxEffectEngine : ParallaxEffectEngine {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
+        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
-                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
+                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
-                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
+                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
             }
         }
-        dxOffset = precessionSpeed
-    }
-
-    override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.1f * parallaxEffectScale * (xOffset - lastXOffset)
-        lastXOffset = xOffset
-        precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
     }
 }
 
 //TODO: still wonky, remapping????
-class GravityParallaxEffectEngine : ParallaxEffectEngine {
+class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 
     private val gravitySensorData = SensorDataBuffer(4)
     private val magnetometerSensorData = SensorDataBuffer(4)
     private val gyroSensorData = SensorDataBuffer(18)
     private var prevRotationMatrix = matrix3f()
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
-    private var lastXOffset = 0.0f
-    private var dxOffset = 0.0f
-    private var precessionSpeed = 0.0f
 
     override var reset = true
 
     override var orientation = Configuration.ORIENTATION_UNDEFINED
-
-    override var offset = vector3f(0.0f, 0.0f, 0.0f)
-        private set
-
-    override var backgroundOffset = vector2f(0.0f, 0.0f)
-        private set
-
-    override var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        private set
 
     private var sensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
@@ -259,19 +247,25 @@ class GravityParallaxEffectEngine : ParallaxEffectEngine {
     }
 
     override fun connect(sensorManager: SensorManager) {
+        super.connect(sensorManager)
         parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        val gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
-        if(!sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_GAME)) {
-            Log.error("Cannot connect to gravity sensor.\n")
-        }
-        val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-        if(!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
-            Log.error("Cannot connect to magnetic sensor.\n")
+        if(SettingsProvider.enableParallaxEffect) {
+            val gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            if (!sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_GAME)) {
+                Log.error("Cannot connect to gravity sensor.\n")
+            }
+            val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+            if (!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
+                Log.error("Cannot connect to magnetic sensor.\n")
+            }
         }
     }
 
     override fun disconnect(sensorManager: SensorManager) {
-        sensorManager.unregisterListener(sensorEventListener)
+        super.disconnect(sensorManager)
+        if(SettingsProvider.enableParallaxEffect) {
+            sensorManager.unregisterListener(sensorEventListener)
+        }
     }
 
     override fun onTick(deltaTime: Float) {
@@ -308,37 +302,22 @@ class GravityParallaxEffectEngine : ParallaxEffectEngine {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
+        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
-                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
+                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
-                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
+                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
             }
         }
-        dxOffset = precessionSpeed
-    }
-
-    override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.1f * parallaxEffectScale * (xOffset - lastXOffset)
-        lastXOffset = xOffset
-        precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
     }
 }
 
-class GyroParallaxEffectEngine : ParallaxEffectEngine {
-
-    override var backgroundOffset = vector2f(0.0f, 0.0f)
-        private set
-
-    override var offset = vector3f(0.0f, 0.0f, 0.0f)
-        private set
-
-    override var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        private set
+class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 
     override var reset = true
 
@@ -346,9 +325,6 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
 
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
     private val gyroSensorDataBuffer = SensorDataBuffer(8)
-    private var lastXOffset = 0.0f
-    private var dxOffset = 0.0f
-    private var precessionSpeed = 0.0f
 
     private val gyroSensorListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -365,22 +341,21 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
     }
 
     override fun connect(sensorManager: SensorManager) {
+        super.connect(sensorManager)
         parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
-        val gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        if(!sensorManager.registerListener(gyroSensorListener, gyro, SensorManager.SENSOR_DELAY_GAME)) {
-            Log.error("Cannot connect to gyro sensor.\n")
+        if(SettingsProvider.enableParallaxEffect) {
+            val gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+            if (!sensorManager.registerListener(gyroSensorListener, gyro, SensorManager.SENSOR_DELAY_GAME)) {
+                Log.error("Cannot connect to gyro sensor.\n")
+            }
         }
-
     }
 
     override fun disconnect(sensorManager: SensorManager) {
-        sensorManager.unregisterListener(gyroSensorListener)
-    }
-
-    override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-        dxOffset = 0.1f * parallaxEffectScale * (xOffset - lastXOffset)
-        lastXOffset = xOffset
-        precessionSpeed = sign(dxOffset) * SettingsProvider.precessionSpeed
+        super.disconnect(sensorManager)
+        if(SettingsProvider.enableParallaxEffect) {
+            sensorManager.unregisterListener(gyroSensorListener)
+        }
     }
 
     override fun onTick(deltaTime: Float) {
@@ -398,17 +373,17 @@ class GyroParallaxEffectEngine : ParallaxEffectEngine {
             dx = parallaxEffectScale * rotationVector[1] * deltaTime
             dy = -parallaxEffectScale * rotationVector[0] * deltaTime
         }
+        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
-                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
+                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
-                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
+                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
             }
         }
-        dxOffset = precessionSpeed
     }
 }
