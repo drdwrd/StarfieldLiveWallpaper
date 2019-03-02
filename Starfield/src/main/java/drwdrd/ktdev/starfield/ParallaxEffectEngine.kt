@@ -123,8 +123,8 @@ class SensorDataBuffer(_weights : FloatArray) {
 class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 
     private val gravitySensorData = SensorDataBuffer(12)
-    private val magnetometerSensorData = SensorDataBuffer(12)
-    private val gyroSensorData = SensorDataBuffer(18)
+    private val magnetometerSensorData = SensorDataBuffer(8)
+    private val gyroSensorData = SensorDataBuffer(24)
     private var prevRotationMatrix = matrix3f()
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
 
@@ -221,9 +221,9 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 //TODO: still wonky, remapping????
 class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
 
-    private val gravitySensorData = SensorDataBuffer(4)
-    private val magnetometerSensorData = SensorDataBuffer(4)
-    private val gyroSensorData = SensorDataBuffer(18)
+    private val gravitySensorData = SensorDataBuffer(8)
+    private val magnetometerSensorData = SensorDataBuffer(8)
+    private val gyroSensorData = SensorDataBuffer(24)
     private var prevRotationMatrix = matrix3f()
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
 
@@ -324,7 +324,7 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
     override var orientation = Configuration.ORIENTATION_UNDEFINED
 
     private var rotationVector = vector3f(0.0f, 0.0f, 0.0f)
-    private val gyroSensorDataBuffer = SensorDataBuffer(8)
+    private val gyroSensorDataBuffer = SensorDataBuffer(12)
 
     private val gyroSensorListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
