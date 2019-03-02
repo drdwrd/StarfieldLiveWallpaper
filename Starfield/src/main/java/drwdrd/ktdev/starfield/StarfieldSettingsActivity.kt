@@ -50,10 +50,10 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             SettingsProvider.adaptiveFPS = isChecked
         }
 
-        starsSpawnTimeSlider.progress = 30 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
+        starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
         starsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.particlesSpawnTimeMultiplier = (30.0 - progress.toDouble()) / 100.0
+                SettingsProvider.particlesSpawnTimeMultiplier = (26.0 - progress.toDouble()) / 100.0
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -121,7 +121,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             SettingsProvider.resetSettings()
             particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
             adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
-            starsSpawnTimeSlider.progress = 30 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
+            starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
             parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
             parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
             parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect

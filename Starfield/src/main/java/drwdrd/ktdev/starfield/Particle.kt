@@ -69,10 +69,9 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 */
     fun boundingSphere() = BoundingSphere(position, scale * sqrt(2.0f))
 
-    fun tick(eyeForward : vector3f, deltaTime: Float) {
+    fun tick(eyeForward : vector3f, particelSpeed : Float, deltaTime: Float) {
+        velocity = -particelSpeed * eyeForward
         position.plusAssign(velocity * deltaTime)
-        velocity = -eyeForward
-
         age += deltaTime
     }
 
@@ -81,12 +80,12 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         fun createStar(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
             //perturb spawn direction by small vector then normalize and set distance
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
-            rp *= RandomGenerator.randf(0.015f, 0.5f)
+            rp *= RandomGenerator.randf(0.05f, 1.5f)
             val pos = distance * (spawningDir + rp).normalized()
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.01f, 0.15f)
-            val rot = RandomGenerator.randf(-1.5f, 1.5f)
+            val rot = RandomGenerator.randf(-0.5f, 0.5f)
             val i = RandomGenerator.rand(2) * 0.5f
             val j = RandomGenerator.rand(2) * 0.5f
             val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
@@ -95,12 +94,12 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
         fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
-            rp *= RandomGenerator.randf(0.1f, 0.5f)
+            rp *= RandomGenerator.randf(0.1f, 1.5f)
             val pos = distance * (spawningDir + rp).normalized()
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(0.5f, 1.5f)
-            val rot = RandomGenerator.randf(-0.5f, 0.5f)
+            val rot = RandomGenerator.randf(-0.1f, 0.1f)
             val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
             p.color = 0.15f * vector4f(RandomColor.randomColor())

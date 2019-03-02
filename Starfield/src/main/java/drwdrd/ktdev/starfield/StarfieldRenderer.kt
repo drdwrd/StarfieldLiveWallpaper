@@ -33,7 +33,7 @@ private const val starspriteUvRoIUniform = 4
 private const val starspriteFadeInUniform = 5
 
 
-private const val particleSpawnDistance = 8.0f
+private const val particleSpawnDistance = 10.0f
 private const val maxStarParticlesCount = 1000        //hard limit just in case...
 private const val maxCloudParticlesCount = 200        //hard limit just in case...
 
@@ -55,15 +55,15 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
-                    if (frameTime > 16.7) {
-                        maxStarParticleSpawnTime += 0.001
-                        maxCloudParticleSpawnTime += 0.01
-                    } else if (frameTime < 16.6) {
-                        maxStarParticleSpawnTime -= 0.001
-                        maxCloudParticleSpawnTime -= 0.01
+                    if (frameTime > 16.9) {
+                        maxStarParticleSpawnTime += 0.01
+                        maxCloudParticleSpawnTime += 0.1
+                    } else if (frameTime < 16.8) {
+                        maxStarParticleSpawnTime -= 0.01
+                        maxCloudParticleSpawnTime -= 0.1
                     }
                 }
-//                Log.debug("frameTime=%.2f ms".format(frameTime))
+                Log.debug("frameTime=%.2f ms".format(frameTime))
             }
         }
     }
@@ -357,7 +357,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
             cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
             lastCloudParticleSpawnTime = 0.0
-//            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
+            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
         }
 
         //render cloud sprites
@@ -401,7 +401,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 culledCounter++
             }
 
-            sprite.tick(eyeForward, particleSpeed * timer.deltaTime.toFloat())
+            sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
         }
 
 
@@ -416,7 +416,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
             starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
             lastStarParticleSpawnTime = 0.0
-//            Log.debug("starParticlesCount = ${starSprites.size}")
+            Log.debug("starParticlesCount = ${starSprites.size}")
         }
 
         //render stars sprites
@@ -462,7 +462,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 culledCounter++
             }
 
-            sprite.tick(eyeForward, particleSpeed * timer.deltaTime.toFloat())
+            sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
         }
 
 
