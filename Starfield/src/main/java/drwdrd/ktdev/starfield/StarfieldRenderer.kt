@@ -3,11 +3,9 @@ package drwdrd.ktdev.starfield
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import android.opengl.ETC1
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.*
-import java.lang.Exception
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -34,6 +32,7 @@ private const val starspriteFadeInUniform = 5
 
 
 private const val particleSpawnDistance = 10.0f
+private const val cloudsSpawnTimeMultiplier = 10.0
 private const val maxStarParticlesCount = 1000        //hard limit just in case...
 private const val maxCloudParticlesCount = 200        //hard limit just in case...
 
@@ -56,14 +55,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
                     if (frameTime > 16.9) {
-                        maxStarParticleSpawnTime += 0.01
-                        maxCloudParticleSpawnTime += 0.1
+                        maxParticleSpawnTime = clamp(1.05 * maxParticleSpawnTime, 0.015, 0.25)
                     } else if (frameTime < 16.8) {
-                        maxStarParticleSpawnTime -= 0.01
-                        maxCloudParticleSpawnTime -= 0.1
+                        maxParticleSpawnTime = clamp(0.95 * maxParticleSpawnTime, 0.015, 0.25)
                     }
                 }
-                Log.debug("frameTime=%.2f ms".format(frameTime))
+                Log.debug("frameTime=%.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
             }
         }
     }
@@ -79,7 +76,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private lateinit var cloudspritesTexture : Texture
     private lateinit var noiseTexture : Texture
     private val timer = Timer()
-    private val fpsCounter = FpsCounter(2.0)
+    private val fpsCounter = FpsCounter(1.0)
     private var lastStarParticleSpawnTime = 1000.0
     private val starSprites : MutableList<Particle> = ArrayList()
     private var lastCloudParticleSpawnTime = 1000.0
@@ -93,8 +90,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
-    private var maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-    private var maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
+    private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -162,10 +158,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         plane.create()
 
-        if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ASTC || SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ETC2) {
-            starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
+        starspriteShader = if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ASTC || SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ETC2) {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
         } else {
-            starspriteShader = ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
         }
         starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
         starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
@@ -309,8 +305,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onDrawFrame(p0: GL10?) {
 
-        var culledCounter = 0
-
         timer.tick()
 
         parallaxEffectEngine.onTick(timer.deltaTime.toFloat())
@@ -354,10 +348,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         lastCloudParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
-        if(lastCloudParticleSpawnTime >= maxCloudParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
+        if(lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
             cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
             lastCloudParticleSpawnTime = 0.0
-            Log.debug("cloudParticlesCount = ${cloudSprites.size}")
         }
 
         //render cloud sprites
@@ -396,9 +389,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
                 plane.draw()
-
-            } else {
-                culledCounter++
             }
 
             sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
@@ -413,10 +403,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         lastStarParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
-        if(lastStarParticleSpawnTime >= maxStarParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+        if(lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
             starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
             lastStarParticleSpawnTime = 0.0
-            Log.debug("starParticlesCount = ${starSprites.size}")
         }
 
         //render stars sprites
@@ -457,9 +446,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 starspriteShader.setUniformValue(starspriteFadeInUniform, fadeIn)
 
                 plane.draw()
-
-            } else {
-                culledCounter++
             }
 
             sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
@@ -473,7 +459,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         plane.release()
 
         fpsCounter.tick(timer.deltaTime)
-//        Log.debug("Culled $culledCounter sprites...")
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
@@ -493,8 +478,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         parallaxEffectEngine.connect(sensorManager)
         particleSpeed = SettingsProvider.particleSpeed
         if(!SettingsProvider.adaptiveFPS) {
-            maxStarParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-            maxCloudParticleSpawnTime = 10.0 * SettingsProvider.particlesSpawnTimeMultiplier
+            maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
         }
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
         timer.reset()
