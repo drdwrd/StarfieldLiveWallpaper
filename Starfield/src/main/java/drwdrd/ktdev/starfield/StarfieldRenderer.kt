@@ -31,6 +31,7 @@ private const val starspriteUvRoIUniform = 4
 private const val starspriteFadeInUniform = 5
 
 
+private const val minParticleDistance = -2.5f
 private const val particleSpawnDistance = 10.0f
 private const val cloudsSpawnTimeMultiplier = 10.0
 private const val maxStarParticlesCount = 1000        //hard limit just in case...
@@ -60,7 +61,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                         maxParticleSpawnTime = clamp(0.95 * maxParticleSpawnTime, 0.015, 0.25)
                     }
                 }
-                Log.debug("frameTime=%.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
+                Log.debug("frameTime = %.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
             }
         }
     }
@@ -341,7 +342,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.release()
 
         //remove all particles behind camera
-        cloudSprites.removeAll { !frustum.isInDistance(it.position, -1.0f) }
+        cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
         val eyeForward = eye.forward
         val eyePosition = eye.position
@@ -399,7 +400,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         cloudspriteShader.release()
 
         //remove all particles behind camera
-        starSprites.removeAll { !frustum.isInDistance(it.position, -1.0f) }
+        starSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
         lastStarParticleSpawnTime += timer.deltaTime
         //if its time spawn new particle
