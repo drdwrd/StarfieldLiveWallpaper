@@ -1,1 +1,1 @@
-include ':Starfield', ':engine'
+include ':starfield', ':engine', ':starfield_free'

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/label_stars_speed"
+                    android:textSize="24sp"/>
+            <SeekBar
+                    android:id="@+id/particleSpeedSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:max="10"
+                    android:progress="2"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
+
+            <CheckBox
+                    android:id="@+id/adaptiveFPSCheckbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/btn_adaptive_fps"
+                    android:textSize="24sp"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/label_stars_density"
+                    android:textSize="24sp"/>
+            <SeekBar
+                    android:id="@+id/starsSpawnTimeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:max="25"
+                    android:progress="10"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
+
+            <CheckBox
+                    android:id="@+id/parallaxEffectEnabledCheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/label_parallax_effect"
+                    android:textSize="24sp"/>
+
+            <SeekBar
+                    android:id="@+id/parallaxEffectMultiplierSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:max="50"
+                    android:progress="25"/>
+
+        </LinearLayout>
+
+        <CheckBox
+                android:id="@+id/scrollingEffectCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/btn_scrolling_effect"
+                android:textSize="24sp"/>
+
+        <CheckBox
+                android:id="@+id/highQualityTexturesCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/btn_texture_quality"
+                android:textSize="24sp"/>
+
+    </LinearLayout>
+</ScrollView>

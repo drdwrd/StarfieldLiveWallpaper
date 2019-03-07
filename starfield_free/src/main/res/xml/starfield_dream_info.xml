@@ -1,0 +1,5 @@
+<dream xmlns:android="http://schemas.android.com/apk/res/android"
+           android:description="@string/dream_description"
+           android:author="@string/author"
+           android:settingsActivity="drwdrd.ktdev.starfield_free.StarfieldSettingsActivity">
+</dream>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+>
+    <android.opengl.GLSurfaceView
+            android:id="@+id/glSurfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/glSurfaceView">
+
+        <Button
+                android:id="@+id/setWallpaperButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/btn_set_wallpaper"/>
+
+        <Button
+                android:id="@+id/setDreamButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/btn_set_screensaver"/>
+
+        <Button
+                android:id="@+id/editSettingsButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/btn_edit_settings"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
