@@ -4,12 +4,16 @@ import android.app.Activity
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
 
@@ -29,6 +33,12 @@ class StarfieldActivity : Activity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
 
+        MobileAds.initialize(this, getString(R.string.admob_id))
+
+        val adView = findViewById<AdView>(R.id.adViewBanner)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
@@ -36,6 +46,15 @@ class StarfieldActivity : Activity() {
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+
+        val getFullVersionButton = findViewById<Button>(R.id.getFullVersionButton)
+        getFullVersionButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=drwdrd.ktdev.starfield")
+                setPackage("com.android.vending")
+            }
+            startActivity(intent)
+        }
 
         val setWallpaperButton = findViewById<Button>(R.id.setWallpaperButton)
         setWallpaperButton.setOnClickListener {
@@ -46,11 +65,6 @@ class StarfieldActivity : Activity() {
             intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName!!, canonicalName!!))
             startActivity(intent)
             finish()
-        }
-
-        val setDreamButton = findViewById<Button>(R.id.setDreamButton)
-        setDreamButton.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_DREAM_SETTINGS))
         }
 
         val editSettingsButton = findViewById<Button>(R.id.editSettingsButton)
