@@ -8,7 +8,6 @@ import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.Toast
 
-//TODO: finish
 class StarfieldSettingsActivity : AppCompatActivity() {
 
     private lateinit var particleSpeedSlider : SeekBar
@@ -26,76 +25,27 @@ class StarfieldSettingsActivity : AppCompatActivity() {
 
         particleSpeedSlider = findViewById(R.id.particleSpeedSlider)
         particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
-        particleSpeedSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.particleSpeed = progress.toFloat() / 10.0f
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        particleSpeedSlider.isEnabled = false
 
         starsSpawnTimeSlider = findViewById(R.id.starsSpawnTimeSlider)
-        starsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
+        starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
+        starsSpawnTimeSlider.isEnabled = false
 
         adaptiveFPS = findViewById(R.id.adaptiveFPSCheckbox)
         adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
-        adaptiveFPS.setOnCheckedChangeListener { buttonView, isChecked ->
-            starsSpawnTimeSlider.isEnabled = !isChecked
-            SettingsProvider.adaptiveFPS = isChecked
-        }
+        adaptiveFPS.isEnabled = false
 
-        starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
-        starsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.particlesSpawnTimeMultiplier = (26.0 - progress.toDouble()) / 100.0
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
 
         parallaxEffectMultiplierSlider = findViewById(R.id.parallaxEffectMultiplierSlider)
-        parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
+        parallaxEffectMultiplierSlider.isEnabled = false
 
         parallaxEffectEnabledCheckBox = findViewById(R.id.parallaxEffectEnabledCheckBox)
-        parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
-        parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
-        parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            parallaxEffectMultiplierSlider.isEnabled = isChecked
-            SettingsProvider.enableParallaxEffect = isChecked
-        }
-
-        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
-        parallaxEffectMultiplierSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.parallaxEffectMultiplier = progress.toFloat() / 50.0f
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        parallaxEffectEnabledCheckBox.isEnabled = false
+        parallaxEffectEnabledCheckBox.isChecked = false
 
         scrollingEffectEnableCheckBox = findViewById(R.id.scrollingEffectCheckBox)
-        scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
-        scrollingEffectEnableCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            SettingsProvider.enableScrollingEffect = isChecked
-        }
+        scrollingEffectEnableCheckBox.isChecked = false
+        scrollingEffectEnableCheckBox.isEnabled = false
 
         highQualityTexturesCheckBox = findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
@@ -119,14 +69,6 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         }
         if(item?.itemId == R.id.menuResetSettings) {
             SettingsProvider.resetSettings()
-            particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
-            adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
-            starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
-            parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
-            parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
-            parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
-            parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
-            scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
             highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
             Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
         }

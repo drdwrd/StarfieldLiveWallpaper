@@ -73,7 +73,7 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="191919" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Pulpit/icon.png" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Pulpit/promo/icon/icon_free.png" />
                                       <entry key="outputName" value="ic_starfield" />
                                       <entry key="showSafeZone" value="false" />
                                     </map>
