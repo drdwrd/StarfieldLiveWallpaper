@@ -24,16 +24,26 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     private lateinit var scrollingEffectEnableCheckBox : CheckBox
     private  lateinit var highQualityTexturesCheckBox : CheckBox
 
+    private val consentProvider = ConsentProvider(object : ConsentProvider.OnAdFreeVersionRequested {
+        override fun onRequest() {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=drwdrd.ktdev.starfield")
+                setPackage("com.android.vending")
+            }
+            finish()
+            startActivity(intent)
+        }
+    })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupActionBar()
         setContentView(R.layout.settings_activity)
 
-        MobileAds.initialize(this, getString(R.string.admob_id))
+        consentProvider.initialize(this)
 
         val adView = findViewById<AdView>(R.id.adViewBanner2)
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        adView.loadAd(consentProvider.requestBannerAd(this))
 
         val getFullVersionButton = findViewById<Button>(R.id.getFullVersionButton2)
         getFullVersionButton.setOnClickListener {
@@ -86,13 +96,17 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == android.R.id.home) {
-            finish()
-        }
-        if(item?.itemId == R.id.menuResetSettings) {
-            SettingsProvider.resetSettings()
-            highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
-            Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
+        when {
+            item?.itemId == android.R.id.home -> finish()
+            item?.itemId == R.id.menuResetSettings -> {
+                SettingsProvider.resetSettings()
+                highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
+                Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
+            }
+            item?.itemId == R.id.menuPrivacySettings -> {
+                //TODO: privacy policy, dialog box
+                consentProvider.initialize(this, true)
+            }
         }
         return super.onOptionsItemSelected(item)
     }

@@ -7,15 +7,14 @@ import android.content.Intent
 import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import drwdrd.ktdev.engine.GLWallpaperService
 import drwdrd.ktdev.engine.Log
+
+
 
 class StarfieldActivity : Activity() {
 
@@ -25,6 +24,16 @@ class StarfieldActivity : Activity() {
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
+    private val consentProvider = ConsentProvider(object : ConsentProvider.OnAdFreeVersionRequested {
+        override fun onRequest() {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=drwdrd.ktdev.starfield")
+                setPackage("com.android.vending")
+            }
+            finish()
+            startActivity(intent)
+        }
+    })
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,11 +42,10 @@ class StarfieldActivity : Activity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
 
-        MobileAds.initialize(this, getString(R.string.admob_id))
+        consentProvider.initialize(this)
 
         val adView = findViewById<AdView>(R.id.adViewBanner)
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        adView.loadAd(consentProvider.requestBannerAd(this))
 
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)

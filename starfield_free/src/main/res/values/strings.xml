@@ -17,6 +17,7 @@
     <string name="btn_texture_quality">High Quality Textures(requires restart)</string>
 
     <string name="menu_reset">Reset</string>
+    <string name="menu_privacy">Privacy</string>
 
     <string name="admob_id">ca-app-pub-6780479554920524~7923611268</string>
 </resources>
