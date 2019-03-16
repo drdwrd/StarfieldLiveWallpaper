@@ -9,10 +9,6 @@ import android.view.SurfaceHolder
 
 abstract class GLWallpaperService : WallpaperService() {
 
-    init {
-        Log.tag = "GLWallpaperService"
-    }
-
     interface OnOffsetChangedListener {
         fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int)
     }

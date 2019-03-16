@@ -82,7 +82,7 @@ object KTXLoader {
         val numberOfMipmapLevels = inputStream.readInt()
         val bytesOfKeyValueData = inputStream.readInt()
 
-        Log.info("KTX Texture info : glInternalFormat = $glInternalFormat, glBaseInternalFormat = $glBaseInternalFormat, pixelWidth = $pixelWidth, pixelHeight = $pixelHeight, " +
+        Log.info("drwdrd.ktdev.engine.KTXLoader","KTX Texture info : glInternalFormat = $glInternalFormat, glBaseInternalFormat = $glBaseInternalFormat, pixelWidth = $pixelWidth, pixelHeight = $pixelHeight, " +
                 "numberOfMipmapLevels = $numberOfMipmapLevels, bytesOfKeyValueData = $bytesOfKeyValueData")
 
         inputStream.skip(bytesOfKeyValueData)

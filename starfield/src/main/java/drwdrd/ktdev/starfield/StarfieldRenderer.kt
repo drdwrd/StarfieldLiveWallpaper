@@ -11,6 +11,8 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 
+private const val TAG = "drwdrd.ktdev.starfield.StarfieldRenderer"
+
 private const val starfieldSampler = 0
 private const val starfieldAspectUniform = 1
 private const val starfieldTextureMatrixUniform = 2
@@ -45,7 +47,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
         }
-        Log.info("Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
+        Log.info(TAG, "Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
@@ -61,7 +63,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                         maxParticleSpawnTime = clamp(0.95 * maxParticleSpawnTime, 0.015, 0.25)
                     }
                 }
-                Log.debug("frameTime = %.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
+                Log.debug(TAG, "frameTime = %.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
             }
         }
     }
@@ -139,10 +141,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val renderer = GLES20.glGetString(GLES20.GL_RENDERER)
         val extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS)
 
-        Log.info("OpenGL version: $version")
-        Log.info("OpenGL vendor: $vendor")
-        Log.info("OpenGL renderer: $renderer")
-        Log.info("OpenGL extensions: $extensions")
+        Log.info(TAG, "OpenGL version: $version")
+        Log.info(TAG, "OpenGL vendor: $vendor")
+        Log.info(TAG, "OpenGL renderer: $renderer")
+        Log.info(TAG, "OpenGL extensions: $extensions")
 
         if(SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
             SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
@@ -154,8 +156,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
 
-        Log.info("Texture compression mode set to ${SettingsProvider.textureCompressionMode}")
-        Log.info("Texture quality level set to $textureQuality")
+        Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode}")
+        Log.info(TAG, "Texture quality level set to $textureQuality")
 
         plane.create()
 

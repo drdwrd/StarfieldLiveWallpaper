@@ -8,6 +8,7 @@ import android.hardware.SensorManager
 import drwdrd.ktdev.engine.*
 import kotlin.math.*
 
+private const val TAG = "drwdrd.ktdev.starfield.ParallaxEffectEngine"
 
 interface ParallaxEffectEngine {
 
@@ -153,11 +154,11 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         if(SettingsProvider.enableParallaxEffect) {
             val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
             if (!sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
-                Log.error("Cannot connect to accelerometer sensor.\n")
+                Log.error(TAG,"Cannot connect to accelerometer sensor.\n")
             }
             val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
             if (!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
-                Log.error("Cannot connect to magnetic sensor.\n")
+                Log.error(TAG, "Cannot connect to magnetic sensor.\n")
             }
         }
     }
@@ -252,11 +253,11 @@ class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         if(SettingsProvider.enableParallaxEffect) {
             val gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
             if (!sensorManager.registerListener(sensorEventListener, gravitySensor, SensorManager.SENSOR_DELAY_GAME)) {
-                Log.error("Cannot connect to gravity sensor.\n")
+                Log.error(TAG, "Cannot connect to gravity sensor.\n")
             }
             val magnetic = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
             if (!sensorManager.registerListener(sensorEventListener, magnetic, SensorManager.SENSOR_DELAY_GAME)) {
-                Log.error("Cannot connect to magnetic sensor.\n")
+                Log.error(TAG, "Cannot connect to magnetic sensor.\n")
             }
         }
     }
@@ -346,7 +347,7 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         if(SettingsProvider.enableParallaxEffect) {
             val gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
             if (!sensorManager.registerListener(gyroSensorListener, gyro, SensorManager.SENSOR_DELAY_GAME)) {
-                Log.error("Cannot connect to gyro sensor.\n")
+                Log.error(TAG, "Cannot connect to gyro sensor.\n")
             }
         }
     }

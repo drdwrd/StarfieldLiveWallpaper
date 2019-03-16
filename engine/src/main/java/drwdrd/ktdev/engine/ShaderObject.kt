@@ -38,7 +38,7 @@ class ShaderObject(_name : String, _type : ShaderType) {
         GLES20.glGetShaderiv(glShaderId, GLES20.GL_COMPILE_STATUS, status, 0)
         if(status[0] == GLES20.GL_FALSE) {
             val info = GLES20.glGetShaderInfoLog(glShaderId)
-            Log.error("Cannot compile shader: $info")
+            Log.error("drwdrd.ktdev.engine.ShaderObject","Cannot compile shader: $info")
             return false
         }
         return true

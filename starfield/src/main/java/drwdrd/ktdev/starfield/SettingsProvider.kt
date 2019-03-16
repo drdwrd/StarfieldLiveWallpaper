@@ -6,6 +6,8 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.lang.NumberFormatException
 
+private const val TAG = "drwdrd.ktdev.starfield.SettingsProvider"
+
 object SettingsProvider {
 
     private const val DEFAULT_PARTICLE_SPEED = 0.2f
@@ -133,9 +135,9 @@ object SettingsProvider {
                 }
             }
         } catch(e : FileNotFoundException) {
-            Log.warning("No settings file found!\n")
+            Log.warning(TAG, "No settings file found!\n")
         } catch(e : NumberFormatException) {
-            Log.warning("Cannot parse settings!\n")
+            Log.warning(TAG, "Cannot parse settings!\n")
         }
     }
 }

@@ -7,7 +7,6 @@ import drwdrd.ktdev.engine.Log
 class StarfieldWallpaperService : GLWallpaperService() {
 
     init {
-        Log.tag = "StarfieldWallpaperService"
         touchEventsEnabled = true
     }
 

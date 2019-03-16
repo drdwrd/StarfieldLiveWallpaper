@@ -1,8 +1,6 @@
 package drwdrd.ktdev.starfield_free
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import java.net.MalformedURLException
@@ -12,6 +10,8 @@ import android.os.Bundle
 import com.google.ads.consent.*
 import drwdrd.ktdev.engine.Log
 
+
+private const val TAG = "drwdrd.ktdev.starfield_free.ConsentProvider"
 
 class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
 
@@ -38,7 +38,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
         val publisherIds = arrayOf("pub-6780479554920524")
         consentInformation.requestConsentInfoUpdate(publisherIds, object : ConsentInfoUpdateListener {
             override fun onConsentInfoUpdated(status: ConsentStatus) {
-                Log.debug("ConsentProvider consentStatus = $status")
+                Log.debug(TAG, "ConsentProvider consentStatus = $status")
                 consentStatus = status
                 if(status == ConsentStatus.UNKNOWN) {
                     if(ConsentInformation.getInstance(context).isRequestLocationInEeaOrUnknown) {
@@ -48,7 +48,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
             }
 
             override fun onFailedToUpdateConsentInfo(errorDescription: String) {
-                Log.error("Cannot update consent status : $errorDescription")
+                Log.error(TAG, "Cannot update consent status : $errorDescription")
             }
         })
     }
@@ -67,7 +67,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
     }
 
     private fun loadConsentForm(context: Context) : Boolean {
-        var privacyUrl: URL? = null
+        val privacyUrl: URL?
         try {
             privacyUrl = URL("https://www.lipsum.com/")
         } catch (e: MalformedURLException) {
@@ -88,14 +88,14 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
                 override fun onConsentFormClosed(status: ConsentStatus?, adFree: Boolean?) {
                     userPrefersAdFree = adFree ?: false
                     consentStatus = status ?: ConsentStatus.UNKNOWN
-                    Log.debug("ConsentProvider consentStatus = $status, userPrefersAdFree = $adFree")
+                    Log.debug(TAG, "ConsentProvider consentStatus = $status, userPrefersAdFree = $adFree")
                     if(userPrefersAdFree) {
                         onAdFreeVersionRequested?.onRequest()
                     }
                 }
 
                 override fun onConsentFormError(errorDescription: String?) {
-                    Log.error("Cannot load consent form : $errorDescription")
+                    Log.error(TAG, "Cannot load consent form : $errorDescription")
                 }
             })
             .withPersonalizedAdsOption()

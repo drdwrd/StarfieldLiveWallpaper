@@ -4,23 +4,21 @@ class Log {
 
     companion object {
 
-        lateinit var tag : String
-
-        fun debug(msg: String) {
+        fun debug(tag : String, msg: String) {
             if(BuildConfig.DEBUG) {
                 android.util.Log.d(tag, msg)
             }
         }
 
-        fun info(msg: String) {
+        fun info(tag : String, msg: String) {
             android.util.Log.i(tag, msg)
         }
 
-        fun warning(msg: String) {
+        fun warning(tag : String, msg: String) {
             android.util.Log.w(tag, msg)
         }
 
-        fun error(msg: String) {
+        fun error(tag : String, msg: String) {
             android.util.Log.e(tag, msg)
         }
 

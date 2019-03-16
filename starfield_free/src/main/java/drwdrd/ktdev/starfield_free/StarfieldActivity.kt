@@ -12,15 +12,10 @@ import android.view.WindowManager
 import android.widget.Button
 import com.google.android.gms.ads.AdView
 import drwdrd.ktdev.engine.GLWallpaperService
-import drwdrd.ktdev.engine.Log
 
 
 
 class StarfieldActivity : Activity() {
-
-    init {
-        Log.tag = "StarfieldWallpaperActivity"
-    }
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener

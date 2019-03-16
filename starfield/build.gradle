@@ -9,8 +9,8 @@ android {
         applicationId "drwdrd.ktdev.starfield"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 8
-        versionName "1.07"
+        versionCode 10
+        versionName "1.09"
         vectorDrawables.useSupportLibrary = true
     }
 
