@@ -235,15 +235,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     Texture.Filtering.LinearMipmapLinear,
                     Texture.Filtering.Linear
                 )
-                starfieldTexture = Texture.loadFromAssets2D(
-                    context,
-                    "images/png/starfield.png",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
+                Log.error(TAG, "Unsupported texture compression format : ${SettingsProvider.textureCompressionMode}")
             }
         }
 
