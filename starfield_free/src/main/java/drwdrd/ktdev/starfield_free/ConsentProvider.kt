@@ -13,6 +13,9 @@ import drwdrd.ktdev.engine.Log
 
 private const val TAG = "drwdrd.ktdev.starfield_free.ConsentProvider"
 
+private const val PUBLISHER_ID = "pub-6780479554920524"
+private const val APP_ID = "ca-app-pub-6780479554920524~7923611268"
+
 class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
 
     interface OnAdFreeVersionRequested {
@@ -33,9 +36,10 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
         if(reset) {
             consentInformation.reset()
         }
+        //TODO: remove debug code
         consentInformation.addTestDevice("117D43E6FBDD7EC3C5A7E7E4D3381427")
         consentInformation.debugGeography = DebugGeography.DEBUG_GEOGRAPHY_EEA
-        val publisherIds = arrayOf("pub-6780479554920524")
+        val publisherIds = arrayOf(PUBLISHER_ID)
         consentInformation.requestConsentInfoUpdate(publisherIds, object : ConsentInfoUpdateListener {
             override fun onConsentInfoUpdated(status: ConsentStatus) {
                 Log.debug(TAG, "ConsentProvider consentStatus = $status")
@@ -54,7 +58,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
     }
 
     fun requestBannerAd(context: Context) : AdRequest {
-        MobileAds.initialize(context, context.getString(R.string.admob_id))
+        MobileAds.initialize(context, APP_ID)
         return when(consentStatus) {
             ConsentStatus.PERSONALIZED -> AdRequest.Builder().build()
             ConsentStatus.UNKNOWN -> AdRequest.Builder().build()
@@ -69,7 +73,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
     private fun loadConsentForm(context: Context) : Boolean {
         val privacyUrl: URL?
         try {
-            privacyUrl = URL("https://www.lipsum.com/")
+            privacyUrl = URL("https://drdwrd.github.io/starfield_privacy.html")
         } catch (e: MalformedURLException) {
             e.printStackTrace()
             return false

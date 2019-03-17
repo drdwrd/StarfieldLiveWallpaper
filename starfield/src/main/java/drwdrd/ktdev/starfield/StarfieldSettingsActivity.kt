@@ -8,7 +8,6 @@ import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.Toast
 
-//TODO: finish
 class StarfieldSettingsActivity : AppCompatActivity() {
 
     private lateinit var particleSpeedSlider : SeekBar

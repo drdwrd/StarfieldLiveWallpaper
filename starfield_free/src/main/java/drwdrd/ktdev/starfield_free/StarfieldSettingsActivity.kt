@@ -10,9 +10,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.Toast
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
@@ -69,15 +67,36 @@ class StarfieldSettingsActivity : AppCompatActivity() {
 
 
         parallaxEffectMultiplierSlider = findViewById(R.id.parallaxEffectMultiplierSlider)
-        parallaxEffectMultiplierSlider.isEnabled = false
+        parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
 
         parallaxEffectEnabledCheckBox = findViewById(R.id.parallaxEffectEnabledCheckBox)
-        parallaxEffectEnabledCheckBox.isEnabled = false
-        parallaxEffectEnabledCheckBox.isChecked = false
+        parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+        parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
+        parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            parallaxEffectMultiplierSlider.isEnabled = isChecked
+            SettingsProvider.enableParallaxEffect = isChecked
+        }
+
+        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
+        parallaxEffectMultiplierSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                SettingsProvider.parallaxEffectMultiplier = progress.toFloat() / 50.0f
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+        })
 
         scrollingEffectEnableCheckBox = findViewById(R.id.scrollingEffectCheckBox)
-        scrollingEffectEnableCheckBox.isChecked = false
-        scrollingEffectEnableCheckBox.isEnabled = false
+        scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
+        scrollingEffectEnableCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            SettingsProvider.enableScrollingEffect = isChecked
+        }
 
         highQualityTexturesCheckBox = findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
@@ -100,11 +119,15 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             item?.itemId == android.R.id.home -> finish()
             item?.itemId == R.id.menuResetSettings -> {
                 SettingsProvider.resetSettings()
+                parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
+                parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+                parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
+                parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
+                scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
                 highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
                 Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
             }
             item?.itemId == R.id.menuPrivacySettings -> {
-                //TODO: privacy policy, dialog box
                 consentProvider.initialize(this, true)
             }
         }

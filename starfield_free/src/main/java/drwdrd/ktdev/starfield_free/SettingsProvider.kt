@@ -18,6 +18,26 @@ object SettingsProvider {
     private const val DEFAULT_PRECESSION_SPEED = 0.005f
     const val TEXTURE_QUALITY_UNKNOWN = 100
 
+    enum class ParallaxEffectEngineType(val type : Int) {
+        None(0),
+        Accelerometer(1),
+        Gravity(2),
+        Gyro(3),
+        Unknown(4);
+
+        companion object {
+            fun fromInt(type: Int): ParallaxEffectEngineType {
+                return when(type) {
+                    0 -> None
+                    1 -> Accelerometer
+                    2 -> Gravity
+                    3 -> Gyro
+                    else -> Unknown
+                }
+            }
+        }
+    }
+
     enum class TextureCompressionMode(val type : Int) {
         NONE(0),
         ETC1(1),
@@ -40,31 +60,54 @@ object SettingsProvider {
 
     var textureCompressionMode = TextureCompressionMode.UNKNOWN
 
+    var parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
+
     var adaptiveFPS = true
 
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
     var particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
 
+    var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
+
+    var enableParallaxEffect = false
+
     var baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
 
     var textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL             // 0 - high quality, 1 - low quality
+
+    var scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
+
+    var enableScrollingEffect = true
+
+    var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
         adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
         particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
+        parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
+        enableParallaxEffect = false
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
+        enableScrollingEffect = true
+        scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
+        precessionSpeed = DEFAULT_PRECESSION_SPEED
     }
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
             it.write("textureCompressionMode=${textureCompressionMode.type}\n")
+            it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
             it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
+            it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
+            it.write("enableParallaxEffect=$enableParallaxEffect\n")
             it.write("baseTextureQualityLevel=$baseTextureQualityLevel\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
+            it.write("enableScrollingEffect=$enableScrollingEffect\n")
+            it.write("scrollingEffectMultiplier=$scrollingEffectMultiplier\n")
+            it.write("precessionSpeed=$precessionSpeed\n")
         }
     }
 
@@ -76,11 +119,17 @@ object SettingsProvider {
                     if(s.size >= 2) {
                         when (s[0]) {
                             "textureCompressionMode" -> TextureCompressionMode.fromInt(s[1].toInt())
+                            "parallaxEffectEngineType" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "particlesSpawnTimeMultiplier" -> particlesSpawnTimeMultiplier = s[1].toDouble()
+                            "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
+                            "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
                             "baseTextureQualityLevel" -> baseTextureQualityLevel = s[1].toInt()
                             "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
+                            "enableScrollingEffect" -> enableScrollingEffect = s[1].toBoolean()
+                            "scrollingEffectMultiplier" -> scrollingEffectMultiplier = s[1].toFloat()
+                            "precessionSpeed" -> precessionSpeed = s[1].toFloat()
                         }
                     }
                 }

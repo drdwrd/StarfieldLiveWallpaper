@@ -1,6 +1,8 @@
 package drwdrd.ktdev.starfield_free
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.*
@@ -13,7 +15,8 @@ private const val TAG = "drwdrd.ktdev.starfield_free.StarfieldRenderer"
 private const val starfieldSampler = 0
 private const val starfieldAspectUniform = 1
 private const val starfieldTextureMatrixUniform = 2
-private const val starfieldTimeUniform = 3
+private const val starfieldOffsetUniform  = 3
+private const val starfieldTimeUniform = 4
 
 private const val cloudspriteSampler = 0
 private const val cloudspriteModelViewProjectionMatrixUniform = 1
@@ -40,6 +43,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     constructor(_context : Context, file : String) : this(_context) {
         SettingsProvider.load(_context, file)
+        if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
+            SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
+        }
+        Log.info(TAG, "Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
+        parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
+            SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
+            SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
+            SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
+            else -> ScrollingWallpaperEffectEngine()
+        }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
@@ -72,12 +85,24 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val cloudSprites : MutableList<Particle> = ArrayList()
     private val eye = Eye()
 
+    private lateinit var parallaxEffectEngine : ParallaxEffectEngine
+
     private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
     private var randomBackgroundRotation = 0.0f
 
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
     private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+
+    private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        return when {
+            sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null -> SettingsProvider.ParallaxEffectEngineType.Gyro
+            sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null -> SettingsProvider.ParallaxEffectEngineType.Gravity
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null -> SettingsProvider.ParallaxEffectEngineType.Accelerometer
+            else -> SettingsProvider.ParallaxEffectEngineType.None
+        }
+    }
 
     private fun getTextureCompressionMode(version : String, extensions : String) : SettingsProvider.TextureCompressionMode {
         return when {
@@ -158,6 +183,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
         starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
         starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
+        starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
         when(SettingsProvider.textureCompressionMode) {
@@ -262,6 +288,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     override fun onSurfaceChanged(p0: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
+        parallaxEffectEngine.reset = true
+        parallaxEffectEngine.orientation = context.resources.configuration.orientation
         randomBackgroundOffset = RandomGenerator.rand2f(-1.0f, 1.0f)
         randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
@@ -272,6 +300,11 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     override fun onDrawFrame(p0: GL10?) {
 
         timer.tick()
+
+        parallaxEffectEngine.onTick(timer.deltaTime.toFloat())
+
+        eye.rotateBy(parallaxEffectEngine.offset)
+
 
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
@@ -293,6 +326,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.setSampler(starfieldSampler, 0)
         starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
         starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
+        starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
         starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
 
         plane.draw()
@@ -422,7 +456,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-
+        parallaxEffectEngine.onOffsetChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
     }
 
     override fun onStart() {
@@ -434,6 +468,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onResume() {
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        parallaxEffectEngine.connect(sensorManager)
         particleSpeed = SettingsProvider.particleSpeed
         if(!SettingsProvider.adaptiveFPS) {
             maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
@@ -443,7 +479,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onPause() {
-
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        parallaxEffectEngine.disconnect(sensorManager)
     }
 
     companion object {
