@@ -1,8 +1,10 @@
 package drwdrd.ktdev.starfield_free
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -11,6 +13,9 @@ import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.gms.ads.AdView
+import android.webkit.WebView
+
+
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
@@ -128,7 +133,11 @@ class StarfieldSettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
             }
             item?.itemId == R.id.menuPrivacySettings -> {
-                consentProvider.initialize(this, true)
+                if(consentProvider.isConsentRequired(this)) {
+                    consentProvider.initialize(this, true)
+                } else {
+                    showPrivacyDialog()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -139,4 +148,16 @@ class StarfieldSettingsActivity : AppCompatActivity() {
         super.onStop()
     }
 
+    private fun showPrivacyDialog() {
+        // create a WebView with the current stats
+        val webView = WebView(this)
+        webView.loadUrl("https://drdwrd.github.io/starfield_privacy.html")
+
+        // display the WebView in an AlertDialog
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Privacy")
+            .setView(webView)
+            .setNeutralButton("OK", null)
+            .show()
+    }
 }

@@ -10,7 +10,7 @@ import android.os.Bundle
 import com.google.ads.consent.*
 import drwdrd.ktdev.engine.Log
 
-
+//TODO: sanitize logcat output
 private const val TAG = "drwdrd.ktdev.starfield_free.ConsentProvider"
 
 class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
@@ -35,11 +35,11 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
         }
         //TODO: remove debug code
 //        consentInformation.addTestDevice("117D43E6FBDD7EC3C5A7E7E4D3381427")
-//        consentInformation.debugGeography = DebugGeography.DEBUG_GEOGRAPHY_EEA
+//        consentInformation.debugGeography = DebugGeography.DEBUG_GEOGRAPHY_NOT_EEA
         val publisherIds = arrayOf(context.getString(R.string.admob_id))
         consentInformation.requestConsentInfoUpdate(publisherIds, object : ConsentInfoUpdateListener {
             override fun onConsentInfoUpdated(status: ConsentStatus) {
-                Log.debug(TAG, "ConsentProvider consentStatus = $status")
+//                Log.debug(TAG, "ConsentProvider consentStatus = $status")
                 consentStatus = status
                 if(status == ConsentStatus.UNKNOWN) {
                     if(ConsentInformation.getInstance(context).isRequestLocationInEeaOrUnknown) {
@@ -52,6 +52,10 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
                 Log.error(TAG, "Cannot update consent status : $errorDescription")
             }
         })
+    }
+
+    fun isConsentRequired(context: Context) : Boolean {
+        return ConsentInformation.getInstance(context).isRequestLocationInEeaOrUnknown
     }
 
     fun requestBannerAd(context: Context) : AdRequest {
@@ -89,7 +93,7 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
                 override fun onConsentFormClosed(status: ConsentStatus?, adFree: Boolean?) {
                     userPrefersAdFree = adFree ?: false
                     consentStatus = status ?: ConsentStatus.UNKNOWN
-                    Log.debug(TAG, "ConsentProvider consentStatus = $status, userPrefersAdFree = $adFree")
+//                    Log.debug(TAG, "ConsentProvider consentStatus = $status, userPrefersAdFree = $adFree")
                     if(userPrefersAdFree) {
                         onAdFreeVersionRequested?.onRequest()
                     }
