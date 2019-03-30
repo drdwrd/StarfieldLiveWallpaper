@@ -7,6 +7,7 @@ import java.net.MalformedURLException
 import java.net.URL
 import com.google.ads.mediation.admob.AdMobAdapter
 import android.os.Bundle
+import android.os.Debug
 import com.google.ads.consent.*
 import drwdrd.ktdev.engine.Log
 
@@ -34,8 +35,10 @@ class ConsentProvider(_onAdFreeVersionRequested: OnAdFreeVersionRequested?) {
             consentInformation.reset()
         }
         //TODO: remove debug code
-//        consentInformation.addTestDevice("117D43E6FBDD7EC3C5A7E7E4D3381427")
-//        consentInformation.debugGeography = DebugGeography.DEBUG_GEOGRAPHY_NOT_EEA
+        if(BuildConfig.DEBUG) {
+            consentInformation.addTestDevice("117D43E6FBDD7EC3C5A7E7E4D3381427")
+            //consentInformation.debugGeography = DebugGeography.DEBUG_GEOGRAPHY_NOT_EEA
+        }
         val publisherIds = arrayOf(context.getString(R.string.admob_id))
         consentInformation.requestConsentInfoUpdate(publisherIds, object : ConsentInfoUpdateListener {
             override fun onConsentInfoUpdated(status: ConsentStatus) {

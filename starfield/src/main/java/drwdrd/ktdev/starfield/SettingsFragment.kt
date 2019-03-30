@@ -1,12 +1,12 @@
 package drwdrd.ktdev.starfield
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.SeekBar
+import androidx.fragment.app.Fragment
 
 class SettingsFragment : Fragment() {
 
@@ -19,13 +19,13 @@ class SettingsFragment : Fragment() {
     private var highQualityTexturesCheckBox : CheckBox? = null
 
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater?.inflate(R.layout.settings_fragment, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.settings_fragment, container, false)
         return  view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        particleSpeedSlider = view?.findViewById(R.id.particleSpeedSlider)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        particleSpeedSlider = view.findViewById(R.id.particleSpeedSlider)
         particleSpeedSlider?.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
         particleSpeedSlider?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -41,10 +41,10 @@ class SettingsFragment : Fragment() {
             }
         })
 
-        starsSpawnTimeSlider = view?.findViewById(R.id.starsSpawnTimeSlider)
+        starsSpawnTimeSlider = view.findViewById(R.id.starsSpawnTimeSlider)
         starsSpawnTimeSlider?.isEnabled = !SettingsProvider.adaptiveFPS
 
-        adaptiveFPS = view?.findViewById(R.id.adaptiveFPSCheckbox)
+        adaptiveFPS = view.findViewById(R.id.adaptiveFPSCheckbox)
         adaptiveFPS?.isChecked = SettingsProvider.adaptiveFPS
         adaptiveFPS?.setOnCheckedChangeListener { buttonView, isChecked ->
             starsSpawnTimeSlider?.isEnabled = !isChecked
@@ -66,10 +66,10 @@ class SettingsFragment : Fragment() {
             }
         })
 
-        parallaxEffectMultiplierSlider = view?.findViewById(R.id.parallaxEffectMultiplierSlider)
+        parallaxEffectMultiplierSlider = view.findViewById(R.id.parallaxEffectMultiplierSlider)
         parallaxEffectMultiplierSlider?.isEnabled = SettingsProvider.enableParallaxEffect
 
-        parallaxEffectEnabledCheckBox = view?.findViewById(R.id.parallaxEffectEnabledCheckBox)
+        parallaxEffectEnabledCheckBox = view.findViewById(R.id.parallaxEffectEnabledCheckBox)
         parallaxEffectEnabledCheckBox?.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectEnabledCheckBox?.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox?.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -92,13 +92,13 @@ class SettingsFragment : Fragment() {
             }
         })
 
-        scrollingEffectEnableCheckBox = view?.findViewById(R.id.scrollingEffectCheckBox)
+        scrollingEffectEnableCheckBox = view.findViewById(R.id.scrollingEffectCheckBox)
         scrollingEffectEnableCheckBox?.isChecked = SettingsProvider.enableScrollingEffect
         scrollingEffectEnableCheckBox?.setOnCheckedChangeListener { buttonView, isChecked ->
             SettingsProvider.enableScrollingEffect = isChecked
         }
 
-        highQualityTexturesCheckBox = view?.findViewById(R.id.highQualityTexturesCheckBox)
+        highQualityTexturesCheckBox = view.findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox?.isChecked = (SettingsProvider.textureQualityLevel == 0)
         highQualityTexturesCheckBox?.setOnCheckedChangeListener { buttonView, isChecked ->
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1

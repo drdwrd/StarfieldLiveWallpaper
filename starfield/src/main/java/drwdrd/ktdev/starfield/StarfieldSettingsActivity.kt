@@ -1,15 +1,17 @@
 package drwdrd.ktdev.starfield
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.design.widget.TabLayout
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
+import java.lang.Exception
+
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
@@ -63,11 +65,11 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             }
         }
 
-        override fun getItem(position: Int): Fragment? {
+        override fun getItem(position: Int): Fragment {
             return when(position) {
                 0 -> settingsFragment
                 1 -> themesFragment
-                else -> null
+                else -> throw Exception("Invalid fragment!")
             }
         }
 

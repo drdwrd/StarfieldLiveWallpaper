@@ -2,7 +2,6 @@ package drwdrd.ktdev.starfield
 
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.GLWallpaperService
-import drwdrd.ktdev.engine.Log
 
 class StarfieldWallpaperService : GLWallpaperService() {
 

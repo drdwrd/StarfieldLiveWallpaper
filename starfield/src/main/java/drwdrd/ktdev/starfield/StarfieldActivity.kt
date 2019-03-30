@@ -11,7 +11,6 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import drwdrd.ktdev.engine.GLWallpaperService
-import drwdrd.ktdev.engine.Log
 
 class StarfieldActivity : Activity() {
 
