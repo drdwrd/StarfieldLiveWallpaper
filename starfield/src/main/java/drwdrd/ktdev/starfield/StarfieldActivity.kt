@@ -1,25 +1,24 @@
 package drwdrd.ktdev.starfield
 
-import android.app.Activity
-import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Intent
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentTransaction
 import drwdrd.ktdev.engine.GLWallpaperService
 
-class StarfieldActivity : Activity() {
+class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
+    private lateinit var mainMenuFragment : MenuFragment
+    private lateinit var settingsFragment : SettingsFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(null)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
@@ -32,27 +31,13 @@ class StarfieldActivity : Activity() {
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
-        val setWallpaperButton = findViewById<Button>(R.id.setWallpaperButton)
-        setWallpaperButton.setOnClickListener {
-            val intent = Intent()
-            intent.action = WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER
-            val packageName = StarfieldWallpaperService::class.java.`package`?.name
-            val canonicalName = StarfieldWallpaperService::class.java.canonicalName
-            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, ComponentName(packageName!!, canonicalName!!))
-            startActivity(intent)
-            finish()
-        }
+        mainMenuFragment = MainMenuFragment()
+        settingsFragment = SettingsFragment()
 
-        val setDreamButton = findViewById<Button>(R.id.setDreamButton)
-        setDreamButton.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_DREAM_SETTINGS))
-        }
-
-        val editSettingsButton = findViewById<Button>(R.id.editSettingsButton)
-        editSettingsButton.setOnClickListener {
-            val intent = Intent(this, StarfieldSettingsActivity::class.java)
-            startActivity(intent)
-        }
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+        fragmentTransaction.add(R.id.menuFrame, mainMenuFragment)
+        fragmentTransaction.commit()
     }
 
     override fun onResume() {
@@ -75,5 +60,16 @@ class StarfieldActivity : Activity() {
     override fun onStop() {
         liveCycleListener.onStop()
         super.onStop()
+    }
+
+    override fun onMenuFragmentInteraction(menu: String, item: String) {
+        when(menu) {
+            "main" -> when(item) {
+                "settings" -> {
+                    val intent = Intent(this, StarfieldSettingsActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:showDividers="middle"
+              android:divider="@drawable/menu_divider"
+              android:layout_margin="12dp">
+
+    <ImageButton
+            style="@style/MenuButton"
+            android:id="@+id/menuSetWallpaperButton"
+            android:src="@android:drawable/ic_menu_gallery"/>
+
+    <ImageButton
+            style="@style/MenuButton"
+            android:id="@+id/menuSetDreamButton"
+            android:src="@android:drawable/ic_menu_report_image"/>
+
+    <ImageButton
+            style="@style/MenuButton"
+            android:id="@+id/showSettingsButton"
+            android:src="@android:drawable/ic_menu_manage"/>
+
+</LinearLayout>

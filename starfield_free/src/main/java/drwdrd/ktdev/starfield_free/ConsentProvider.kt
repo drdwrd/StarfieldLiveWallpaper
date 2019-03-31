@@ -7,7 +7,6 @@ import java.net.MalformedURLException
 import java.net.URL
 import com.google.ads.mediation.admob.AdMobAdapter
 import android.os.Bundle
-import android.os.Debug
 import com.google.ads.consent.*
 import drwdrd.ktdev.engine.Log
 
