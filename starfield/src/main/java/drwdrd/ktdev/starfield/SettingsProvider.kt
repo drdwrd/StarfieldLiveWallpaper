@@ -1,6 +1,8 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
+import drwdrd.ktdev.engine.Flag
+import drwdrd.ktdev.engine.FlagType
 import drwdrd.ktdev.engine.Log
 import java.io.File
 import java.io.FileNotFoundException
@@ -28,37 +30,38 @@ object SettingsProvider {
         companion object {
             fun fromInt(type: Int): ParallaxEffectEngineType {
                 return when(type) {
-                    0 -> None
-                    1 -> Accelerometer
-                    2 -> Gravity
-                    3 -> Gyro
+                    None.type -> None
+                    Accelerometer.type -> Accelerometer
+                    Gravity.type -> Gravity
+                    Gyro.type -> Gyro
                     else -> Unknown
                 }
             }
         }
     }
 
-    enum class TextureCompressionMode(val type : Int) {
-        NONE(0),
-        ETC1(1),
-        ETC2(2),
-        ASTC(3),
-        UNKNOWN(4);
+    class TextureCompressionMode private constructor(override val type: Int) : FlagType() {
 
         companion object {
-            fun fromInt(type : Int) : TextureCompressionMode {
-                return when(type) {
-                    0 -> NONE
-                    1 -> ETC1
-                    2 -> ETC2
-                    3 -> ASTC
+            val NONE = TextureCompressionMode(0b00000001)
+            val ETC1 = TextureCompressionMode(0b00000010)
+            val ETC2 = TextureCompressionMode(0b00000100)
+            val ASTC = TextureCompressionMode(0b00001000)
+            val UNKNOWN = TextureCompressionMode(0b00000000)
+
+            fun fromInt(type: Int): TextureCompressionMode {
+                return when (type) {
+                    NONE.type -> NONE
+                    ETC1.type -> ETC1
+                    ETC2.type -> ETC2
+                    ASTC.type -> ASTC
                     else -> UNKNOWN
                 }
             }
         }
     }
 
-    var textureCompressionMode = TextureCompressionMode.UNKNOWN
+    var textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
 
     var parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
 
@@ -96,7 +99,7 @@ object SettingsProvider {
 
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
-            it.write("textureCompressionMode=${textureCompressionMode.type}\n")
+            it.write("textureCompressionMode=${textureCompressionMode.flags}\n")
             it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
             it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
@@ -118,7 +121,7 @@ object SettingsProvider {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
-                            "textureCompressionMode" -> TextureCompressionMode.fromInt(s[1].toInt())
+                            "textureCompressionMode" -> textureCompressionMode = Flag(s[1].toInt())
                             "parallaxEffectEngineType" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()

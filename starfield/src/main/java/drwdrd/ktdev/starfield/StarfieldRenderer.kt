@@ -71,6 +71,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val context : Context = _context
     private val plane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
+    private val theme = StarfieldTheme()
     private lateinit var starspriteShader : ProgramObject
     private lateinit var cloudspriteShader : ProgramObject
     private lateinit var starfieldShader : ProgramObject
@@ -105,15 +106,25 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
     }
 
-    private fun getTextureCompressionMode(version : String, extensions : String) : SettingsProvider.TextureCompressionMode {
-        return when {
-            extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc") -> SettingsProvider.TextureCompressionMode.ASTC
-            version.contains("OpenGL ES 3") -> SettingsProvider.TextureCompressionMode.ETC2
-            extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture") -> SettingsProvider.TextureCompressionMode.ETC2
-            version.contains("OpenGL ES 2") -> SettingsProvider.TextureCompressionMode.ETC1
-            extensions.contains("OES_compressed_ETC1_RGB8_texture") -> SettingsProvider.TextureCompressionMode.ETC1
-            else -> SettingsProvider.TextureCompressionMode.NONE
+    private fun getTextureCompressionMode(version : String, extensions : String) : Flag<SettingsProvider.TextureCompressionMode> {
+        val modes  = Flag(SettingsProvider.TextureCompressionMode.UNKNOWN)
+        if(extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ASTC)
         }
+        if(version.contains("OpenGL ES 3")) {
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC2)
+        }
+        if(extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture")) {
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC2)
+        }
+        if(version.contains("OpenGL ES 2")) {
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
+        }
+        if(extensions.contains("OES_compressed_ETC1_RGB8_texture")) {
+            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
+        }
+        return modes
     }
 
     private fun getTextureBaseQualityLevel() : Int {
@@ -150,18 +161,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
         }
 
-        if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.UNKNOWN) {
+        if(SettingsProvider.textureCompressionMode.isFlag(SettingsProvider.TextureCompressionMode.UNKNOWN)) {
             SettingsProvider.textureCompressionMode = getTextureCompressionMode(version, extensions)
         }
 
         val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
 
-        Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode}")
+        Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
         Log.info(TAG, "Texture quality level set to $textureQuality")
 
         plane.create()
 
-        starspriteShader = if(SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ASTC || SettingsProvider.textureCompressionMode == SettingsProvider.TextureCompressionMode.ETC2) {
+        starspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
             ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
         } else {
             ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
@@ -187,87 +198,11 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
-        when(SettingsProvider.textureCompressionMode) {
-            SettingsProvider.TextureCompressionMode.ASTC -> {
-                //astc
-                starspritesTexture = KTXLoader.loadFromAssets(
-                    context,
-                    "images/astc/starsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-                starfieldTexture = KTXLoader.loadFromAssets(
-                    context,
-                    "images/astc/starfield.ktx",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            SettingsProvider.TextureCompressionMode.ETC2 -> {
-                //etc2
-                starspritesTexture = KTXLoader.loadFromAssets(
-                    context,
-                    "images/etc2/starsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-                starfieldTexture = KTXLoader.loadFromAssets(
-                    context,
-                    "images/etc2/starfield.ktx",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            SettingsProvider.TextureCompressionMode.ETC1 -> {
-                //etc
-                starspritesTexture = Texture.loadFromAssets2D(
-                    context,
-                    "images/png/starsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-                starfieldTexture = KTXLoader.loadFromAssets(
-                    context,
-                    "images/etc/starfield.ktx",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            else -> {
-                //png
-                starspritesTexture = Texture.loadFromAssets2D(
-                    context,
-                    "images/png/starsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-                Log.error(TAG, "Unsupported texture compression format : ${SettingsProvider.textureCompressionMode}")
-            }
-        }
+        starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
+        starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
+        cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
 
         //misc
-        cloudspritesTexture = Texture.loadFromAssets2D(context, "images/png/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
         noiseTexture = Texture.loadFromAssets2D(context, "images/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
