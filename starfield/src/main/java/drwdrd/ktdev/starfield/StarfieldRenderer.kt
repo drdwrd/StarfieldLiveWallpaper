@@ -71,7 +71,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val context : Context = _context
     private val plane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
-    private val theme = StarfieldTheme()
+    private val theme = Starfield2Theme()
     private lateinit var starspriteShader : ProgramObject
     private lateinit var cloudspriteShader : ProgramObject
     private lateinit var starfieldShader : ProgramObject
@@ -245,146 +245,153 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val viewProjectionMatrix = eye.viewProjectionMatrix
         val frustum = Frustum(viewProjectionMatrix)
 
-
-
-        val backgroundTextureMatrix = matrix3f()
-        backgroundTextureMatrix.loadIdentity()
-        backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
-        backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
-
-        //render background
-
         plane.bind()
 
-        starfieldShader.bind()
-        starfieldTexture.bind(0)
+        //render background
+        if(theme.hasBackground()) {
 
-        starfieldShader.setSampler(starfieldSampler, 0)
-        starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
-        starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
-        starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
-        starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
+            val backgroundTextureMatrix = matrix3f()
+            backgroundTextureMatrix.loadIdentity()
+            backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
+            backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
 
-        plane.draw()
 
-        starfieldTexture.release(0)
-        starfieldShader.release()
+            starfieldShader.bind()
+            starfieldTexture.bind(0)
 
-        //remove all particles behind camera
-        cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
+            starfieldShader.setSampler(starfieldSampler, 0)
+            starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
+            starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
+            starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
+            starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
+
+            plane.draw()
+
+            starfieldTexture.release(0)
+            starfieldShader.release()
+
+        }
 
         val eyeForward = eye.forward
         val eyePosition = eye.position
 
-        lastCloudParticleSpawnTime += timer.deltaTime
-        //if its time spawn new particle
-        if(lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-            cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
-            lastCloudParticleSpawnTime = 0.0
-        }
+        if(theme.hasClouds()) {
 
-        //render cloud sprites
+            //remove all particles behind camera
+            cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
-        cloudspriteShader.bind()
-        cloudspritesTexture.bind(0)
-
-        cloudspriteShader.setSampler(cloudspriteSampler, 0)
-
-        val cloud = cloudSprites.iterator()
-        while(cloud.hasNext()) {
-
-
-            val sprite = cloud.next()
-
-
-            //face dir
-            val dir = eyePosition - sprite.position
-            dir.normalize()
-
-            //normal
-            val normal = vector3f(0.0f, 0.0f , -1.0f)
-
-            val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-            val fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
-
-            val boundingSphere = sprite.boundingSphere()
-
-            if(frustum.contains(boundingSphere)) {
-
-                val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
-
-                cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
-                cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                cloudspriteShader.setUniformValue(cloudspriteColorUniform, sprite.color)
-                cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
-
-                plane.draw()
+            lastCloudParticleSpawnTime += timer.deltaTime
+            //if its time spawn new particle
+            if (lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
+                lastCloudParticleSpawnTime = 0.0
             }
 
-            sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
-        }
+            //render cloud sprites
+
+            cloudspriteShader.bind()
+            cloudspritesTexture.bind(0)
+
+            cloudspriteShader.setSampler(cloudspriteSampler, 0)
+
+            val cloud = cloudSprites.iterator()
+            while (cloud.hasNext()) {
 
 
-        cloudspritesTexture.release(0)
-        cloudspriteShader.release()
+                val sprite = cloud.next()
 
-        //remove all particles behind camera
-        starSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
-        lastStarParticleSpawnTime += timer.deltaTime
-        //if its time spawn new particle
-        if(lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
-            starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
-            lastStarParticleSpawnTime = 0.0
-        }
+                //face dir
+                val dir = eyePosition - sprite.position
+                dir.normalize()
 
-        //render stars sprites
+                //normal
+                val normal = vector3f(0.0f, 0.0f, -1.0f)
 
-        starspriteShader.bind()
-        starspritesTexture.bind(0)
-        noiseTexture.bind(1)
+                val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+                val fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
 
-        starspriteShader.setSampler(starspriteSampler, 0)
-        starspriteShader.setSampler(starspriteNoiseSampler, 1)
+                val boundingSphere = sprite.boundingSphere()
 
-        val star = starSprites.iterator()
-        while(star.hasNext()) {
+                if (frustum.contains(boundingSphere)) {
 
-            val sprite = star.next()
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
 
-            //face dir
-            val dir = eyePosition - sprite.position
-            dir.normalize()
+                    cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
+                    cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                    cloudspriteShader.setUniformValue(cloudspriteColorUniform, sprite.color)
+                    cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
-            //normal
-            val normal = vector3f(0.0f, 0.0f , -1.0f)
+                    plane.draw()
+                }
 
-            val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-
-            val rotMatrix = matrix3f()
-            rotMatrix.setRotation(0.1f * timer.currentTime.toFloat())
-
-            val boundingSphere = sprite.boundingSphere()
-
-            if(frustum.contains(boundingSphere)) {
-
-                val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
-
-                starspriteShader.setUniformValue(starspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
-                starspriteShader.setUniformValue(starspriteRotationMatrixUniform, rotMatrix)
-                starspriteShader.setUniformValue(starspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                starspriteShader.setUniformValue(starspriteFadeInUniform, fadeIn)
-
-                plane.draw()
+                sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
             }
 
-            sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
+
+            cloudspritesTexture.release(0)
+            cloudspriteShader.release()
         }
 
+        if(theme.hasStars()) {
+            //remove all particles behind camera
+            starSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
-        noiseTexture.release(1)
-        starspritesTexture.release(0)
-        starspriteShader.release()
+            lastStarParticleSpawnTime += timer.deltaTime
+            //if its time spawn new particle
+            if (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
+                lastStarParticleSpawnTime = 0.0
+            }
+
+            //render stars sprites
+
+            starspriteShader.bind()
+            starspritesTexture.bind(0)
+            noiseTexture.bind(1)
+
+            starspriteShader.setSampler(starspriteSampler, 0)
+            starspriteShader.setSampler(starspriteNoiseSampler, 1)
+
+            val star = starSprites.iterator()
+            while (star.hasNext()) {
+
+                val sprite = star.next()
+
+                //face dir
+                val dir = eyePosition - sprite.position
+                dir.normalize()
+
+                //normal
+                val normal = vector3f(0.0f, 0.0f, -1.0f)
+
+                val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+
+                val rotMatrix = matrix3f()
+                rotMatrix.setRotation(0.1f * timer.currentTime.toFloat())
+
+                val boundingSphere = sprite.boundingSphere()
+
+                if (frustum.contains(boundingSphere)) {
+
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
+
+                    starspriteShader.setUniformValue(starspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
+                    starspriteShader.setUniformValue(starspriteRotationMatrixUniform, rotMatrix)
+                    starspriteShader.setUniformValue(starspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
+                    starspriteShader.setUniformValue(starspriteFadeInUniform, fadeIn)
+
+                    plane.draw()
+                }
+
+                sprite.tick(eyeForward, particleSpeed, timer.deltaTime.toFloat())
+            }
+
+
+            noiseTexture.release(1)
+            starspritesTexture.release(0)
+            starspriteShader.release()
+        }
 
         plane.release()
 
