@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
@@ -23,12 +24,13 @@ android {
 }
 
 //workaround for https://issuetracker.google.com/issues/117685087
+//https://github.com/facebook/flipper/issues/146#issuecomment-463667556
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
-        if (requested.group == "com.android.support") {
+        if (requested.group == "androidx") {
             if (!requested.name.startsWith("multidex")) {
-                details.useVersion "26.+"
+                details.useVersion "${targetSdk}.+"
             }
         }
     }
@@ -40,5 +42,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
+    implementation 'com.google.firebase:firebase-storage:16.1.0'
+    implementation 'com.google.firebase:firebase-auth:16.2.1'
     implementation project(':engine')
 }

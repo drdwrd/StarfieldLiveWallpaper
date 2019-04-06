@@ -23,12 +23,13 @@ android {
 }
 
 //workaround for https://issuetracker.google.com/issues/117685087
+//https://github.com/facebook/flipper/issues/146#issuecomment-463667556
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
-        if (requested.group == "com.android.support") {
+        if (requested.group == "androidx") {
             if (!requested.name.startsWith("multidex")) {
-                details.useVersion "26.+"
+                details.useVersion "${targetSdk}.+"
             }
         }
     }

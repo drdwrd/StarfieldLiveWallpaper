@@ -10,8 +10,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.auth.FirebaseAuth
+import drwdrd.ktdev.engine.Log
 import java.lang.Exception
 
+
+private const val TAG = "drwdrd.ktdev.starfield.StarfieldSettingsActivity"
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
@@ -28,6 +32,15 @@ class StarfieldSettingsActivity : AppCompatActivity() {
 
         val tabLayout = findViewById<TabLayout>(R.id.settingsTabLayout)
         tabLayout.setupWithViewPager(viewPager)
+
+        val firebaseAuth = FirebaseAuth.getInstance()
+        if(firebaseAuth.currentUser == null) {
+            firebaseAuth.signInAnonymously().addOnCompleteListener {
+                if(!it.isSuccessful) {
+                    Log.error(TAG, "User authentication failed!")
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -48,6 +61,10 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onStart() {
+        super.onStart()
     }
 
     override fun onStop() {

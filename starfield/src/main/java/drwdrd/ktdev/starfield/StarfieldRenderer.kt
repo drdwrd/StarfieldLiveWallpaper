@@ -198,9 +198,15 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
-        starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
-        starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
-        cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)
+        if(theme.hasBackground()) {
+            starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
+        if(theme.hasStars()) {
+            starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
+        if(theme.hasClouds()) {
+            cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
 
         //misc
         noiseTexture = Texture.loadFromAssets2D(context, "images/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)

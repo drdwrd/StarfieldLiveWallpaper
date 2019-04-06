@@ -4,4 +4,16 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <Button
+            android:id="@+id/starfieldThemeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Starfield"/>
+
+    <Button
+            android:id="@+id/starfield2ThemeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Strafield2"/>
+
 </LinearLayout>
