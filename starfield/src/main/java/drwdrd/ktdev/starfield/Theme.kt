@@ -20,12 +20,16 @@ interface Theme {
 class Starfield2Theme : Theme {
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-        return Texture.loadFromAssets2D(context, "themes/default/astc/png/starfield2.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+//        return Texture.loadFromAssets2D(context, "themes/starfield2/starfield2.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+//            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starfield.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
     override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-        return Texture.loadFromAssets2D(context, "themes/default/astc/png/starsprites2.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+//        return Texture.loadFromAssets2D(context, "themes/starfield2/starsprites2.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+//            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starsprites.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
@@ -40,7 +44,7 @@ class Starfield2Theme : Theme {
     override fun hasStars(): Boolean = true
 }
 
-class StarfieldTheme : Theme {
+class DefaultTheme : Theme {
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {
@@ -60,7 +64,7 @@ class StarfieldTheme : Theme {
                 //etc2
                 KTXLoader.loadFromAssets(
                     context,
-                    "themes/default/astc/etc2/starfield.ktx",
+                    "themes/default/etc2/starfield.ktx",
                     textureQuality,
                     Texture.WrapMode.Repeat,
                     Texture.WrapMode.Repeat,
@@ -72,7 +76,7 @@ class StarfieldTheme : Theme {
                 //etc
                 KTXLoader.loadFromAssets(
                     context,
-                    "themes/default/astc/etc/starfield.ktx",
+                    "themes/default/etc/starfield.ktx",
                     textureQuality,
                     Texture.WrapMode.Repeat,
                     Texture.WrapMode.Repeat,
@@ -106,7 +110,7 @@ class StarfieldTheme : Theme {
                 //etc2
                 KTXLoader.loadFromAssets(
                     context,
-                    "themes/default/astc/etc2/starsprites.ktx",
+                    "themes/default/etc2/starsprites.ktx",
                     textureQuality,
                     Texture.WrapMode.ClampToEdge,
                     Texture.WrapMode.ClampToEdge,
@@ -118,7 +122,7 @@ class StarfieldTheme : Theme {
                 //etc
                 Texture.loadFromAssets2D(
                     context,
-                    "themes/default/astc/png/starsprites.png",
+                    "themes/default/png/starsprites.png",
                     textureQuality,
                     Texture.WrapMode.ClampToEdge,
                     Texture.WrapMode.ClampToEdge,
@@ -130,7 +134,7 @@ class StarfieldTheme : Theme {
                 //png
                 Texture.loadFromAssets2D(
                     context,
-                    "themes/default/astc/png/starsprites.png",
+                    "themes/default/png/starsprites.png",
                     textureQuality,
                     Texture.WrapMode.ClampToEdge,
                     Texture.WrapMode.ClampToEdge,
@@ -142,7 +146,7 @@ class StarfieldTheme : Theme {
     }
 
     override fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture {
-        return Texture.loadFromAssets2D(context, "themes/default/astc/png/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        return Texture.loadFromAssets2D(context, "themes/default/png/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
     override fun hasBackground(): Boolean = true

@@ -1,6 +1,7 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
+import android.widget.Toast
 import drwdrd.ktdev.engine.Flag
 import drwdrd.ktdev.engine.FlagType
 import drwdrd.ktdev.engine.Log
@@ -86,21 +87,25 @@ object SettingsProvider {
     var precessionSpeed = DEFAULT_PRECESSION_SPEED
 
     fun resetSettings() {
+        textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
+        parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
         adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
         particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
         enableParallaxEffect = false
+        baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
         enableScrollingEffect = true
         scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
         precessionSpeed = DEFAULT_PRECESSION_SPEED
     }
 
+    //changed some params names because of collision with older ini files format (file are backed up so old file was restored and messed up initialization)
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
-            it.write("textureCompressionMode=${textureCompressionMode.flags}\n")
-            it.write("parallaxEffectEngineType=${parallaxEffectEngineType.type}\n")
+            it.write("textureCompression=${textureCompressionMode.flags}\n")
+            it.write("parallaxEffectEngine=${parallaxEffectEngineType.type}\n")
             it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
@@ -114,6 +119,7 @@ object SettingsProvider {
         }
     }
 
+    //TODO: make sure that old configs doesn't collide with new settings
     fun load(context: Context, filename : String) {
         try {
             File(context.filesDir, filename).bufferedReader().useLines {
@@ -121,8 +127,8 @@ object SettingsProvider {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
-                            "textureCompressionMode" -> textureCompressionMode = Flag(s[1].toInt())
-                            "parallaxEffectEngineType" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
+                            "textureCompression" -> textureCompressionMode = Flag(s[1].toInt())
+                            "parallaxEffectEngine" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "particlesSpawnTimeMultiplier" -> particlesSpawnTimeMultiplier = s[1].toDouble()
@@ -138,8 +144,10 @@ object SettingsProvider {
                 }
             }
         } catch(e : FileNotFoundException) {
+            resetSettings()
             Log.warning(TAG, "No settings file found!\n")
         } catch(e : NumberFormatException) {
+            resetSettings()
             Log.warning(TAG, "Cannot parse settings!\n")
         }
     }

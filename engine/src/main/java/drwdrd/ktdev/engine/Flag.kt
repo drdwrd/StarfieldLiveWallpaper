@@ -6,6 +6,10 @@ abstract class FlagType {
 
 class Flag<T : FlagType> {
 
+    constructor() {
+        flags = 0
+    }
+
     constructor(flag: T) {
         flags = flag.type
     }
