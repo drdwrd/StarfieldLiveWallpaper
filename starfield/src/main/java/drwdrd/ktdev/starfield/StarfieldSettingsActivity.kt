@@ -38,8 +38,12 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             firebaseAuth.signInAnonymously().addOnCompleteListener {
                 if(!it.isSuccessful) {
                     Log.error(TAG, "User authentication failed!")
+                } else {
+                    Log.info(TAG, "User authenticated!")
                 }
             }
+        } else {
+            Log.info(TAG, "User already logged!")
         }
     }
 
@@ -68,6 +72,12 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
+        //clear cache
+        cacheDir.walkBottomUp().forEach {
+            if(it.name.contains("theme")) {
+                it.delete()
+            }
+        }
         SettingsProvider.save(applicationContext,"starfield.ini")
         super.onStop()
     }

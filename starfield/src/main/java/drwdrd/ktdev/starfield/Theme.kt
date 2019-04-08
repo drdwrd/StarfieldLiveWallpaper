@@ -22,14 +22,14 @@ class Starfield2Theme : Theme {
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
 //        return Texture.loadFromAssets2D(context, "themes/starfield2/starfield2.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
 //            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starfield.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starfield2.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
     override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
 //        return Texture.loadFromAssets2D(context, "themes/starfield2/starsprites2.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
 //            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starsprites.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starsprites2.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
