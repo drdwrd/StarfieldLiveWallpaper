@@ -31,32 +31,63 @@ class ThemesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        val starfieldThemeButton = view.findViewById<Button>(R.id.starfieldThemeButton)
+        starfieldThemeButton.setOnClickListener {
+            StarfieldActivity.restart = true
+            StarfieldActivity.currentTheme = DefaultTheme()
+        }
+
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
         val starfield2ThemeButton = view.findViewById<Button>(R.id.starfield2ThemeButton)
         starfield2ThemeButton.setOnClickListener {
-            starfield2ThemeButton.isEnabled = false
-            progressBar.visibility = View.VISIBLE
-            val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
-            val fileRef = storage.getReference("theme/starfield2/png/starfield2.zip")
-            val localFile = File.createTempFile("theme", "zip")
-            fileRef.getFile(localFile).addOnSuccessListener {
-                progressBar.visibility = View.INVISIBLE
-                starfield2ThemeButton.isEnabled = true
-                Toast.makeText(context, "File downloaded successfully!", Toast.LENGTH_SHORT).show()
-                unzipFile(localFile, "starfield2")
-            }.addOnFailureListener {
-                Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
-            }.addOnProgressListener {
-                val progress = 100.0 * it.bytesTransferred / it.totalByteCount
-                progressBar.progress = progress.toInt()
+            if(!hasTheme("starfield2")) {
+                starfield2ThemeButton.isEnabled = false
+                progressBar.visibility = View.VISIBLE
+                val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
+                val fileRef = storage.getReference(getPackageName("starfield2"))
+                val localFile = File.createTempFile("theme", "zip")
+                fileRef.getFile(localFile).addOnSuccessListener {
+                    progressBar.visibility = View.INVISIBLE
+                    starfield2ThemeButton.isEnabled = true
+                    Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
+                    unzipFile(localFile, "starfield2")
+                }.addOnFailureListener {
+                    Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+                }.addOnProgressListener {
+                    val progress = 100.0 * it.bytesTransferred / it.totalByteCount
+                    progressBar.progress = progress.toInt()
+                }
+            } else {
+                StarfieldActivity.restart = true
+                StarfieldActivity.currentTheme = ThemePackage(context!!,"starfield2")
             }
         }
     }
 
+    private fun getPackageName(theme : String) : String {
+        return when {
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> String.format("themes/$theme/${theme}_astc.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> String.format("themes/$theme/${theme}_etc2.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> String.format("themes/$theme/${theme}_etc.zip")
+            else -> String.format("themes/$theme/${theme}_png.zip")
+        }
+    }
+
+    private fun hasTheme(theme : String) : Boolean {
+        val location = File(context?.getExternalFilesDir(null), theme)
+        if(location.exists() && location.isDirectory) {
+            return true
+        }
+        return false
+    }
+
     //unzips temp file into external storage into theme folder
-    fun unzipFile(cacheFile : File, themeName : String) {
-        val location = context?.getExternalFilesDir(null)
+    private fun unzipFile(cacheFile : File, themeName : String) {
+        val location = File(context?.getExternalFilesDir(null), themeName)
+        if(!location.exists()) {
+            location.mkdir()
+        }
         try {
             val fileInputStream = FileInputStream(cacheFile)
             val zipInputStream = ZipInputStream(fileInputStream)

@@ -12,7 +12,7 @@ import drwdrd.ktdev.engine.GLWallpaperService
 class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 
     private lateinit var glSurfaceView : GLSurfaceView
-    private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
+    private lateinit var renderer: StarfieldRenderer
     private lateinit var mainMenuFragment : MenuFragment
     private lateinit var settingsFragment : SettingsFragment
 
@@ -26,8 +26,7 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        val renderer = StarfieldRenderer.createRenderer(this)
-        liveCycleListener = renderer
+        renderer = StarfieldRenderer.createRenderer(this)
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
@@ -41,24 +40,29 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
     }
 
     override fun onResume() {
+        if(restart) {
+            renderer.theme = currentTheme
+            renderer.requestRestart()
+            restart = false
+        }
         glSurfaceView.onResume()
-        liveCycleListener.onResume()
+        renderer.onResume()
         super.onResume()
     }
 
     override fun onPause() {
         glSurfaceView.onPause()
-        liveCycleListener.onPause()
+        renderer.onPause()
         super.onPause()
     }
 
     override fun onStart() {
-        liveCycleListener.onStart()
+        renderer.onStart()
         super.onStart()
     }
 
     override fun onStop() {
-        liveCycleListener.onStop()
+        renderer.onStop()
         super.onStop()
     }
 
@@ -71,5 +75,11 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
                 }
             }
         }
+    }
+
+    companion object {
+        var restart : Boolean = false
+
+        var currentTheme : Theme = DefaultTheme()
     }
 }

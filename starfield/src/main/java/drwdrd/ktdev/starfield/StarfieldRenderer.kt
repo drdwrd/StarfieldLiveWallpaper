@@ -68,17 +68,19 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
     }
 
+    var theme : Theme = DefaultTheme()
+
     private val context : Context = _context
+    private var requestRestart = false
     private val plane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
-    private val theme = Starfield2Theme()
-    private lateinit var starspriteShader : ProgramObject
-    private lateinit var cloudspriteShader : ProgramObject
-    private lateinit var starfieldShader : ProgramObject
-    private lateinit var starfieldTexture : Texture
-    private lateinit var starspritesTexture : Texture
-    private lateinit var cloudspritesTexture : Texture
-    private lateinit var noiseTexture : Texture
+    private var starspriteShader = ProgramObject()
+    private var cloudspriteShader = ProgramObject()
+    private var starfieldShader  = ProgramObject()
+    private var starfieldTexture = Texture()
+    private var starspritesTexture = Texture()
+    private var cloudspritesTexture = Texture()
+    private var noiseTexture = Texture()
     private val timer = Timer()
     private val fpsCounter = FpsCounter(1.0)
     private var lastStarParticleSpawnTime = 1000.0
@@ -165,66 +167,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             SettingsProvider.textureCompressionMode = getTextureCompressionMode(version, extensions)
         }
 
-        val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
 
         Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
-        Log.info(TAG, "Texture quality level set to $textureQuality")
 
-        plane.create()
-
-        starspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
-        } else {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
-        }
-        starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
-        starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
-        starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
-        starspriteShader.registerUniform("u_RotationMatrix", starspriteRotationMatrixUniform)
-        starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
-        starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
-
-        cloudspriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
-        cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
-        cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
-        cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
-        cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
-        cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
-
-        starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
-        starfieldShader.registerUniform("u_Starfield", starfieldSampler)
-        starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
-        starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
-        starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
-        starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
-
-        if(theme.hasBackground()) {
-            starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
-        }
-        if(theme.hasStars()) {
-            starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
-        }
-        if(theme.hasClouds()) {
-            cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
-        }
-
-        //misc
-        noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-
-        eye.setPerspective(50.0f, 0.0f, 100.0f)
-        eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
-
-        //opengl setup
-        GLES20.glDisable(GLES20.GL_CULL_FACE)
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
-        GLES20.glClearDepthf(1.0f)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
-        GLES20.glDisable(GLES20.GL_DEPTH_TEST)
-        GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
-        GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
-
-        timer.reset()
+        create()
     }
 
 
@@ -240,6 +186,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onDrawFrame(p0: GL10?) {
+
+        if(requestRestart) {
+            destroy()
+            create()
+            requestRestart = false
+        }
 
         timer.tick()
 
@@ -430,6 +382,83 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     override fun onPause() {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         parallaxEffectEngine.disconnect(sensorManager)
+    }
+
+    override fun requestRestart() {
+        requestRestart = true
+    }
+
+    private fun create() {
+
+        val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
+        Log.info(TAG, "Texture quality level set to $textureQuality")
+
+        plane.create()
+
+        starspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
+        }
+        starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
+        starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
+        starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
+        starspriteShader.registerUniform("u_RotationMatrix", starspriteRotationMatrixUniform)
+        starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
+        starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
+
+        cloudspriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
+        cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
+        cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
+        cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
+        cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
+        cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
+
+        starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
+        starfieldShader.registerUniform("u_Starfield", starfieldSampler)
+        starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
+        starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
+        starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
+        starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
+
+        if(theme.hasBackground()) {
+            starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
+        if(theme.hasStars()) {
+            starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
+        if(theme.hasClouds()) {
+            cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+        }
+
+        //misc
+        noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+
+        eye.setPerspective(50.0f, 0.0f, 100.0f)
+        eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
+
+        //opengl setup
+        GLES20.glDisable(GLES20.GL_CULL_FACE)
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        GLES20.glClearDepthf(1.0f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
+        GLES20.glDisable(GLES20.GL_DEPTH_TEST)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
+
+        timer.reset()
+    }
+
+    private fun destroy() {
+        plane.destroy()
+        starspriteShader.delete()
+        cloudspriteShader.delete()
+        starfieldShader.delete()
+        starspritesTexture.delete()
+        cloudspritesTexture.delete()
+        starfieldTexture.delete()
+        noiseTexture.delete()
     }
 
     companion object {

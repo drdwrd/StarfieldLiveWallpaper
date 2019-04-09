@@ -1,10 +1,13 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
+import android.os.Environment
+import androidx.core.content.ContextCompat
 import drwdrd.ktdev.engine.Flag
 import drwdrd.ktdev.engine.KTXLoader
 import drwdrd.ktdev.engine.Log
 import drwdrd.ktdev.engine.Texture
+import java.io.File
 
 private const val TAG = "drwdrd.ktdev.starfield.Theme"
 
@@ -15,6 +18,38 @@ interface Theme {
     fun hasClouds() : Boolean
     fun hasStars() : Boolean
     fun hasBackground() : Boolean
+}
+
+class ThemePackage : Theme {
+
+    private val themeName : String
+    private val themePath : String
+
+    constructor(context: Context, theme : String) {
+        themeName = theme
+        val location = File(context.getExternalFilesDir(null), theme)
+        themePath = location.absolutePath + "/"
+    }
+
+    override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
+        return KTXLoader.loadFromPath(context, themePath + "starfield2.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+    }
+
+    override fun starsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
+        return KTXLoader.loadFromPath(context, themePath + "starsprites2.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+    }
+
+    override fun cloudsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
+        return null
+    }
+
+    override fun hasBackground(): Boolean = true
+
+    override fun hasClouds(): Boolean = false
+
+    override fun hasStars(): Boolean = true
 }
 
 class Starfield2Theme : Theme {
@@ -89,7 +124,6 @@ class DefaultTheme : Theme {
                 null
             }
         }
-
     }
 
     override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {

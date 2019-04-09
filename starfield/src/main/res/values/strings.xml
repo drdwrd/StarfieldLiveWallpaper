@@ -14,7 +14,7 @@
     <string name="label_stars_density">Stars Density</string>
     <string name="label_parallax_effect">Parallax Effect</string>
     <string name="btn_scrolling_effect">Wallpaper Scrolling</string>
-    <string name="btn_texture_quality">High Quality Textures(requires restart)</string>
+    <string name="btn_texture_quality">High Quality Textures</string>
 
     <string name="menu_reset">Reset</string>
 </resources>

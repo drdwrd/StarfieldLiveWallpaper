@@ -18,6 +18,8 @@ abstract class GLWallpaperService : WallpaperService() {
         fun onStop()
         fun onPause()
         fun onResume()
+
+        fun requestRestart()
     }
 
     var touchEventsEnabled = false

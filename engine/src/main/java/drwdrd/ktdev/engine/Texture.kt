@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
+import java.io.FileInputStream
 import java.nio.ByteBuffer
 
 
@@ -192,6 +193,32 @@ class Texture {
                 GLES20.glGenerateMipmap(texture.target.glTarget)
             }
             GLES20.glBindTexture(texture.target.glTarget, 0)
+            return texture
+        }
+
+        fun loadFromPath(context : Context, path : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+            val texture = Texture()
+            texture.create()
+            texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
+            texture.filtering = arrayOf(minFilter, magFilter)
+            texture.mipmappingEnabled = when(minFilter) {
+                Filtering.Linear -> false
+                Filtering.Nearest -> false
+                else -> true
+
+            }
+            val inputStream = FileInputStream(path)
+            val bitmap = inputStream.use { BitmapFactory.decodeStream(it) }
+            if(level > 0) {
+                val w = bitmap.width shr level
+                val h = bitmap.height shr level
+                val b = Bitmap.createScaledBitmap(bitmap, w, h, true)
+                texture.createTexture2D(b)
+                b.recycle()
+            } else {
+                texture.createTexture2D(bitmap)
+            }
+            bitmap.recycle()
             return texture
         }
 
