@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import drwdrd.ktdev.engine.GLWallpaperService
 
 class SettingsFragment : Fragment() {
 
@@ -100,7 +101,7 @@ class SettingsFragment : Fragment() {
         highQualityTexturesCheckBox = view.findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
         highQualityTexturesCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            StarfieldActivity.restart = true
+            StarfieldRenderer.notifyRestart()
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1
         }
     }

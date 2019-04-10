@@ -6,6 +6,7 @@ import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import drwdrd.ktdev.engine.*
+import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -42,7 +43,7 @@ private const val maxCloudParticlesCount = 200        //hard limit just in case.
 
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
-    constructor(_context : Context, file : String) : this(_context) {
+    private constructor(_context : Context, file : String) : this(_context) {
         SettingsProvider.load(_context, file)
         if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
@@ -67,8 +68,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             }
         }
     }
-
-    var theme : Theme = DefaultTheme()
 
     private val context : Context = _context
     private var requestRestart = false
@@ -384,10 +383,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         parallaxEffectEngine.disconnect(sensorManager)
     }
 
-    override fun requestRestart() {
-        requestRestart = true
-    }
-
     private fun create() {
 
         val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
@@ -463,7 +458,27 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     companion object {
 
-        fun createRenderer(context: Context) = StarfieldRenderer(context, "starfield.ini")
+        var theme : Theme = DefaultTheme()
+            set(value) {
+                field = value
+                notifyRestart()
+            }
+
+        //TODO: it's rather hackish solution...
+        private var instances = ArrayList<WeakReference<StarfieldRenderer>>()
+
+        fun createRenderer(context: Context) : StarfieldRenderer {
+            val renderer = StarfieldRenderer(context, "starfield.ini")
+            instances.add(WeakReference(renderer))
+            return renderer
+        }
+
+        fun notifyRestart() {
+            instances.removeAll { it.get() == null }
+            instances.forEach {
+                it.get()?.requestRestart = true
+            }
+        }
     }
 }
 

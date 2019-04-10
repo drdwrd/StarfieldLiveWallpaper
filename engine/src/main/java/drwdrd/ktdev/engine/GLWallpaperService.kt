@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import android.service.wallpaper.WallpaperService
 import android.view.MotionEvent
 import android.view.SurfaceHolder
+import java.lang.ref.WeakReference
 
 
 abstract class GLWallpaperService : WallpaperService() {
@@ -14,12 +15,12 @@ abstract class GLWallpaperService : WallpaperService() {
     }
 
     interface WallpaperLiveCycleListener {
+
         fun onStart()
         fun onStop()
         fun onPause()
         fun onResume()
 
-        fun requestRestart()
     }
 
     var touchEventsEnabled = false

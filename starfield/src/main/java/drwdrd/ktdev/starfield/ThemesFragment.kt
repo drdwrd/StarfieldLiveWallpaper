@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FileDownloadTask
 import com.google.firebase.storage.FirebaseStorage
+import drwdrd.ktdev.engine.GLWallpaperService
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -33,8 +34,7 @@ class ThemesFragment : Fragment() {
 
         val starfieldThemeButton = view.findViewById<Button>(R.id.starfieldThemeButton)
         starfieldThemeButton.setOnClickListener {
-            StarfieldActivity.restart = true
-            StarfieldActivity.currentTheme = DefaultTheme()
+            StarfieldRenderer.theme = DefaultTheme()
         }
 
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
@@ -59,8 +59,7 @@ class ThemesFragment : Fragment() {
                     progressBar.progress = progress.toInt()
                 }
             } else {
-                StarfieldActivity.restart = true
-                StarfieldActivity.currentTheme = ThemePackage(context!!,"starfield2")
+                StarfieldRenderer.theme = ThemePackage(context!!,"starfield2")
             }
         }
     }

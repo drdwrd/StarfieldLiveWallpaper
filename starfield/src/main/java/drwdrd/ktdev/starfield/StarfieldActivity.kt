@@ -40,11 +40,6 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
     }
 
     override fun onResume() {
-        if(restart) {
-            renderer.theme = currentTheme
-            renderer.requestRestart()
-            restart = false
-        }
         glSurfaceView.onResume()
         renderer.onResume()
         super.onResume()
@@ -75,11 +70,5 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
                 }
             }
         }
-    }
-
-    companion object {
-        var restart : Boolean = false
-
-        var currentTheme : Theme = DefaultTheme()
     }
 }
