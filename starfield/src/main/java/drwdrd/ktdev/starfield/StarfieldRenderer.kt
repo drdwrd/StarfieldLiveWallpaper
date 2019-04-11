@@ -464,7 +464,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 notifyRestart()
             }
 
-        //TODO: it's rather hackish solution...
+        //TODO: this is rather hackish solution...
         private var instances = ArrayList<WeakReference<StarfieldRenderer>>()
 
         fun createRenderer(context: Context) : StarfieldRenderer {
@@ -474,9 +474,15 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
 
         fun notifyRestart() {
-            instances.removeAll { it.get() == null }
-            instances.forEach {
-                it.get()?.requestRestart = true
+            with(instances.iterator()) {
+                while(hasNext()) {
+                    val ref = next().get()
+                    if(ref == null) {
+                        remove()
+                    } else {
+                        ref.requestRestart = true
+                    }
+                }
             }
         }
     }

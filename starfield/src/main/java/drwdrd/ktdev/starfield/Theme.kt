@@ -1,13 +1,13 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import android.os.Environment
-import androidx.core.content.ContextCompat
 import drwdrd.ktdev.engine.Flag
 import drwdrd.ktdev.engine.KTXLoader
 import drwdrd.ktdev.engine.Log
 import drwdrd.ktdev.engine.Texture
 import java.io.File
+import java.io.FileInputStream
+import javax.xml.parsers.DocumentBuilderFactory
 
 private const val TAG = "drwdrd.ktdev.starfield.Theme"
 
@@ -22,61 +22,104 @@ interface Theme {
 
 class ThemePackage : Theme {
 
+    private inner class ThemeTextureInfo {
+
+        constructor() {
+            isValid = false
+            name = ""
+            textureCompressionMode = SettingsProvider.TextureCompressionMode.UNKNOWN
+        }
+
+        constructor(_format : String, _name : String) {
+            isValid = true
+            name = _name
+            textureCompressionMode = parseTextureCompressionFormat(_format)
+        }
+
+        val isValid : Boolean
+        val name : String
+        val textureCompressionMode : SettingsProvider.TextureCompressionMode
+
+        private fun parseTextureCompressionFormat(format : String) : SettingsProvider.TextureCompressionMode {
+            return when(format) {
+                "astc" -> SettingsProvider.TextureCompressionMode.ASTC
+                "etc2" -> SettingsProvider.TextureCompressionMode.ETC2
+                "etc" -> SettingsProvider.TextureCompressionMode.ETC1
+                "png" -> SettingsProvider.TextureCompressionMode.NONE
+                else -> SettingsProvider.TextureCompressionMode.UNKNOWN
+            }
+        }
+    }
+
     private val themeName : String
     private val themePath : String
+    private var starfieldInfo = ThemeTextureInfo()
+    private var starsInfo = ThemeTextureInfo()
+    private var cloudsInfo = ThemeTextureInfo()
 
     constructor(context: Context, theme : String) {
         themeName = theme
         val location = File(context.getExternalFilesDir(null), theme)
-        themePath = location.absolutePath + "/"
+        themePath = location.absolutePath
+        val xmlFile = "$themePath/$theme.xml"
+        val inputStream = FileInputStream(xmlFile)
+        inputStream.use {
+            val builderFactory = DocumentBuilderFactory.newInstance()
+            val builder = builderFactory.newDocumentBuilder()
+            val dom = builder.parse(it)
+            val themeNode = dom.getElementsByTagName("theme").item(0)
+            for(i in 0 until themeNode.childNodes.length) {
+                val node = themeNode.childNodes.item(i)
+                when(node.nodeName) {
+                    "background" -> starfieldInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
+                    "starsprites" -> starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
+                    "cloudsprites" -> starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
+                }
+            }
+        }
     }
 
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
-        return KTXLoader.loadFromPath(context, themePath + "starfield2.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+        return when(starfieldInfo.textureCompressionMode) {
+            SettingsProvider.TextureCompressionMode.NONE ->
+                Texture.loadFromPath(context, "$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
+                KTXLoader.loadFromPath(context, "$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            else -> null
+        }
     }
 
     override fun starsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
-        return KTXLoader.loadFromPath(context, themePath + "starsprites2.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
-            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        return when(starsInfo.textureCompressionMode) {
+            SettingsProvider.TextureCompressionMode.NONE ->
+                Texture.loadFromPath(context, "$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
+                KTXLoader.loadFromPath(context, "$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            else -> null
+        }
     }
 
     override fun cloudsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
-        return null
+        return when(cloudsInfo.textureCompressionMode) {
+            SettingsProvider.TextureCompressionMode.NONE ->
+                Texture.loadFromPath(context, "$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
+                KTXLoader.loadFromPath(context, "$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+            else -> null
+        }
     }
 
-    override fun hasBackground(): Boolean = true
+    override fun hasBackground(): Boolean = starfieldInfo.isValid
 
-    override fun hasClouds(): Boolean = false
+    override fun hasStars(): Boolean = starsInfo.isValid
 
-    override fun hasStars(): Boolean = true
-}
-
-class Starfield2Theme : Theme {
-
-    override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-//        return Texture.loadFromAssets2D(context, "themes/starfield2/starfield2.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
-//            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starfield2.ktx", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
-            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-    }
-
-    override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-//        return Texture.loadFromAssets2D(context, "themes/starfield2/starsprites2.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
-//            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-        return KTXLoader.loadFromAssets(context, "themes/starfield2/astc/starsprites2.ktx", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
-            Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
-    }
-
-    override fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-        return null
-    }
-
-    override fun hasBackground(): Boolean = true
-
-    override fun hasClouds(): Boolean = false
-
-    override fun hasStars(): Boolean = true
+    override fun hasClouds(): Boolean = cloudsInfo.isValid
 }
 
 class DefaultTheme : Theme {
