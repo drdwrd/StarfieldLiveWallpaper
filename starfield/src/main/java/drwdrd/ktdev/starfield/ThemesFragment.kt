@@ -1,5 +1,6 @@
 package drwdrd.ktdev.starfield
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
@@ -15,10 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FileDownloadTask
 import com.google.firebase.storage.FirebaseStorage
 import drwdrd.ktdev.engine.GLWallpaperService
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.io.*
 import java.lang.Exception
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -51,16 +49,28 @@ class ThemesFragment : Fragment() {
                     progressBar.visibility = View.INVISIBLE
                     starfield2ThemeButton.isEnabled = true
                     Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
-                    unzipFile(localFile, "starfield2")
+                    installTheme(localFile, "starfield2")
+                    StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
                 }.addOnFailureListener {
+                    progressBar.visibility = View.INVISIBLE
+                    starfield2ThemeButton.isEnabled = true
                     Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
                 }.addOnProgressListener {
                     val progress = 100.0 * it.bytesTransferred / it.totalByteCount
                     progressBar.progress = progress.toInt()
                 }
             } else {
-                StarfieldRenderer.theme = ThemePackage(context!!,"starfield2")
+                StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
             }
+        }
+        starfield2ThemeButton.setOnLongClickListener {
+            val location = File(context?.getExternalFilesDir(null), "starfield2")
+            if(location.exists() && location.isDirectory) {
+                location.deleteRecursively()
+                Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
+            }
+            StarfieldRenderer.theme = DefaultTheme()
+            true
         }
     }
 
@@ -114,4 +124,33 @@ class ThemesFragment : Fragment() {
             e.printStackTrace()
         }
     }
+
+    private fun installTheme(cacheFile : File, theme : String) {
+        val location = File(context?.getExternalFilesDir(null), theme)
+        if(!location.exists()) {
+            location.mkdir()
+        }
+        ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
+            var zipEntry: ZipEntry? = zipInputStream.nextEntry
+            while (zipEntry != null) {
+                if (zipEntry.isDirectory) {
+                    val dir = File(location, zipEntry.name)
+                    dir.mkdir()
+                } else {
+                    BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream  ->
+                        val buffer = ByteArray(1024)
+                        var read = zipInputStream.read(buffer)
+                        while (read > 0) {
+                            bufferedOutputStream.write(buffer, 0, read)
+                            read = zipInputStream.read(buffer)
+                        }
+                        bufferedOutputStream.close()
+                        zipInputStream.closeEntry()
+                    }
+                }
+                zipEntry = zipInputStream.nextEntry
+            }
+        }
+    }
+
 }
