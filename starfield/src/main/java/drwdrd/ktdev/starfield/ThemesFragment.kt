@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -30,14 +31,14 @@ class ThemesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val starfieldThemeButton = view.findViewById<Button>(R.id.starfieldThemeButton)
+        val starfieldThemeButton = view.findViewById<ImageButton>(R.id.starfieldThemeButton)
         starfieldThemeButton.setOnClickListener {
             StarfieldRenderer.theme = DefaultTheme()
         }
 
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
-        val starfield2ThemeButton = view.findViewById<Button>(R.id.starfield2ThemeButton)
+        val starfield2ThemeButton = view.findViewById<ImageButton>(R.id.starfield2ThemeButton)
         starfield2ThemeButton.setOnClickListener {
             if(!hasTheme("starfield2")) {
                 starfield2ThemeButton.isEnabled = false

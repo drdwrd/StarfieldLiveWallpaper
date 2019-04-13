@@ -13,5 +13,7 @@
         <item name="android:layout_width">@dimen/menu_button_size</item>
         <item name="android:layout_height">@dimen/menu_button_size</item>
     </style>
-
+    <style name="DownloadProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/download_progressbar</item>
+    </style>
 </resources>
