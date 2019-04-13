@@ -7,7 +7,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
-import drwdrd.ktdev.engine.GLWallpaperService
+
 
 class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 

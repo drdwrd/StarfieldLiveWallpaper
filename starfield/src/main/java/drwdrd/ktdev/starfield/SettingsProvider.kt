@@ -1,7 +1,6 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import android.widget.Toast
 import drwdrd.ktdev.engine.Flag
 import drwdrd.ktdev.engine.FlagType
 import drwdrd.ktdev.engine.Log

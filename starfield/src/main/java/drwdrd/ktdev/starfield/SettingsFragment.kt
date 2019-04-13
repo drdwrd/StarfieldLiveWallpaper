@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import drwdrd.ktdev.engine.GLWallpaperService
 
 class SettingsFragment : Fragment() {
 
