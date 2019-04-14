@@ -44,6 +44,7 @@ class ThemesFragment : MenuFragment() {
                 fileRef.getFile(localFile).addOnSuccessListener {
                     Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
                     installTheme(localFile, "classic")
+                    localFile.delete()
                     classicThemeButton.isEnabled = true
                     classicThemeButton.isDownloaded = true
                     classicThemeButton.isCurrent = true
@@ -51,6 +52,7 @@ class ThemesFragment : MenuFragment() {
                     classicThemeButton.progress = 0.0f
                 }.addOnFailureListener {
                     Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+                    localFile.delete()
                     classicThemeButton.isEnabled = true
                     classicThemeButton.progress = 0.0f
                 }.addOnProgressListener {
@@ -83,6 +85,7 @@ class ThemesFragment : MenuFragment() {
                 fileRef.getFile(localFile).addOnSuccessListener {
                     Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
                     installTheme(localFile, "starfield2")
+                    localFile.delete()
                     starfieldThemeButton.isEnabled = true
                     starfieldThemeButton.isDownloaded = true
                     starfieldThemeButton.isCurrent = true
@@ -90,6 +93,7 @@ class ThemesFragment : MenuFragment() {
                     starfieldThemeButton.progress = 0.0f
                 }.addOnFailureListener {
                     Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+                    localFile.delete()
                     starfieldThemeButton.isEnabled = true
                     starfieldThemeButton.progress = 0.0f
                 }.addOnProgressListener {

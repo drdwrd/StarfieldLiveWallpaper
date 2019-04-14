@@ -63,12 +63,6 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        //clear cache
-        cacheDir.walkBottomUp().forEach {
-            if(it.name.contains("theme")) {
-                it.delete()
-            }
-        }
         SettingsProvider.save(applicationContext,"starfield.ini")
         super.onStop()
     }
