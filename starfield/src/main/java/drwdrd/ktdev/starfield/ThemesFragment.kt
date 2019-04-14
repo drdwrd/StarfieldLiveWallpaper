@@ -26,47 +26,86 @@ class ThemesFragment : MenuFragment() {
             onMenuFragmentInteraction("browser", "back")
         }
 
-        val starfieldThemeButton = view.findViewById<DownloadButton>(R.id.starfieldThemeButton)
-        starfieldThemeButton.isDownloaded = true
-        starfieldThemeButton.setOnClickListener {
+        val defaultThemeButton = view.findViewById<DownloadButton>(R.id.defaultThemeButton)
+        defaultThemeButton.isDownloaded = true
+        defaultThemeButton.setOnClickListener {
             StarfieldRenderer.theme = DefaultTheme()
-            starfieldThemeButton.isCurrent = true
+            defaultThemeButton.isCurrent = true
         }
 
-        val starfield2ThemeButton = view.findViewById<DownloadButton>(R.id.starfield2ThemeButton)
-        starfield2ThemeButton.isDownloaded = hasTheme("starfield2")
-        starfield2ThemeButton.setOnClickListener {
+        val classicThemeButton = view.findViewById<DownloadButton>(R.id.classicThemeButton)
+        classicThemeButton.isDownloaded = hasTheme("classic")
+        classicThemeButton.setOnClickListener {
+            if(!hasTheme("classic")) {
+                classicThemeButton.isEnabled = false
+                val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
+                val fileRef = storage.getReference(getPackageName("classic"))
+                val localFile = File.createTempFile("theme", "zip")
+                fileRef.getFile(localFile).addOnSuccessListener {
+                    Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
+                    installTheme(localFile, "classic")
+                    classicThemeButton.isEnabled = true
+                    classicThemeButton.isDownloaded = true
+                    classicThemeButton.isCurrent = true
+                    StarfieldRenderer.theme = ThemePackage(context!!, "classic")
+                    classicThemeButton.progress = 0.0f
+                }.addOnFailureListener {
+                    Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+                    classicThemeButton.isEnabled = true
+                    classicThemeButton.progress = 0.0f
+                }.addOnProgressListener {
+                    classicThemeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
+                }
+            } else {
+                StarfieldRenderer.theme = ThemePackage(context!!, "classic")
+                classicThemeButton.isCurrent = true
+            }
+        }
+        classicThemeButton.setOnLongClickListener {
+            val location = File(context?.getExternalFilesDir(null), "classic")
+            if(location.exists() && location.isDirectory) {
+                location.deleteRecursively()
+                Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
+                classicThemeButton.isDownloaded = false
+            }
+            StarfieldRenderer.theme = DefaultTheme()
+            true
+        }
+
+        val starfieldThemeButton = view.findViewById<DownloadButton>(R.id.starfieldThemeButton)
+        starfieldThemeButton.isDownloaded = hasTheme("starfield2")
+        starfieldThemeButton.setOnClickListener {
             if(!hasTheme("starfield2")) {
-                starfield2ThemeButton.isEnabled = false
+                starfieldThemeButton.isEnabled = false
                 val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
                 val fileRef = storage.getReference(getPackageName("starfield2"))
                 val localFile = File.createTempFile("theme", "zip")
                 fileRef.getFile(localFile).addOnSuccessListener {
                     Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
                     installTheme(localFile, "starfield2")
-                    starfield2ThemeButton.isEnabled = true
-                    starfield2ThemeButton.isDownloaded = true
-                    starfield2ThemeButton.isCurrent = true
+                    starfieldThemeButton.isEnabled = true
+                    starfieldThemeButton.isDownloaded = true
+                    starfieldThemeButton.isCurrent = true
                     StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
-                    starfield2ThemeButton.progress = 0.0f
+                    starfieldThemeButton.progress = 0.0f
                 }.addOnFailureListener {
                     Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
-                    starfield2ThemeButton.isEnabled = true
-                    starfield2ThemeButton.progress = 0.0f
+                    starfieldThemeButton.isEnabled = true
+                    starfieldThemeButton.progress = 0.0f
                 }.addOnProgressListener {
-                    starfield2ThemeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
+                    starfieldThemeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
                 }
             } else {
                 StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
-                starfield2ThemeButton.isCurrent = true
+                starfieldThemeButton.isCurrent = true
             }
         }
-        starfield2ThemeButton.setOnLongClickListener {
+        starfieldThemeButton.setOnLongClickListener {
             val location = File(context?.getExternalFilesDir(null), "starfield2")
             if(location.exists() && location.isDirectory) {
                 location.deleteRecursively()
                 Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
-                starfield2ThemeButton.isDownloaded = false
+                starfieldThemeButton.isDownloaded = false
             }
             StarfieldRenderer.theme = DefaultTheme()
             true

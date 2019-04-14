@@ -14,16 +14,24 @@
 
     <drwdrd.ktdev.starfield.DownloadButton
             style="@style/DownloadButton"
-            android:id="@+id/starfieldThemeButton"
+            android:id="@+id/defaultThemeButton"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_preview"/>
 
+    <drwdrd.ktdev.starfield.DownloadButton
+            style="@style/DownloadButton"
+            android:id="@+id/classicThemeButton"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:scaleType="centerCrop"
+            android:src="#ff000000"/>
+
 
     <drwdrd.ktdev.starfield.DownloadButton
             style="@style/DownloadButton"
-            android:id="@+id/starfield2ThemeButton"
+            android:id="@+id/starfieldThemeButton"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:scaleType="centerCrop"
