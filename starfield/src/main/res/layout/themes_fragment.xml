@@ -1,50 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <ImageButton
+            android:id="@+id/backButton"
+            android:background="#80303030"
+            android:layout_width="48dp"
+            android:layout_height="96dp"
+            android:src="@android:drawable/ic_menu_revert"/>
 
-        <ImageButton
-                android:id="@+id/starfieldThemeButton"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintDimensionRatio="H,2:1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/default_preview"/>
-
-        <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="H,2:1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/starfieldThemeButton">
-
-            <ImageButton
-                    android:id="@+id/starfield2ThemeButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/starfield2_preview"/>
-
-            <ProgressBar
-                    style="@style/DownloadProgressBar"
-                    android:id="@+id/progressBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_margin="4dp"
-                    android:visibility="invisible"/>
-
-        </FrameLayout>
+    <drwdrd.ktdev.starfield.DownloadButton
+            style="@style/DownloadButton"
+            android:id="@+id/starfieldThemeButton"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_preview"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+    <drwdrd.ktdev.starfield.DownloadButton
+            style="@style/DownloadButton"
+            android:id="@+id/starfield2ThemeButton"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/starfield2_preview"/>
+
+</LinearLayout>

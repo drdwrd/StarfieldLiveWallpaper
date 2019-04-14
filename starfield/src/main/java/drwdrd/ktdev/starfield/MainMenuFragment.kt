@@ -30,6 +30,11 @@ class MainMenuFragment : MenuFragment() {
             startActivity(Intent(Settings.ACTION_DREAM_SETTINGS))
         }
 
+        val browseThemesButton = view.findViewById<ImageButton>(R.id.menuBrowseThemes)
+        browseThemesButton.setOnClickListener {
+            onMenuFragmentInteraction("main", "browse")
+        }
+
         val showSettingsButton = view.findViewById<ImageButton>(R.id.showSettingsButton)
         showSettingsButton.setOnClickListener {
             onMenuFragmentInteraction("main", "settings")

@@ -14,7 +14,7 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var renderer: StarfieldRenderer
     private lateinit var mainMenuFragment : MenuFragment
-    private lateinit var settingsFragment : SettingsFragment
+    private lateinit var themesFragment: ThemesFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +31,7 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
         mainMenuFragment = MainMenuFragment()
-        settingsFragment = SettingsFragment()
+        themesFragment = ThemesFragment()
 
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -67,6 +67,22 @@ class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInterac
                 "settings" -> {
                     val intent = Intent(this, StarfieldSettingsActivity::class.java)
                     startActivity(intent)
+                }
+                "browse" -> {
+                    val fragmentTransaction = supportFragmentManager.beginTransaction()
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    fragmentTransaction.remove(mainMenuFragment)
+                    fragmentTransaction.add(R.id.menuFrame, themesFragment)
+                    fragmentTransaction.commit()
+                }
+            }
+            "browser" -> when(item) {
+                "back" -> {
+                    val fragmentTransaction = supportFragmentManager.beginTransaction()
+                    fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    fragmentTransaction.remove(themesFragment)
+                    fragmentTransaction.add(R.id.menuFrame, mainMenuFragment)
+                    fragmentTransaction.commit()
                 }
             }
         }

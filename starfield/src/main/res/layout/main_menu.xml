@@ -10,16 +10,33 @@
     <ImageButton
             style="@style/MenuButton"
             android:id="@+id/menuSetWallpaperButton"
-            android:src="@android:drawable/ic_menu_gallery"/>
+            android:layout_margin="@dimen/menu_button_margin"
+            android:layout_width="@dimen/menu_button_size"
+            android:layout_height="@dimen/menu_button_size"
+            android:src="@android:drawable/ic_menu_set_as"/>
 
     <ImageButton
             style="@style/MenuButton"
             android:id="@+id/menuSetDreamButton"
-            android:src="@android:drawable/ic_menu_report_image"/>
+            android:layout_margin="@dimen/menu_button_margin"
+            android:layout_width="@dimen/menu_button_size"
+            android:layout_height="@dimen/menu_button_size"
+            android:src="@android:drawable/ic_menu_set_as"/>
+
+    <ImageButton
+            style="@style/MenuButton"
+            android:id="@+id/menuBrowseThemes"
+            android:layout_margin="@dimen/menu_button_margin"
+            android:layout_width="@dimen/menu_button_size"
+            android:layout_height="@dimen/menu_button_size"
+            android:src="@android:drawable/ic_menu_gallery"/>
 
     <ImageButton
             style="@style/MenuButton"
             android:id="@+id/showSettingsButton"
+            android:layout_margin="@dimen/menu_button_margin"
+            android:layout_width="@dimen/menu_button_size"
+            android:layout_height="@dimen/menu_button_size"
             android:src="@android:drawable/ic_menu_manage"/>
 
 </LinearLayout>
