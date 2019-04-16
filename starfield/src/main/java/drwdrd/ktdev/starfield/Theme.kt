@@ -122,7 +122,7 @@ class ThemePackage : Theme {
     override fun hasClouds(): Boolean = cloudsInfo.isValid
 }
 
-class ClassicTheme : Theme {
+class TestTheme : Theme {
 
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return null
@@ -133,7 +133,7 @@ class ClassicTheme : Theme {
     }
 
     override fun starsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
-        return Texture.loadFromAssets2D(context,"themes/classic/stars_atlas.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+        return Texture.loadFromAssets2D(context,"themes/stars_atlas.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 

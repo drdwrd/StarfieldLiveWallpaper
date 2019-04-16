@@ -44,8 +44,8 @@ class DownloadButton : ImageButton {
     }
 
     private fun init(context: Context) {
-        downloadIcon = context.resources.getDrawable(android.R.drawable.ic_menu_add)
-        currentIcon = context.resources.getDrawable(android.R.drawable.ic_menu_help)
+        downloadIcon = context.resources.getDrawable(R.drawable.outline_save_alt_24)
+        currentIcon = context.resources.getDrawable(R.drawable.outline_done_24)
     }
 
     override fun onDraw(canvas: Canvas?) {

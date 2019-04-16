@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.android.synthetic.main.themes_fragment.view.*
 import java.io.*
 import java.lang.Exception
 import java.util.zip.ZipEntry
@@ -33,87 +34,10 @@ class ThemesFragment : MenuFragment() {
             defaultThemeButton.isCurrent = true
         }
 
-        val classicThemeButton = view.findViewById<DownloadButton>(R.id.classicThemeButton)
-        classicThemeButton.isDownloaded = hasTheme("classic")
-        classicThemeButton.setOnClickListener {
-            if(!hasTheme("classic")) {
-                classicThemeButton.isEnabled = false
-                val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
-                val fileRef = storage.getReference(getPackageName("classic"))
-                val localFile = File.createTempFile("theme", "zip")
-                fileRef.getFile(localFile).addOnSuccessListener {
-                    Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
-                    installTheme(localFile, "classic")
-                    localFile.delete()
-                    classicThemeButton.isEnabled = true
-                    classicThemeButton.isDownloaded = true
-                    classicThemeButton.isCurrent = true
-                    StarfieldRenderer.theme = ThemePackage(context!!, "classic")
-                    classicThemeButton.progress = 0.0f
-                }.addOnFailureListener {
-                    Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
-                    localFile.delete()
-                    classicThemeButton.isEnabled = true
-                    classicThemeButton.progress = 0.0f
-                }.addOnProgressListener {
-                    classicThemeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
-                }
-            } else {
-                StarfieldRenderer.theme = ThemePackage(context!!, "classic")
-                classicThemeButton.isCurrent = true
-            }
-        }
-        classicThemeButton.setOnLongClickListener {
-            val location = File(context?.getExternalFilesDir(null), "classic")
-            if(location.exists() && location.isDirectory) {
-                location.deleteRecursively()
-                Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
-                classicThemeButton.isDownloaded = false
-            }
-            StarfieldRenderer.theme = DefaultTheme()
-            true
-        }
+        setupThemeButton(view, R.id.classicThemeButton, "classic")
+        setupThemeButton(view, R.id.classicColorThemeButton, "classic_color")
+        setupThemeButton(view, R.id.starfieldThemeButton, "starfield2")
 
-        val starfieldThemeButton = view.findViewById<DownloadButton>(R.id.starfieldThemeButton)
-        starfieldThemeButton.isDownloaded = hasTheme("starfield2")
-        starfieldThemeButton.setOnClickListener {
-            if(!hasTheme("starfield2")) {
-                starfieldThemeButton.isEnabled = false
-                val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
-                val fileRef = storage.getReference(getPackageName("starfield2"))
-                val localFile = File.createTempFile("theme", "zip")
-                fileRef.getFile(localFile).addOnSuccessListener {
-                    Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
-                    installTheme(localFile, "starfield2")
-                    localFile.delete()
-                    starfieldThemeButton.isEnabled = true
-                    starfieldThemeButton.isDownloaded = true
-                    starfieldThemeButton.isCurrent = true
-                    StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
-                    starfieldThemeButton.progress = 0.0f
-                }.addOnFailureListener {
-                    Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
-                    localFile.delete()
-                    starfieldThemeButton.isEnabled = true
-                    starfieldThemeButton.progress = 0.0f
-                }.addOnProgressListener {
-                    starfieldThemeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
-                }
-            } else {
-                StarfieldRenderer.theme = ThemePackage(context!!, "starfield2")
-                starfieldThemeButton.isCurrent = true
-            }
-        }
-        starfieldThemeButton.setOnLongClickListener {
-            val location = File(context?.getExternalFilesDir(null), "starfield2")
-            if(location.exists() && location.isDirectory) {
-                location.deleteRecursively()
-                Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
-                starfieldThemeButton.isDownloaded = false
-            }
-            StarfieldRenderer.theme = DefaultTheme()
-            true
-        }
     }
 
     private fun getPackageName(theme : String) : String {
@@ -133,37 +57,46 @@ class ThemesFragment : MenuFragment() {
         return false
     }
 
-    //unzips temp file into external storage into theme folder
-    private fun unzipFile(cacheFile : File, themeName : String) {
-        val location = File(context?.getExternalFilesDir(null), themeName)
-        if(!location.exists()) {
-            location.mkdir()
-        }
-        try {
-            val fileInputStream = FileInputStream(cacheFile)
-            val zipInputStream = ZipInputStream(fileInputStream)
-            var zipEntry: ZipEntry? = zipInputStream.nextEntry
-            while (zipEntry != null) {
-                if (zipEntry.isDirectory) {
-                    val dir = File(location, zipEntry.name)
-                    dir.mkdir()
-                } else {
-                    val fileOutputStream = FileOutputStream(File(location, zipEntry.name))
-                    val bufferedOutputStream = BufferedOutputStream(fileOutputStream)
-                    val buffer = ByteArray(1024)
-                    var read = zipInputStream.read(buffer)
-                    while (read > 0) {
-                        bufferedOutputStream.write(buffer, 0, read)
-                        read = zipInputStream.read(buffer)
-                    }
-                    bufferedOutputStream.close()
-                    zipInputStream.closeEntry()
+    private fun setupThemeButton(view : View, buttonId : Int, themeName : String) {
+        val themeButton = view.findViewById<DownloadButton>(buttonId)
+        themeButton.isDownloaded = hasTheme(themeName)
+        themeButton.setOnClickListener {
+            if(!hasTheme(themeName)) {
+                themeButton.isEnabled = false
+                val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
+                val fileRef = storage.getReference(getPackageName(themeName))
+                val localFile = File.createTempFile("theme", "zip")
+                fileRef.getFile(localFile).addOnSuccessListener {
+                    Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
+                    installTheme(localFile, themeName)
+                    localFile.delete()
+                    themeButton.isEnabled = true
+                    themeButton.isDownloaded = true
+                    themeButton.isCurrent = true
+                    StarfieldRenderer.theme = ThemePackage(context!!, themeName)
+                    themeButton.progress = 0.0f
+                }.addOnFailureListener {
+                    Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+                    localFile.delete()
+                    themeButton.isEnabled = true
+                    themeButton.progress = 0.0f
+                }.addOnProgressListener {
+                    themeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
                 }
-                zipEntry = zipInputStream.nextEntry
+            } else {
+                StarfieldRenderer.theme = ThemePackage(context!!, themeName)
+                themeButton.isCurrent = true
             }
-            zipInputStream.close()
-        } catch(e : Exception) {
-            e.printStackTrace()
+        }
+        themeButton.setOnLongClickListener {
+            val location = File(context?.getExternalFilesDir(null), themeName)
+            if(location.exists() && location.isDirectory) {
+                location.deleteRecursively()
+                Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
+                themeButton.isDownloaded = false
+            }
+            StarfieldRenderer.theme = DefaultTheme()
+            true
         }
     }
 
