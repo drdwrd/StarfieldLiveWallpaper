@@ -37,8 +37,8 @@ private const val starspriteFadeInUniform = 5
 private const val minParticleDistance = -2.5f
 private const val particleSpawnDistance = 10.0f
 private const val cloudsSpawnTimeMultiplier = 10.0
-private const val maxStarParticlesCount = 1000        //hard limit just in case...
-private const val maxCloudParticlesCount = 200        //hard limit just in case...
+private const val maxStarParticlesCount = 5000        //hard limit just in case...
+private const val maxCloudParticlesCount = 500        //hard limit just in case...
 
 
 class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
@@ -82,9 +82,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private var noiseTexture = Texture()
     private val timer = Timer()
     private val fpsCounter = FpsCounter(1.0)
-    private var lastStarParticleSpawnTime = 1000.0
+    private var lastStarParticleSpawnTime = 0.0
     private val starSprites : MutableList<Particle> = ArrayList()
-    private var lastCloudParticleSpawnTime = 1000.0
+    private var lastCloudParticleSpawnTime = 0.0
     private val cloudSprites : MutableList<Particle> = ArrayList()
     private val eye = Eye()
 
@@ -297,9 +297,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
             lastStarParticleSpawnTime += timer.deltaTime
             //if its time spawn new particle
-            if (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+/*            if (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
                 starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
                 lastStarParticleSpawnTime = 0.0
+            }*/
+
+            while (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
+                lastStarParticleSpawnTime -= maxParticleSpawnTime
             }
 
             //render stars sprites
