@@ -218,7 +218,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             starfieldTexture.bind(0)
 
             starfieldShader.setSampler(starfieldSampler, 0)
-            starfieldShader.setUniformValue(starfieldAspectUniform, aspect)
+            starfieldShader.setUniformValue(starfieldAspectUniform, aspect * theme.backgroundScale)
             starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
             starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
             starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
@@ -273,7 +273,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 if (frustum.contains(boundingSphere)) {
 
-                    val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir, normal)
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
@@ -332,7 +332,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 if (frustum.contains(boundingSphere)) {
 
-                    val modelMatrix = sprite.calculateBillboardModelMatrix(dir, normal)
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.starsParticleScale, dir, normal)
 
                     starspriteShader.setUniformValue(starspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     starspriteShader.setUniformValue(starspriteRotationMatrixUniform, rotMatrix)

@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
 
 class DownloadButton : ImageButton {
 
@@ -21,8 +22,8 @@ class DownloadButton : ImageButton {
     var isDownloaded = false
     var isCurrent = false
 
-    private lateinit var downloadIcon : Drawable
-    private lateinit var currentIcon: Drawable
+    private var downloadIcon : Drawable? = null
+    private var currentIcon: Drawable? = null
 
     constructor(context : Context) : super(context, null) {
         init(context)
@@ -44,8 +45,9 @@ class DownloadButton : ImageButton {
     }
 
     private fun init(context: Context) {
-        downloadIcon = context.resources.getDrawable(R.drawable.outline_save_alt_24)
-        currentIcon = context.resources.getDrawable(R.drawable.outline_done_24)
+
+        downloadIcon = ContextCompat.getDrawable(context, R.drawable.outline_save_alt_24)
+        currentIcon = ContextCompat.getDrawable(context, R.drawable.outline_done_24)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -60,12 +62,12 @@ class DownloadButton : ImageButton {
         }
         if(!isDownloaded) {
             val bounds = canvas?.clipBounds
-            downloadIcon.bounds = bounds
-            downloadIcon.draw(canvas!!)
+            downloadIcon?.bounds = bounds
+            downloadIcon?.draw(canvas!!)
         } else if(isCurrent) {
             val bounds = canvas?.clipBounds
-            currentIcon.bounds = bounds
-            currentIcon.draw(canvas!!)
+            currentIcon?.bounds = bounds
+            currentIcon?.draw(canvas!!)
         }
     }
 }

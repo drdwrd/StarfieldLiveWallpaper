@@ -12,6 +12,11 @@ import javax.xml.parsers.DocumentBuilderFactory
 private const val TAG = "drwdrd.ktdev.starfield.Theme"
 
 interface Theme {
+
+    val backgroundScale : Float
+    val starsParticleScale : Float
+    val cloudsParticleScale : Float
+
     fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
@@ -51,6 +56,15 @@ class ThemePackage : Theme {
         }
     }
 
+    override var backgroundScale: Float = 1.0f
+        private set
+
+    override var cloudsParticleScale: Float = 1.0f
+        private set
+
+    override var starsParticleScale: Float = 1.0f
+        private set
+
     private val themeName : String
     private val themePath : String
     private var starfieldInfo = ThemeTextureInfo()
@@ -71,9 +85,18 @@ class ThemePackage : Theme {
             for(i in 0 until themeNode.childNodes.length) {
                 val node = themeNode.childNodes.item(i)
                 when(node.nodeName) {
-                    "background" -> starfieldInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
-                    "starsprites" -> starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
-                    "cloudsprites" -> starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format").nodeValue, node.textContent)
+                    "background" -> {
+                        starfieldInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                    }
+                    "starsprites" -> {
+                        starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                    }
+                    "cloudsprites" -> {
+                        cloudsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                    }
                 }
             }
         }
@@ -124,6 +147,10 @@ class ThemePackage : Theme {
 
 class TestTheme : Theme {
 
+    override val backgroundScale: Float = 1.0f
+    override val cloudsParticleScale: Float = 1.0f
+    override val starsParticleScale: Float = 1.0f
+
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return null
     }
@@ -145,6 +172,10 @@ class TestTheme : Theme {
 }
 
 class DefaultTheme : Theme {
+
+    override val backgroundScale: Float = 1.0f
+    override val cloudsParticleScale: Float = 1.0f
+    override val starsParticleScale: Float = 1.0f
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {

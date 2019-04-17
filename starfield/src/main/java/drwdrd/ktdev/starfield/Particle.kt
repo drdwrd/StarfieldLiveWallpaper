@@ -36,7 +36,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return rotationMatrix
         }
 
-    fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
+    fun calculateBillboardModelMatrix(baseScale : Float, dir : vector3f, normal : vector3f) : matrix4f {
         val rotationMatrix2 = matrix4f()
         rotationMatrix2.setAxisRotation(dir, normal)
 
@@ -44,7 +44,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         translationMatrix.setTranslation(position)
 
         val scaleMatrix = matrix4f()
-        scaleMatrix.setScale(vector3f(scale, scale, scale))
+        scaleMatrix.setScale(baseScale * vector3f(scale, scale, scale))
 
         val rotationMatrix = matrix4f()
         rotationMatrix.setEulerRotation(age * rotation.x, age * rotation.y, age * rotation.z)
