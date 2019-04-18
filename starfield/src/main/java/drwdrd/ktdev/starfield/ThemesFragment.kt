@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.themes_fragment.view.*
 import java.io.*
-import java.lang.Exception
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -31,7 +29,7 @@ class ThemesFragment : MenuFragment() {
         defaultThemeButton.isDownloaded = true
         defaultThemeButton.setOnClickListener {
             StarfieldRenderer.theme = DefaultTheme()
-            defaultThemeButton.isCurrent = true
+            defaultThemeButton.isActive = true
         }
 
         setupThemeButton(view, R.id.classicThemeButton, "classic")
@@ -72,7 +70,7 @@ class ThemesFragment : MenuFragment() {
                     localFile.delete()
                     themeButton.isEnabled = true
                     themeButton.isDownloaded = true
-                    themeButton.isCurrent = true
+                    themeButton.isActive = true
                     StarfieldRenderer.theme = ThemePackage(context!!, themeName)
                     themeButton.progress = 0.0f
                 }.addOnFailureListener {
@@ -85,7 +83,7 @@ class ThemesFragment : MenuFragment() {
                 }
             } else {
                 StarfieldRenderer.theme = ThemePackage(context!!, themeName)
-                themeButton.isCurrent = true
+                themeButton.isActive = true
             }
         }
         themeButton.setOnLongClickListener {

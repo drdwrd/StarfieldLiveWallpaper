@@ -37,7 +37,7 @@ def write_xml_theme_def(fileName, textures, scales, names, files):
         cloudspriteItem.set("scale", str(scales[2]))
         cloudspriteItem.text = names[2] %files[2]
     data = ET.tostring(root)
-    with open(fileName, "w") as file:
+    with open(fileName, "wb") as file:
         file.write(data)
 
 
