@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="@color/menuButtonTint">
+  <path
+      android:fillColor="@color/menuIconColor"
+      android:pathData="M7.0203,14.0074 L0.9412,21.6422c-0.534,0.6809 -0.0616,1.6714 0.801,1.6714H22.1977c0.842,0 1.335,-0.9698 0.8215,-1.6508l-4.1076,-5.5094c-0.4108,-0.5571 -1.2323,-0.5571 -1.643,0l-3.3477,4.4983 -5.2987,-6.6443c-0.4108,-0.5159 -1.1912,-0.5159 -1.6019,0zM21.4786,4.6816c0,-1.8917 -1.5125,-3.4188 -3.3863,-3.4188 -1.8737,0 -3.3863,1.527 -3.3863,3.4188 0,1.8917 1.5125,3.4188 3.3863,3.4188 1.8737,0 3.3863,-1.527 3.3863,-3.4188z"
+      android:strokeWidth="2.05860424"/>
+</vector>

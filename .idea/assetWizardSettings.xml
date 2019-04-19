@@ -73,7 +73,7 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="191919" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Pulpit/promo/icon/icon_free.png" />
+                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../Pulpit/promo/icon/icon_free.png" />
                                       <entry key="outputName" value="ic_starfield" />
                                       <entry key="showSafeZone" value="false" />
                                     </map>
@@ -123,6 +123,29 @@
                                 </PersistentState>
                               </value>
                             </entry>
+                          </map>
+                        </option>
+                      </PersistentState>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </PersistentState>
+          </value>
+        </entry>
+        <entry key="vectorWizard">
+          <value>
+            <PersistentState>
+              <option name="children">
+                <map>
+                  <entry key="vectorAssetStep">
+                    <value>
+                      <PersistentState>
+                        <option name="values">
+                          <map>
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="round_settings_24" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/icons/round-settings-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>

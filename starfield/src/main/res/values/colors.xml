@@ -3,6 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="downloadButtonTint">#7fffffff</color>
+    <color name="menuButtonTint">#ffffffff</color>
+    <color name="menuIconColor">#afffffff</color>
     <color name="ic_starfield_background">#191919</color>
 </resources>

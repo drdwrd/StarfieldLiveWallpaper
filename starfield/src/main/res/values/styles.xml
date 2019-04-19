@@ -13,7 +13,7 @@
     <style name="DownloadButton">
         <item name="android:background">@drawable/download_button</item>
         <item name="colorControlNormal">#7fffffff</item>
-        <item name="downloadIcon">@drawable/round_save_alt_24</item>
-        <item name="activeThemeIcon">@drawable/round_done_24</item>
+        <item name="downloadIcon">@drawable/ic_round_save_alt_24</item>
+        <item name="activeThemeIcon">@drawable/ic_round_done_24</item>
     </style>
 </resources>
