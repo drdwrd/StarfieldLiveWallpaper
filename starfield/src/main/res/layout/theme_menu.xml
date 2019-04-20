@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/backButton"
+            android:background="@drawable/menu_back_button"
+            android:layout_width="48dp"
+            android:layout_height="96dp"
+            app:srcCompat="@drawable/ic_round_arrow_back_24"/>
+
+
+    <androidx.leanback.widget.HorizontalGridView
+            android:id="@+id/themeGallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

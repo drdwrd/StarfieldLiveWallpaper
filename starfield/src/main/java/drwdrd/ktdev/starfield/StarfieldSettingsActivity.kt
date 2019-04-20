@@ -9,8 +9,6 @@ import com.google.firebase.auth.FirebaseAuth
 import drwdrd.ktdev.engine.Log
 
 
-private const val TAG = "drwdrd.ktdev.starfield.StarfieldSettingsActivity"
-
 class StarfieldSettingsActivity : AppCompatActivity() {
 
     private val settingsFragment = SettingsFragment()
@@ -22,19 +20,6 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             val transaction = supportFragmentManager.beginTransaction()
             transaction.add(android.R.id.content, settingsFragment)
             transaction.commit()
-        }
-
-        val firebaseAuth = FirebaseAuth.getInstance()
-        if(firebaseAuth.currentUser == null) {
-            firebaseAuth.signInAnonymously().addOnCompleteListener {
-                if(!it.isSuccessful) {
-                    Log.error(TAG, "User authentication failed!")
-                } else {
-                    Log.info(TAG, "User authenticated!")
-                }
-            }
-        } else {
-            Log.info(TAG, "User already logged!")
         }
     }
 
