@@ -6,7 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import drwdrd.ktdev.engine.*
-import kotlin.math.*
 
 private const val TAG = "drwdrd.ktdev.starfield.ParallaxEffectEngine"
 
@@ -43,22 +42,27 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     private var dxOffset = 0.0f
     private var lastXOffset = 0.0f
     private var scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
-    private var basePrecessionSpeed = SettingsProvider.precessionSpeed
-    private var precessionSpeed = 0.0f
 
-    protected fun calculateWallpaperOffset(deltaTime: Float) : Float {
-        val wallpaperOffset = dxOffset
-        dxOffset = precessionSpeed * deltaTime
-        return wallpaperOffset
+    protected fun calculateWallpaperOffset(dx : Float, dy : Float, deltaTime: Float) {
+        when(orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
+                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+            }
+
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
+                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+            }
+        }
+        dxOffset = 0.0f
     }
 
     override fun connect(sensorManager: SensorManager) {
-        if(SettingsProvider.enableScrollingEffect) {
-            scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
-            basePrecessionSpeed = SettingsProvider.precessionSpeed
+        scrollingEffectScale = if(SettingsProvider.enableScrollingEffect) {
+            SettingsProvider.scrollingEffectMultiplier
         } else {
-            scrollingEffectScale = 0.0f
-            basePrecessionSpeed = 0.0f
+            0.0f
         }
     }
 
@@ -69,7 +73,6 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     override fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
         dxOffset = scrollingEffectScale * (xOffset - lastXOffset)
         lastXOffset = xOffset
-        precessionSpeed = sign(dxOffset) * basePrecessionSpeed
     }
 
     override fun onTick(deltaTime: Float) {
@@ -78,9 +81,7 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
             offset.zero()
             reset = false
         }
-        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
-        backgroundOffset.plusAssign(vector2f(wallpaperOffset, 0.0f))
-        offset = vector3f(0.0f, wallpaperOffset, 0.0f)
+        calculateWallpaperOffset(0.0f, 0.0f, deltaTime)
     }
 }
 
@@ -111,9 +112,9 @@ class SensorDataBuffer(_weights : FloatArray) {
 
     fun getData() : vector3f {
         val v = vector3f(0.0f, 0.0f, 0.0f)
-        for(i in bufferDataPos until bufferDataPos + buffer.size) {
-            val index = i % buffer.size
-            v += weights[index] * buffer[index]
+        for(i in 0 until buffer.size) {
+            val index = (bufferDataPos + i) % buffer.size
+            v += weights[i] * buffer[index]
         }
         return v / normalizationFactor
     }
@@ -204,18 +205,7 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
-        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
-        when(orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
-                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
-            }
-
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
-                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
-            }
-        }
+        calculateWallpaperOffset(dx, dy, deltaTime)
     }
 }
 
@@ -303,18 +293,7 @@ class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
-        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
-        when(orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
-                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
-            }
-
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
-                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
-            }
-        }
+        calculateWallpaperOffset(dx, dy, deltaTime)
     }
 }
 
@@ -374,17 +353,6 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[1] * deltaTime
             dy = -parallaxEffectScale * rotationVector[0] * deltaTime
         }
-        val wallpaperOffset = calculateWallpaperOffset(deltaTime)
-        when(orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + wallpaperOffset, dy))
-                offset = vector3f(-dy,dx + wallpaperOffset, 0.0f)
-            }
-
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + wallpaperOffset, dx))
-                offset = vector3f(-dx, dy + wallpaperOffset, 0.0f)
-            }
-        }
+        calculateWallpaperOffset(dx, dy, deltaTime)
     }
 }

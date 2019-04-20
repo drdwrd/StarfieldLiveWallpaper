@@ -17,8 +17,7 @@ private const val TAG = "drwdrd.ktdev.starfield.StarfieldRenderer"
 private const val starfieldSampler = 0
 private const val starfieldAspectUniform = 1
 private const val starfieldTextureMatrixUniform = 2
-private const val starfieldOffsetUniform  = 3
-private const val starfieldTimeUniform = 4
+private const val starfieldTimeUniform = 3
 
 private const val cloudspriteSampler = 0
 private const val cloudspriteModelViewProjectionMatrixUniform = 1
@@ -213,14 +212,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
             backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
 
+            val offsetMatrix = matrix3f()
+            offsetMatrix.setTranslation(parallaxEffectEngine.backgroundOffset)
+
 
             starfieldShader.bind()
             starfieldTexture.bind(0)
 
             starfieldShader.setSampler(starfieldSampler, 0)
             starfieldShader.setUniformValue(starfieldAspectUniform, aspect * theme.backgroundScale)
-            starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix)
-            starfieldShader.setUniformValue(starfieldOffsetUniform, parallaxEffectEngine.backgroundOffset)
+            starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix * offsetMatrix)
             starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
 
             plane.draw()
@@ -419,7 +420,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
         starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
         starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
-        starfieldShader.registerUniform("u_Offset", starfieldOffsetUniform)
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
         if(theme.hasBackground()) {
@@ -437,6 +437,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         eye.setPerspective(50.0f, 0.0f, 100.0f)
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
+
+        val eyeForward = eye.forward
+        val eyePosition = eye.position
+
+        if(theme.hasStars()) {
+            for (i in 0 until 500) {
+                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance * i / 500.0f))
+            }
+        }
+
+        if(theme.hasClouds()) {
+            for (i in 0 until 50) {
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / 50.0f))
+            }
+        }
 
         //opengl setup
         GLES20.glDisable(GLES20.GL_CULL_FACE)
@@ -460,6 +475,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         cloudspritesTexture.delete()
         starfieldTexture.delete()
         noiseTexture.delete()
+        starSprites.clear()
+        cloudSprites.clear()
     }
 
     companion object {
