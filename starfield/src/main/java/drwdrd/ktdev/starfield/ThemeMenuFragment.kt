@@ -7,13 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
-import androidx.leanback.widget.HorizontalGridView
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
-import drwdrd.ktdev.engine.Log
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -179,8 +175,9 @@ class ThemeMenuFragment : MenuFragment() {
             ThemeInfo("classic_color", android.R.color.black, false),
             ThemeInfo("starfield2", R.drawable.starfield2_preview, false))
 
-        val themeGallery = view.findViewById<HorizontalGridView>(R.id.themeGallery)
-        themeGallery.layoutManager = GridLayoutManager(context, 1, GridLayoutManager.HORIZONTAL, false)
+        val themeGallery = view.findViewById<RecyclerView>(R.id.themeGallery)
+        themeGallery.setHasFixedSize(true)
+        themeGallery.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         themeGallery.adapter = ThemeInfoAdapter(data, context!!)
     }
 }

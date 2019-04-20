@@ -14,7 +14,7 @@
             app:srcCompat="@drawable/ic_round_arrow_back_24"/>
 
 
-    <androidx.leanback.widget.HorizontalGridView
+    <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/themeGallery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
