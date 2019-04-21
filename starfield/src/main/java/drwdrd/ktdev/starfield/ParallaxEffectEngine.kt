@@ -6,6 +6,8 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import drwdrd.ktdev.engine.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 private const val TAG = "drwdrd.ktdev.starfield.ParallaxEffectEngine"
 
@@ -18,7 +20,7 @@ interface ParallaxEffectEngine {
 
     fun connect(sensorManager: SensorManager)
     fun disconnect(sensorManager: SensorManager)
-    fun onTick(deltaTime : Float)
+    fun onTick(currentTime : Float, deltaTime : Float)
     fun onOffsetChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float, yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int)
 }
 
@@ -39,14 +41,15 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     private var lastXOffset = 0.0f
     private var scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
 
-    protected fun calculateWallpaperOffset(dx : Float, dy : Float, deltaTime: Float) {
+    protected fun calculateWallpaperOffset(dx : Float, dy : Float,currentTime: Float, deltaTime: Float) {
+        val cameraOffset = vector3f(0.01f * sin(0.1f * currentTime), 0.01f * cos(0.1f * currentTime), 0.02f ) * deltaTime
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                offset = vector3f(-dy,dx + dxOffset, 0.05f * deltaTime)
+                offset = vector3f(-dy,dx + dxOffset, 0.0f) + cameraOffset
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                offset = vector3f(-dx, dy + dxOffset, 0.05f * deltaTime)
+                offset = vector3f(-dx, dy + dxOffset, 0.0f) + cameraOffset
             }
         }
         dxOffset = 0.0f
@@ -69,12 +72,12 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
         lastXOffset = xOffset
     }
 
-    override fun onTick(deltaTime: Float) {
+    override fun onTick(currentTime: Float, deltaTime: Float) {
         if(reset) {
             offset.zero()
             reset = false
         }
-        calculateWallpaperOffset(0.0f, 0.0f, deltaTime)
+        calculateWallpaperOffset(0.0f, 0.0f,currentTime, deltaTime)
     }
 }
 
@@ -164,7 +167,7 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         }
     }
 
-    override fun onTick(deltaTime: Float) {
+    override fun onTick(currentTime: Float, deltaTime: Float) {
         val rotationMatrix = matrix3f()
         val rotAngles = vector3f(0.0f, 0.0f, 0.0f)
 
@@ -197,7 +200,7 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
-        calculateWallpaperOffset(dx, dy, deltaTime)
+        calculateWallpaperOffset(dx, dy,currentTime, deltaTime)
     }
 }
 
@@ -251,7 +254,7 @@ class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         }
     }
 
-    override fun onTick(deltaTime: Float) {
+    override fun onTick(currentTime: Float, deltaTime: Float) {
         val rotationMatrix = matrix3f()
         val rotAngles = vector3f(0.0f, 0.0f, 0.0f)
 
@@ -284,7 +287,7 @@ class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[2]
             dy = parallaxEffectScale * rotationVector[1]
         }
-        calculateWallpaperOffset(dx, dy, deltaTime)
+        calculateWallpaperOffset(dx, dy,currentTime, deltaTime)
     }
 }
 
@@ -329,7 +332,7 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         }
     }
 
-    override fun onTick(deltaTime: Float) {
+    override fun onTick(currentTime: Float, deltaTime: Float) {
         val dx : Float
         val dy : Float
         rotationVector = gyroSensorDataBuffer.getData()
@@ -343,6 +346,6 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
             dx = parallaxEffectScale * rotationVector[1] * deltaTime
             dy = -parallaxEffectScale * rotationVector[0] * deltaTime
         }
-        calculateWallpaperOffset(dx, dy, deltaTime)
+        calculateWallpaperOffset(dx, dy,currentTime, deltaTime)
     }
 }

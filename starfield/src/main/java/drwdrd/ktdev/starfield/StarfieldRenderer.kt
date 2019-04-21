@@ -196,7 +196,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         timer.tick()
 
-        parallaxEffectEngine.onTick(timer.deltaTime.toFloat())
+        parallaxEffectEngine.onTick(timer.currentTime.toFloat(), timer.deltaTime.toFloat())
 
         eye.rotateBy(parallaxEffectEngine.offset)
 
