@@ -108,6 +108,8 @@ class Eye {
         direction = dir.normalized()
         right = vector3f.cross(_up, direction).normalized()
         up = vector3f.cross(direction, right)
+        //reset rotation
+        rotation.loadIdentity()
         calculateViewMatrix()
     }
 

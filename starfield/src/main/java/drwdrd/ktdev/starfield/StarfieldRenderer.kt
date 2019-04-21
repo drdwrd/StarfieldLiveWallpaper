@@ -87,10 +87,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     private val cloudSprites : MutableList<Particle> = ArrayList()
     private val eye = Eye()
 
-    private lateinit var parallaxEffectEngine : ParallaxEffectEngine
+    private val backgroundTextureMatrix = matrix3f.identity()
+    private val backgroundRandomTextureMatrix = matrix3f.identity()
 
-    private var randomBackgroundOffset = vector2f(0.0f, 0.0f)
-    private var randomBackgroundRotation = 0.0f
+    private lateinit var parallaxEffectEngine : ParallaxEffectEngine
 
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
@@ -176,8 +176,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         GLES20.glViewport(0, 0, width, height)
         parallaxEffectEngine.reset = true
         parallaxEffectEngine.orientation = context.resources.configuration.orientation
-        randomBackgroundOffset = RandomGenerator.rand2f(-1.0f, 1.0f)
-        randomBackgroundRotation = RandomGenerator.randf(-M_PI, M_PI)
+
+        //change randomly
+        backgroundRandomTextureMatrix.setParallax(RandomGenerator.randf(-1.0f, 1.0f), RandomGenerator.randf(-1.0f, 1.0f), RandomGenerator.randf(-M_PI, M_PI))
+
         eye.setViewport(vector2f(width.toFloat(), height.toFloat()))
         aspect = vector2f(width.toFloat() / height.toFloat(), 1.0f)
 //        Log.debug("onSurfaceChanged(width = $width, height = $height)")
@@ -207,21 +209,17 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         //render background
         if(theme.hasBackground()) {
 
-            val backgroundTextureMatrix = matrix3f()
-            backgroundTextureMatrix.loadIdentity()
-            backgroundTextureMatrix.setRotationPart(randomBackgroundRotation)
-            backgroundTextureMatrix.setTranslationPart(randomBackgroundOffset)
-
             val offsetMatrix = matrix3f()
-            offsetMatrix.setTranslation(parallaxEffectEngine.backgroundOffset)
+            offsetMatrix.setParallax(parallaxEffectEngine.offset)
 
+            backgroundTextureMatrix *= offsetMatrix
 
             starfieldShader.bind()
             starfieldTexture.bind(0)
 
             starfieldShader.setSampler(starfieldSampler, 0)
             starfieldShader.setUniformValue(starfieldAspectUniform, aspect * theme.backgroundScale)
-            starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundTextureMatrix * offsetMatrix)
+            starfieldShader.setUniformValue(starfieldTextureMatrixUniform, backgroundRandomTextureMatrix * backgroundTextureMatrix)
             starfieldShader.setUniformValue(starfieldTimeUniform, timer.currentTime.toFloat())
 
             plane.draw()
@@ -381,7 +379,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(!SettingsProvider.adaptiveFPS) {
             maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
         }
-        eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
         timer.reset()
     }
 
@@ -435,8 +432,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         //misc
         noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
 
+        //reset camera
         eye.setPerspective(50.0f, 0.0f, 100.0f)
         eye.setLookAt(vector3f(0.0f, 0.0f, 0.0f), vector3f(0.0f, 0.0f, 1.0f), vector3f(0.0f, 1.0f, 0.0f))
+        backgroundTextureMatrix.loadIdentity()
 
         val eyeForward = eye.forward
         val eyePosition = eye.position

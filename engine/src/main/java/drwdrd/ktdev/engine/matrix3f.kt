@@ -280,6 +280,34 @@ class matrix3f {
         e[4] = cos(angle)
     }
 
+    fun setParallax(xAngle : Float, yAngle : Float, zAngle : Float) {
+        val cosAngle = cos(zAngle)
+        val sinAngle = sin(zAngle)
+        e[0] = cosAngle
+        e[1] = -sinAngle
+        e[2] = 0.0f
+        e[3] = sinAngle
+        e[4] = cosAngle
+        e[5] = 0.0f
+        e[6] = yAngle
+        e[7] = -xAngle
+        e[8] = 1.0f
+    }
+
+    fun setParallax(eulerAngles : vector3f) {
+        val cosAngle = cos(eulerAngles.z)
+        val sinAngle = sin(eulerAngles.z)
+        e[0] = cosAngle
+        e[1] = -sinAngle
+        e[2] = 0.0f
+        e[3] = sinAngle
+        e[4] = cosAngle
+        e[5] = 0.0f
+        e[6] = eulerAngles.y
+        e[7] = -eulerAngles.x
+        e[8] = 1.0f
+    }
+
     fun toFloatArray() = e
 
     fun put(buffer : FloatArray, offset : Int) {

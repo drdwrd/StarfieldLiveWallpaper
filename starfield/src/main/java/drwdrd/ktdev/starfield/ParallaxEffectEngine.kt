@@ -14,7 +14,6 @@ interface ParallaxEffectEngine {
     var reset : Boolean
     var orientation : Int
     val offset : vector3f
-    val backgroundOffset : vector2f
     val parallaxEffectScale : Float
 
     fun connect(sensorManager: SensorManager)
@@ -33,9 +32,6 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     override var offset = vector3f(0.0f, 0.0f, 0.0f)
         protected set
 
-    override var backgroundOffset = vector2f(0.0f, 0.0f)
-        protected set
-
     override var parallaxEffectScale = SettingsProvider.parallaxEffectMultiplier
         protected set
 
@@ -46,13 +42,11 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     protected fun calculateWallpaperOffset(dx : Float, dy : Float, deltaTime: Float) {
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                backgroundOffset.plusAssign(vector2f(dx + dxOffset, dy))
-                offset = vector3f(-dy,dx + dxOffset, 0.0f)
+                offset = vector3f(-dy,dx + dxOffset, 0.05f * deltaTime)
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                backgroundOffset.plusAssign(vector2f(dy + dxOffset, dx))
-                offset = vector3f(-dx, dy + dxOffset, 0.0f)
+                offset = vector3f(-dx, dy + dxOffset, 0.05f * deltaTime)
             }
         }
         dxOffset = 0.0f
@@ -77,7 +71,6 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
 
     override fun onTick(deltaTime: Float) {
         if(reset) {
-            backgroundOffset.zero()
             offset.zero()
             reset = false
         }
@@ -194,7 +187,6 @@ class AccelerometerParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         val dx : Float
         val dy : Float
         if(reset) {
-            backgroundOffset.zero()
             rotationVector.zero()
             gravitySensorData.clear()
             magnetometerSensorData.clear()
@@ -282,7 +274,6 @@ class GravityParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         val dx : Float
         val dy : Float
         if(reset) {
-            backgroundOffset.zero()
             rotationVector.zero()
             gravitySensorData.clear()
             magnetometerSensorData.clear()
@@ -343,7 +334,6 @@ class GyroParallaxEffectEngine : ScrollingWallpaperEffectEngine() {
         val dy : Float
         rotationVector = gyroSensorDataBuffer.getData()
         if(reset) {
-            backgroundOffset.zero()
             rotationVector.zero()
             gyroSensorDataBuffer.clear()
             dx = 0.0f
