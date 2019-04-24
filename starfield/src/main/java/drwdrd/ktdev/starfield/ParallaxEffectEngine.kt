@@ -6,8 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import drwdrd.ktdev.engine.*
-import kotlin.math.cos
-import kotlin.math.sin
 
 private const val TAG = "drwdrd.ktdev.starfield.ParallaxEffectEngine"
 
@@ -40,22 +38,26 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     private var dxOffset = 0.0f
     private var lastXOffset = 0.0f
     private var scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
+    private var cameraRotationSpeed = SettingsProvider.cameraRotationSpeed
+    private var cameraMovementAcceleration = SettingsProvider.cameraMovementAcceleration
 
-    protected fun calculateWallpaperOffset(dx : Float, dy : Float,currentTime: Float, deltaTime: Float) {
-        val cameraOffset = vector3f(0.01f * sin(0.1f * currentTime), 0.01f * cos(0.1f * currentTime), 0.02f ) * deltaTime
+    protected fun calculateWallpaperOffset(dx : Float, dy : Float, currentTime: Float, deltaTime: Float) {
+        val cameraOffset = vector3f(0.0f, 0.0f, cameraRotationSpeed) * deltaTime
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                offset = vector3f(-dy,dx + dxOffset, 0.0f) + cameraOffset
+                offset = (vector3f(-dy,dx + dxOffset, 0.0f) + cameraOffset) * cameraMovementAcceleration + (1.0f - cameraMovementAcceleration) * offset
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                offset = vector3f(-dx, dy + dxOffset, 0.0f) + cameraOffset
+                offset = (vector3f(-dx, dy + dxOffset, 0.0f) + cameraOffset) * cameraMovementAcceleration + (1.0f - cameraMovementAcceleration) * offset
             }
         }
         dxOffset = 0.0f
     }
 
     override fun connect(sensorManager: SensorManager) {
+        cameraRotationSpeed = SettingsProvider.cameraRotationSpeed
+        cameraMovementAcceleration = SettingsProvider.cameraMovementAcceleration
         scrollingEffectScale = if(SettingsProvider.enableScrollingEffect) {
             SettingsProvider.scrollingEffectMultiplier
         } else {

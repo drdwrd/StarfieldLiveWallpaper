@@ -16,6 +16,8 @@ interface Theme {
     val backgroundScale : Float
     val starsParticleScale : Float
     val cloudsParticleScale : Float
+    val cloudColors : Array<Int>
+    val cloudAlpha : Float
 
     fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
@@ -64,6 +66,10 @@ class ThemePackage : Theme {
 
     override var starsParticleScale: Float = 1.0f
         private set
+
+    override val cloudColors: Array<Int> = emptyArray()
+
+    override val cloudAlpha: Float = 1.0f
 
     private val themeName : String
     private val themePath : String
@@ -150,6 +156,8 @@ class TestTheme : Theme {
     override val backgroundScale: Float = 1.0f
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
+    override val cloudColors: Array<Int> = emptyArray()
+    override val cloudAlpha: Float = 1.0f
 
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return null
@@ -176,6 +184,18 @@ class DefaultTheme : Theme {
     override val backgroundScale: Float = 1.0f
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
+
+    override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a)
+/*        0xad458f,
+        0x0d144d,
+        0x489c94,
+        0x4f6eff,
+        0x923282,
+        0x3042e8,
+        0x252b9e,
+        0x2b3ac3)*/
+
+    override val cloudAlpha: Float = 1.0f
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {
@@ -281,7 +301,7 @@ class DefaultTheme : Theme {
 
     override fun hasBackground(): Boolean = true
 
-    override fun hasClouds(): Boolean = false
+    override fun hasClouds(): Boolean = true
 
     override fun hasStars(): Boolean = true
 }

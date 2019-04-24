@@ -1,16 +1,17 @@
 package drwdrd.ktdev.starfield
 
+import android.graphics.Color
 import drwdrd.ktdev.engine.*
 import kotlin.math.sqrt
 
 class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f, _scale : Float, _uvRoI : Rectangle, _age : Float) {
 
-    var position = _position
-    var velocity = _velocity
-    var rotation = _rotation
-    var scale = _scale
-    var uvRoI = _uvRoI
-    var color = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
+    val position = _position
+    val velocity = _velocity
+    val rotation = _rotation
+    val scale = _scale
+    val uvRoI = _uvRoI
+    val color = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
 
     var age = _age
         private set
@@ -36,7 +37,8 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return rotationMatrix
         }
 
-    fun calculateBillboardModelMatrix(baseScale : Float, dir : vector3f, normal : vector3f) : matrix4f {
+
+/*    fun calculateBillboardModelMatrix(baseScale : Float, dir : vector3f, normal : vector3f) : matrix4f {
         val rotationMatrix2 = matrix4f()
         rotationMatrix2.setAxisRotation(dir, normal)
 
@@ -52,26 +54,26 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         return translationMatrix * rotationMatrix2 * rotationMatrix * scaleMatrix
 
     }
+*/
 
-/*
-    //TODO: faster but needs fixing
-    fun calculateBillboardModelMatrix(dir : vector3f, normal : vector3f) : matrix4f {
+    //TODO: fixed?
+    fun calculateBillboardModelMatrix(baseScale : Float, dir : vector3f, normal : vector3f) : matrix4f {
         val rotationQuaternion2 = quaternion()
-        rotationQuaternion2.setAxisRotation(dir, normal)
+        rotationQuaternion2.setAxisRotation(normal, dir)
 
         val rotationQuaternion = quaternion()
         rotationQuaternion.setEulerRotation(age * rotation.x, age * rotation.y, age * rotation.z)
 
-        val q = rotationQuaternion2 * rotationQuaternion
+        val q = rotationQuaternion * rotationQuaternion2
 
-        return q.getMatrix(position, scale)
+        return q.getMatrix(position, baseScale * scale)
     }
-*/
+
     fun boundingSphere() = BoundingSphere(position, scale * sqrt(2.0f))
 
     fun tick(eyeForward : vector3f, particelSpeed : Float, deltaTime: Float) {
-        velocity = -particelSpeed * eyeForward
-        position.plusAssign(velocity * deltaTime)
+        velocity.assignMul(-particelSpeed, eyeForward)
+        position.plusAssignMul(deltaTime, velocity)
         age += deltaTime
     }
 
@@ -92,7 +94,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
         }
 
-        fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
+        fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float, cloudColor : Int, cloudAlpha : Float) : Particle {
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
             rp *= RandomGenerator.randf(0.1f, 5.0f)
             val pos = distance * spawningDir + rp
@@ -102,7 +104,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val rot = RandomGenerator.randf(-0.1f, 0.1f)
             val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
-            p.color = 0.15f * vector4f(RandomColor.randomColor())
+            p.color.fromColor(cloudColor, cloudAlpha)
             return p
         }
     }

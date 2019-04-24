@@ -95,6 +95,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
     private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+    private var cloudsAlphaMultiplier = SettingsProvider.cloudsAlphaMultiplier
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -240,7 +241,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             lastCloudParticleSpawnTime += timer.deltaTime
             //if its time spawn new particle
             if (lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance))
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)], theme.cloudAlpha))
                 lastCloudParticleSpawnTime = 0.0
             }
 
@@ -260,13 +261,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 //face dir
                 val dir = eyePosition - sprite.position
-                dir.normalize()
+                val dist = dir.length()
+                if(dist > 0.0f) {
+                    dir /= dist
+                }
 
                 //normal
                 val normal = vector3f(0.0f, 0.0f, -1.0f)
 
-                val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-                val fadeOut = smoothstep(-1.0f, 2.5f, sprite.position.z)
+                val fadeIn = smoothstep(0.0f, 2.5f, sprite.age)
+                val fadeOut = smoothstep(0.5f, 2.5f, dist)
 
                 val boundingSphere = sprite.boundingSphere()
 
@@ -276,7 +280,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                    cloudspriteShader.setUniformValue(cloudspriteColorUniform, sprite.color)
+                    cloudspriteShader.setUniformValue(cloudspriteColorUniform, cloudsAlphaMultiplier * sprite.color)
                     cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
                     plane.draw()
@@ -295,12 +299,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             starSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
 
             lastStarParticleSpawnTime += timer.deltaTime
-            //if its time spawn new particle
-/*            if (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
-                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
-                lastStarParticleSpawnTime = 0.0
-            }*/
-
+            //if its time spawn new particles
             while (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
                 starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
                 lastStarParticleSpawnTime -= maxParticleSpawnTime
@@ -448,7 +447,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         if(theme.hasClouds()) {
             for (i in 0 until 50) {
-                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / 50.0f))
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / 50.0f, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)], theme.cloudAlpha))
             }
         }
 
@@ -486,7 +485,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                 notifyRestart()
             }
 
-        //TODO: this is rather hackish solution...
         private var instances = ArrayList<WeakReference<StarfieldRenderer>>()
 
         fun createRenderer(context: Context) : StarfieldRenderer {

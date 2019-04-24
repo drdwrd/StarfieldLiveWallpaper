@@ -32,6 +32,12 @@ class vector3f(x : Float, y : Float, z : Float) {
         e[2] = 0.0f
     }
 
+    fun assignMul(a : Float, v : vector3f) {
+        e[0] = a * v[0]
+        e[1] = a * v[1]
+        e[2] = a * v[2]
+    }
+
     fun toColor()  = Color.rgb(Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     fun isEqual(v : vector3f) : Boolean {
@@ -51,6 +57,12 @@ class vector3f(x : Float, y : Float, z : Float) {
     operator fun div(a : Float) : vector3f {
         require(a != 0.0f)
         return vector3f(e[0] / a, e[1] / a, e[2] / a)
+    }
+
+    fun plusAssignMul(a : Float, v : vector3f) {
+        e[0] += a * v.e[0]
+        e[1] += a * v.e[1]
+        e[2] += a * v.e[2]
     }
 
     operator fun plusAssign(v : vector3f) {
@@ -94,6 +106,7 @@ class vector3f(x : Float, y : Float, z : Float) {
     operator fun unaryMinus() = vector3f(-e[0], -e[1], -e[2])
 
     fun abs() = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
+
     fun length() = sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
 
     fun normalize()  {

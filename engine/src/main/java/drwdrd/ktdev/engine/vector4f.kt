@@ -38,6 +38,27 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
         e[3] = 0.0f
     }
 
+    fun assign(v : vector4f) {
+        e[0] = v[0]
+        e[1] = v[1]
+        e[2] = v[2]
+        e[3] = v[3]
+    }
+
+    fun fromColor(color : Int) {
+        e[0] = Color.red(color) / 255.0f
+        e[1] = Color.green(color) / 255.0f
+        e[2] = Color.blue(color) / 255.0f
+        e[3] = Color.alpha(color) / 255.0f
+    }
+
+    fun fromColor(color : Int, alpha : Float) {
+        e[0] = alpha * Color.red(color) / 255.0f
+        e[1] = alpha * Color.green(color) / 255.0f
+        e[2] = alpha * Color.blue(color) / 255.0f
+        e[3] = alpha
+    }
+
     fun toColor()  = Color.argb(Math.round(255.0f * e[3]), Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
 
     fun isEqual(v : vector4f) : Boolean {
