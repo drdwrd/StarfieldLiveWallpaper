@@ -185,7 +185,7 @@ class DefaultTheme : Theme {
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
 
-    override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a)
+    override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
 /*        0xad458f,
         0x0d144d,
         0x489c94,

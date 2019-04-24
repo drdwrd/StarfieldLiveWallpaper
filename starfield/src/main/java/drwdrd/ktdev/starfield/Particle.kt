@@ -82,7 +82,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         fun createStar(spawningDir : vector3f, targetPoint : vector3f, distance : Float) : Particle {
             //perturb spawn direction by small vector then normalize and set distance
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
-            rp *= RandomGenerator.randf(0.1f, 5.0f)
+            rp *= RandomGenerator.randf(0.2f, 10.0f)
             val pos = distance * spawningDir + rp
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
@@ -96,7 +96,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
         fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float, cloudColor : Int, cloudAlpha : Float) : Particle {
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
-            rp *= RandomGenerator.randf(0.1f, 5.0f)
+            rp *= RandomGenerator.randf(0.2f, 10.0f)
             val pos = distance * spawningDir + rp
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
