@@ -92,15 +92,21 @@ class ThemePackage : Theme {
                 val node = themeNode.childNodes.item(i)
                 when(node.nodeName) {
                     "background" -> {
-                        starfieldInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        val name = node.attributes.getNamedItem("name")?.nodeValue
+                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
+                        starfieldInfo = ThemeTextureInfo(format, name!!)
                         backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                     }
                     "starsprites" -> {
-                        starsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        val name = node.attributes.getNamedItem("name")?.nodeValue
+                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
+                        starsInfo = ThemeTextureInfo(format, name!!)
                         starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                     }
                     "cloudsprites" -> {
-                        cloudsInfo = ThemeTextureInfo(node.attributes.getNamedItem("format")?.nodeValue ?: "png", node.textContent)
+                        val name = node.attributes.getNamedItem("name")?.nodeValue
+                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
+                        cloudsInfo = ThemeTextureInfo(format, name!!)
                         cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                     }
                 }
@@ -186,14 +192,6 @@ class DefaultTheme : Theme {
     override val starsParticleScale: Float = 1.0f
 
     override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
-/*        0xad458f,
-        0x0d144d,
-        0x489c94,
-        0x4f6eff,
-        0x923282,
-        0x3042e8,
-        0x252b9e,
-        0x2b3ac3)*/
 
     override val cloudAlpha: Float = 1.0f
 
