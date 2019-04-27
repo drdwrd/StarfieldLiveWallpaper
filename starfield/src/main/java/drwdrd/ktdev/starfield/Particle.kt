@@ -86,7 +86,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val pos = distance * spawningDir + rp
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
-            val s = RandomGenerator.randf(0.01f, 0.15f)
+            val s = RandomGenerator.randf(0.05f, 0.15f)
             val rot = RandomGenerator.randf(-0.5f, 0.5f)
             val i = RandomGenerator.rand(2) * 0.5f
             val j = RandomGenerator.rand(2) * 0.5f
@@ -96,11 +96,11 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
 
         fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float, cloudColor : Int, cloudAlpha : Float) : Particle {
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
-            rp *= RandomGenerator.randf(0.2f, 10.0f)
+            rp *= RandomGenerator.randf(0.5f, 10.0f)
             val pos = distance * spawningDir + rp
             val t = targetPoint + rp
             val vel = (t - pos).normalized()
-            val s = RandomGenerator.randf(0.5f, 1.5f)
+            val s = RandomGenerator.randf(1.0f, 3.0f)
             val rot = RandomGenerator.randf(-0.1f, 0.1f)
             val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)

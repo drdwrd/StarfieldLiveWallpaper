@@ -206,7 +206,7 @@ class DefaultTheme : Theme {
 
     override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
 
-    override val cloudAlpha: Float = 1.0f
+    override val cloudAlpha: Float = 0.6f
 
     override fun loadTheme(context: Context): Boolean {
         return true

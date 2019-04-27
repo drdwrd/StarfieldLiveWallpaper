@@ -95,7 +95,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
     private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-    private var cloudsAlphaMultiplier = SettingsProvider.cloudsAlphaMultiplier
+    private var cloudsAlphaMultiplier = 1.0f
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -427,6 +427,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(theme.hasClouds()) {
             cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
         }
+
+        cloudsAlphaMultiplier = theme.cloudAlpha
 
         //misc
         noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)

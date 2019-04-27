@@ -19,7 +19,6 @@ object SettingsProvider {
     private const val DEFAULT_SLIDE_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_CAMERA_ROTATION_SPEED = 0.01f
     private const val DEFAULT_CAMERA_MOVEMENT_ACCELERATION = 0.01f
-    private const val DEFAULT_CLOUDS_ALPHA_MULTIPLIER = 0.5f
     const val TEXTURE_QUALITY_UNKNOWN = 100
 
     enum class ParallaxEffectEngineType(val type : Int) {
@@ -88,8 +87,6 @@ object SettingsProvider {
     var cameraRotationSpeed = DEFAULT_CAMERA_ROTATION_SPEED
 
     var cameraMovementAcceleration = DEFAULT_CAMERA_MOVEMENT_ACCELERATION
-
-    var cloudsAlphaMultiplier = DEFAULT_CLOUDS_ALPHA_MULTIPLIER
 
     fun resetSettings() {
         textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
