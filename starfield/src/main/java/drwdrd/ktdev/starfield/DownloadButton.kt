@@ -8,16 +8,9 @@ import android.util.AttributeSet
 import android.widget.ImageButton
 
 
-//TODO: split data from view
 class DownloadButton : ImageButton {
 
     var progress : Float = 0.0f
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    var isDownloaded = false
         set(value) {
             field = value
             invalidate()
@@ -75,11 +68,11 @@ class DownloadButton : ImageButton {
             (progress > 0.0f && progress <= 100.0f) -> {
                 canvas?.drawArc(progressRect, 0.0f, progress * 360.0f / 100.0f, false, progressPaint)
             }
-            !isDownloaded -> {
+            !(themeInfo?.isDownloaded ?: false) -> {
                 downloadIcon?.bounds = notificationIconRect
                 downloadIcon?.draw(canvas!!)
             }
-            themeInfo!!.isActive -> {
+            (themeInfo?.isActive ?: false) -> {
                 currentIcon?.bounds = notificationIconRect
                 currentIcon?.draw(canvas!!)
             }

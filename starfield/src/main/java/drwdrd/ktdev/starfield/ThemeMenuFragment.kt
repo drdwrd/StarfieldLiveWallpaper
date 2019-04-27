@@ -17,8 +17,113 @@ import java.util.zip.ZipInputStream
 
 
 
-//TODO: split data from view
-data class ThemeInfo(val name : String, val resId : Int, var isActive : Boolean)
+class ThemeInfo(val name : String, val resId : Int, private val isDefaultTheme : Boolean = false) {
+
+    interface OnDownloadListener {
+        fun onSucces()
+        fun onFailure()
+        fun onProgress(progress : Float)
+    }
+
+    var isActive = isDefaultTheme
+        private set
+
+    var isDownloaded = isDefaultTheme
+        private set
+
+    fun uninstallTheme(context: Context) : Boolean {
+        val location = File(context.getExternalFilesDir(null), name)
+        if(location.exists() && location.isDirectory) {
+            location.deleteRecursively()
+        }
+        isDownloaded = false
+        isActive = false
+        return true
+    }
+
+    fun checkThemeInstallation(context: Context) {
+        val location = File(context.getExternalFilesDir(null), name)
+        isDownloaded = isDefaultTheme || (location.exists() && location.isDirectory)
+    }
+
+    fun downloadTheme(context: Context, onDownloadListener: OnDownloadListener) {
+        val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
+        val fileRef = storage.getReference(getPackageName())
+        val localFile = File.createTempFile("theme", "zip")
+        fileRef.getFile(localFile).addOnSuccessListener {
+            Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
+            if(installTheme(context, localFile)) {
+                localFile.delete()
+                isDownloaded = true
+                onDownloadListener.onSucces()
+            } else {
+                uninstallTheme(context)
+                Toast.makeText(context, "Cannot install theme!", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            localFile.delete()
+            Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+            onDownloadListener.onFailure()
+        }.addOnProgressListener {
+            onDownloadListener.onProgress(100.0f * it.bytesTransferred / it.totalByteCount)
+        }
+    }
+
+    private fun installTheme(context: Context, cacheFile : File) : Boolean {
+        val cacheDir = context.getExternalFilesDir(null) ?: return false
+        try {
+            val location = File(cacheDir, name)
+            if (!location.exists()) {
+                location.mkdir()
+            }
+            ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
+                var zipEntry: ZipEntry? = zipInputStream.nextEntry
+                while (zipEntry != null) {
+                    if (zipEntry.isDirectory) {
+                        val dir = File(location, zipEntry.name)
+                        dir.mkdir()
+                    } else {
+                        BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream ->
+                            val buffer = ByteArray(1024)
+                            var read = zipInputStream.read(buffer)
+                            while (read > 0) {
+                                bufferedOutputStream.write(buffer, 0, read)
+                                read = zipInputStream.read(buffer)
+                            }
+                            bufferedOutputStream.close()
+                            zipInputStream.closeEntry()
+                        }
+                    }
+                    zipEntry = zipInputStream.nextEntry
+                }
+            }
+        } catch (e : Exception) {
+            return false
+        }
+        return true
+    }
+
+    fun setCurrentTheme(context: Context, activeTheme : ThemeInfo) {
+        val theme = if(isDefaultTheme) DefaultTheme() else ThemePackage(name)
+        if (!theme.loadTheme(context)) {
+            Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
+        } else {
+            StarfieldRenderer.theme = theme
+            activeTheme.isActive = false
+            isActive = true
+        }
+    }
+
+    private fun getPackageName() : String {
+        return when {
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> String.format("themes/$name/${name}_astc.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> String.format("themes/$name/${name}_etc2.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> String.format("themes/$name/${name}_etc.zip")
+            else -> String.format("themes/$name/${name}_png.zip")
+        }
+    }
+
+}
 
 
 class ThemeMenuFragment : MenuFragment() {
@@ -52,10 +157,8 @@ class ThemeMenuFragment : MenuFragment() {
 
         private fun setupDefaultThemeButton(themeButton: DownloadButton, themeInfo : ThemeInfo) {
             themeButton.themeInfo = themeInfo
-            themeButton.isDownloaded = true
             themeButton.setImageResource(themeInfo.resId)
             themeButton.setOnClickListener {
-                StarfieldRenderer.theme = DefaultTheme()
                 setCurrentItem(themeInfo)
             }
 
@@ -63,127 +166,49 @@ class ThemeMenuFragment : MenuFragment() {
 
         private fun setupThemeButton(themeButton : DownloadButton, themeInfo : ThemeInfo) {
             themeButton.themeInfo = themeInfo
-            themeButton.isDownloaded = hasTheme(themeInfo.name)
+            themeInfo.checkThemeInstallation(context!!)
             themeButton.setImageResource(themeInfo.resId)
             themeButton.setOnClickListener {
-                if(!hasTheme(themeInfo.name)) {
+                if(!themeInfo.isDownloaded) {
                     themeButton.isEnabled = false
-                    val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
-                    val fileRef = storage.getReference(getPackageName(themeInfo.name))
-                    val localFile = File.createTempFile("theme", "zip")
-                    fileRef.getFile(localFile).addOnSuccessListener {
-                        Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
-                        if(installTheme(localFile, themeInfo.name)) {
-                            localFile.delete()
-                            themeButton.isDownloaded = true
-                            setCurrentTheme(context, themeInfo)
-                        } else {
-                            uninstallTheme(themeInfo)
-                            Toast.makeText(context, "Cannot install theme!", Toast.LENGTH_SHORT).show()
+                    themeInfo.downloadTheme(context!!, object : ThemeInfo.OnDownloadListener {
+
+                        override fun onSucces() {
+                            setCurrentItem(themeInfo)
+                            themeButton.progress = 0.0f
+                            themeButton.isEnabled = true
                         }
-                        themeButton.isEnabled = true
-                        themeButton.progress = 0.0f
-                    }.addOnFailureListener {
-                        Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
-                        localFile.delete()
-                        themeButton.isEnabled = true
-                        themeButton.progress = 0.0f
-                    }.addOnProgressListener {
-                        themeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
-                    }
+
+                        override fun onFailure() {
+                            themeButton.progress = 0.0f
+                            themeButton.isEnabled = true
+                        }
+
+                        override fun onProgress(progress: Float) {
+                            themeButton.progress = progress
+                        }
+                    })
                 } else {
-                    setCurrentTheme(context, themeInfo)
+                    setCurrentItem(themeInfo)
                 }
             }
             themeButton.setOnLongClickListener {
-                if(uninstallTheme(themeInfo)) {
+                if(themeInfo.uninstallTheme(context!!)) {
                     Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
-                    themeButton.isDownloaded = false
                 }
-                StarfieldRenderer.theme = DefaultTheme()
-                setCurrentItem(data[0])
+                if(currentItem == themeInfo) {
+                    setCurrentItem(data[0])
+                }
                 true
             }
         }
 
-        private fun uninstallTheme(themeInfo: ThemeInfo) : Boolean {
-            val location = File(context?.getExternalFilesDir(null), themeInfo.name)
-            if(location.exists() && location.isDirectory) {
-                location.deleteRecursively()
-            }
-            return true
-        }
-
-        private fun setCurrentTheme(context: Context?, themeInfo : ThemeInfo) {
-            if(context != null) {
-                val theme = ThemePackage(themeInfo.name)
-                if (!theme.loadTheme(context)) {
-                    Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
-                } else {
-                    StarfieldRenderer.theme = theme
-                    setCurrentItem(themeInfo)
-                }
-            } else {
-                Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         private fun setCurrentItem(themeInfo : ThemeInfo) {
-            currentItem.isActive = false
-            currentItem = themeInfo
-            themeInfo.isActive = true
-            notifyDataSetChanged()
-        }
-
-        private fun getPackageName(theme : String) : String {
-            return when {
-                SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> String.format("themes/$theme/${theme}_astc.zip")
-                SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> String.format("themes/$theme/${theme}_etc2.zip")
-                SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> String.format("themes/$theme/${theme}_etc.zip")
-                else -> String.format("themes/$theme/${theme}_png.zip")
+            if(currentItem != themeInfo) {
+                themeInfo.setCurrentTheme(context!!, currentItem)
+                currentItem = themeInfo
+                notifyDataSetChanged()
             }
-        }
-
-        private fun hasTheme(theme : String) : Boolean {
-            val location = File(context?.getExternalFilesDir(null), theme)
-            if(location.exists() && location.isDirectory) {
-                return true
-            }
-            return false
-        }
-
-        private fun installTheme(cacheFile : File, theme : String) : Boolean {
-            val cacheDir = context?.getExternalFilesDir(null) ?: return false
-            try {
-                val location = File(cacheDir, theme)
-                if (!location.exists()) {
-                    location.mkdir()
-                }
-                ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
-                    var zipEntry: ZipEntry? = zipInputStream.nextEntry
-                    while (zipEntry != null) {
-                        if (zipEntry.isDirectory) {
-                            val dir = File(location, zipEntry.name)
-                            dir.mkdir()
-                        } else {
-                            BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream ->
-                                val buffer = ByteArray(1024)
-                                var read = zipInputStream.read(buffer)
-                                while (read > 0) {
-                                    bufferedOutputStream.write(buffer, 0, read)
-                                    read = zipInputStream.read(buffer)
-                                }
-                                bufferedOutputStream.close()
-                                zipInputStream.closeEntry()
-                            }
-                        }
-                        zipEntry = zipInputStream.nextEntry
-                    }
-                }
-            } catch (e : Exception) {
-                return false
-            }
-            return true
         }
     }
 
@@ -200,9 +225,9 @@ class ThemeMenuFragment : MenuFragment() {
 
         val data = arrayListOf(
             ThemeInfo("default", R.drawable.default_preview, true),
-            ThemeInfo("classic", android.R.color.black, false),
-            ThemeInfo("classic_color", android.R.color.black, false),
-            ThemeInfo("starfield2", R.drawable.starfield2_preview, false))
+            ThemeInfo("classic", android.R.color.black),
+            ThemeInfo("classic_color", android.R.color.black),
+            ThemeInfo("starfield2", R.drawable.starfield2_preview))
 
         val themeGallery = view.findViewById<RecyclerView>(R.id.themeGallery)
         themeGallery.setHasFixedSize(true)

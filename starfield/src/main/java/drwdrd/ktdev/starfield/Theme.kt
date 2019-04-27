@@ -21,6 +21,8 @@ interface Theme {
     val cloudColors : Array<Int>
     val cloudAlpha : Float
 
+    fun loadTheme(context: Context) : Boolean
+
     fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
@@ -79,7 +81,7 @@ class ThemePackage(name : String) : Theme {
     private var starsInfo = ThemeTextureInfo()
     private var cloudsInfo = ThemeTextureInfo()
 
-    fun loadTheme(context: Context) : Boolean {
+    override fun loadTheme(context: Context) : Boolean {
         val cacheDir = context.getExternalFilesDir(null) ?: return false
         val location = File(cacheDir, themeName)
         themePath = location.absolutePath
@@ -172,6 +174,10 @@ class TestTheme : Theme {
     override val cloudColors: Array<Int> = emptyArray()
     override val cloudAlpha: Float = 1.0f
 
+    override fun loadTheme(context: Context): Boolean {
+        return true
+    }
+
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return null
     }
@@ -201,6 +207,10 @@ class DefaultTheme : Theme {
     override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
 
     override val cloudAlpha: Float = 1.0f
+
+    override fun loadTheme(context: Context): Boolean {
+        return true
+    }
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {
