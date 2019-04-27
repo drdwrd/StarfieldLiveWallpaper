@@ -7,6 +7,8 @@ import drwdrd.ktdev.engine.Log
 import drwdrd.ktdev.engine.Texture
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.lang.Exception
 import javax.xml.parsers.DocumentBuilderFactory
 
 private const val TAG = "drwdrd.ktdev.starfield.Theme"
@@ -27,7 +29,7 @@ interface Theme {
     fun hasBackground() : Boolean
 }
 
-class ThemePackage : Theme {
+class ThemePackage(name : String) : Theme {
 
     private inner class ThemeTextureInfo {
 
@@ -71,47 +73,52 @@ class ThemePackage : Theme {
 
     override val cloudAlpha: Float = 1.0f
 
-    private val themeName : String
-    private val themePath : String
+    private val themeName : String = name
+    private lateinit var themePath : String
     private var starfieldInfo = ThemeTextureInfo()
     private var starsInfo = ThemeTextureInfo()
     private var cloudsInfo = ThemeTextureInfo()
 
-    constructor(context: Context, theme : String) {
-        themeName = theme
-        val location = File(context.getExternalFilesDir(null), theme)
+    fun loadTheme(context: Context) : Boolean {
+        val cacheDir = context.getExternalFilesDir(null) ?: return false
+        val location = File(cacheDir, themeName)
         themePath = location.absolutePath
-        val xmlFile = "$themePath/$theme.xml"
-        val inputStream = FileInputStream(xmlFile)
-        inputStream.use {
-            val builderFactory = DocumentBuilderFactory.newInstance()
-            val builder = builderFactory.newDocumentBuilder()
-            val dom = builder.parse(it)
-            val themeNode = dom.getElementsByTagName("theme").item(0)
-            for(i in 0 until themeNode.childNodes.length) {
-                val node = themeNode.childNodes.item(i)
-                when(node.nodeName) {
-                    "background" -> {
-                        val name = node.attributes.getNamedItem("name")?.nodeValue
-                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
-                        starfieldInfo = ThemeTextureInfo(format, name!!)
-                        backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
-                    }
-                    "starsprites" -> {
-                        val name = node.attributes.getNamedItem("name")?.nodeValue
-                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
-                        starsInfo = ThemeTextureInfo(format, name!!)
-                        starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
-                    }
-                    "cloudsprites" -> {
-                        val name = node.attributes.getNamedItem("name")?.nodeValue
-                        val format = node.attributes.getNamedItem("format")?.nodeValue ?: "png"
-                        cloudsInfo = ThemeTextureInfo(format, name!!)
-                        cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+        val xmlFile = "$themePath/$themeName.xml"
+        val inputStream = try { FileInputStream(xmlFile) } catch (e : FileNotFoundException) { return false }
+        try {
+            inputStream.use {
+                val builderFactory = DocumentBuilderFactory.newInstance()
+                val builder = builderFactory.newDocumentBuilder()
+                val dom = builder.parse(it)
+                val themeNode = dom.getElementsByTagName("theme").item(0)
+                for (i in 0 until themeNode.childNodes.length) {
+                    val node = themeNode.childNodes.item(i)
+                    when (node.nodeName) {
+                        "background" -> {
+                            val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
+                            val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
+                            starfieldInfo = ThemeTextureInfo(format, name)
+                            backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                        }
+                        "starsprites" -> {
+                            val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
+                            val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
+                            starsInfo = ThemeTextureInfo(format, name)
+                            starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                        }
+                        "cloudsprites" -> {
+                            val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
+                            val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
+                            cloudsInfo = ThemeTextureInfo(format, name)
+                            cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                        }
                     }
                 }
             }
+        } catch (e : Exception) {
+            return false
         }
+        return true
     }
 
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {

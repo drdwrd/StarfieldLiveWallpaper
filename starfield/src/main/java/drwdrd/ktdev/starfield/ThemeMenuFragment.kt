@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.storage.FirebaseStorage
 import java.io.*
+import java.lang.Exception
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -72,12 +73,15 @@ class ThemeMenuFragment : MenuFragment() {
                     val localFile = File.createTempFile("theme", "zip")
                     fileRef.getFile(localFile).addOnSuccessListener {
                         Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
-                        installTheme(localFile, themeInfo.name)
-                        localFile.delete()
+                        if(installTheme(localFile, themeInfo.name)) {
+                            localFile.delete()
+                            themeButton.isDownloaded = true
+                            setCurrentTheme(context, themeInfo)
+                        } else {
+                            uninstallTheme(themeInfo)
+                            Toast.makeText(context, "Cannot install theme!", Toast.LENGTH_SHORT).show()
+                        }
                         themeButton.isEnabled = true
-                        themeButton.isDownloaded = true
-                        setCurrentItem(themeInfo)
-                        StarfieldRenderer.theme = ThemePackage(context!!, themeInfo.name)
                         themeButton.progress = 0.0f
                     }.addOnFailureListener {
                         Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
@@ -88,20 +92,39 @@ class ThemeMenuFragment : MenuFragment() {
                         themeButton.progress = 100.0f * it.bytesTransferred / it.totalByteCount
                     }
                 } else {
-                    StarfieldRenderer.theme = ThemePackage(context!!, themeInfo.name)
-                    setCurrentItem(themeInfo)
+                    setCurrentTheme(context, themeInfo)
                 }
             }
             themeButton.setOnLongClickListener {
-                val location = File(context?.getExternalFilesDir(null), themeInfo.name)
-                if(location.exists() && location.isDirectory) {
-                    location.deleteRecursively()
+                if(uninstallTheme(themeInfo)) {
                     Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
                     themeButton.isDownloaded = false
                 }
                 StarfieldRenderer.theme = DefaultTheme()
                 setCurrentItem(data[0])
                 true
+            }
+        }
+
+        private fun uninstallTheme(themeInfo: ThemeInfo) : Boolean {
+            val location = File(context?.getExternalFilesDir(null), themeInfo.name)
+            if(location.exists() && location.isDirectory) {
+                location.deleteRecursively()
+            }
+            return true
+        }
+
+        private fun setCurrentTheme(context: Context?, themeInfo : ThemeInfo) {
+            if(context != null) {
+                val theme = ThemePackage(themeInfo.name)
+                if (!theme.loadTheme(context)) {
+                    Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
+                } else {
+                    StarfieldRenderer.theme = theme
+                    setCurrentItem(themeInfo)
+                }
+            } else {
+                Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -129,32 +152,38 @@ class ThemeMenuFragment : MenuFragment() {
             return false
         }
 
-        private fun installTheme(cacheFile : File, theme : String) {
-            val location = File(context?.getExternalFilesDir(null), theme)
-            if(!location.exists()) {
-                location.mkdir()
-            }
-            ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
-                var zipEntry: ZipEntry? = zipInputStream.nextEntry
-                while (zipEntry != null) {
-                    if (zipEntry.isDirectory) {
-                        val dir = File(location, zipEntry.name)
-                        dir.mkdir()
-                    } else {
-                        BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream  ->
-                            val buffer = ByteArray(1024)
-                            var read = zipInputStream.read(buffer)
-                            while (read > 0) {
-                                bufferedOutputStream.write(buffer, 0, read)
-                                read = zipInputStream.read(buffer)
-                            }
-                            bufferedOutputStream.close()
-                            zipInputStream.closeEntry()
-                        }
-                    }
-                    zipEntry = zipInputStream.nextEntry
+        private fun installTheme(cacheFile : File, theme : String) : Boolean {
+            val cacheDir = context?.getExternalFilesDir(null) ?: return false
+            try {
+                val location = File(cacheDir, theme)
+                if (!location.exists()) {
+                    location.mkdir()
                 }
+                ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
+                    var zipEntry: ZipEntry? = zipInputStream.nextEntry
+                    while (zipEntry != null) {
+                        if (zipEntry.isDirectory) {
+                            val dir = File(location, zipEntry.name)
+                            dir.mkdir()
+                        } else {
+                            BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream ->
+                                val buffer = ByteArray(1024)
+                                var read = zipInputStream.read(buffer)
+                                while (read > 0) {
+                                    bufferedOutputStream.write(buffer, 0, read)
+                                    read = zipInputStream.read(buffer)
+                                }
+                                bufferedOutputStream.close()
+                                zipInputStream.closeEntry()
+                            }
+                        }
+                        zipEntry = zipInputStream.nextEntry
+                    }
+                }
+            } catch (e : Exception) {
+                return false
             }
+            return true
         }
     }
 
