@@ -71,11 +71,10 @@ class Uniform() {
 class ProgramObject(_name : String = "") {
 
     val name : String = _name
-    val uniformMap = hashMapOf<String, Int>()
-    private lateinit var uniforms : Array<Uniform>
 
-    var glProgramId : Int = 0
-        private set
+    private val uniformMap = hashMapOf<String, Int>()
+    private lateinit var uniforms : Array<Uniform>
+    private var glProgramId : Int = 0
 
     val isValid : Boolean
         get() = (glProgramId != 0)
@@ -127,7 +126,7 @@ class ProgramObject(_name : String = "") {
     }
 
     fun registerUniform(name : String, id : Int) {
-        uniforms[id] = Uniform(name, uniformMap[name]!!)
+        uniforms[id] = Uniform(name, uniformMap[name] ?: -1)
     }
 
     fun bindVertexAttributeLocations(vertexFormat: VertexFormat) {

@@ -16,5 +16,9 @@ void main() {
 
     vec4 cloud = texture2D(u_CloudSprites, tex);
 
+    //multiply by alpha for astc/etc2 textures, png are premulitplied already
+    cloud.rgb *= cloud.a;
+
+
     gl_FragColor = u_Fade * u_Color * cloud;
 }

@@ -18,10 +18,7 @@ interface Theme {
     val backgroundScale : Float
     val starsParticleScale : Float
     val cloudsParticleScale : Float
-    val cloudsDensity : Double
-    val cloudColors : Array<Int>
-    val cloudAlpha : Float
-    val cloudAlphaThreshold : Float
+    val cloudColors : Array<Long>
 
     fun loadTheme(context: Context) : Boolean
 
@@ -73,13 +70,8 @@ class ThemePackage(name : String) : Theme {
     override var starsParticleScale: Float = 1.0f
         private set
 
-    override val cloudsDensity: Double = 10.0       //TODO: add support
+    override val cloudColors: Array<Long> = emptyArray()
 
-    override val cloudColors: Array<Int> = emptyArray()
-
-    override val cloudAlpha: Float = 1.0f           //TODO: add support
-
-    override val cloudAlphaThreshold: Float = 1.0f      //TODO: add support
 
     private val themeName : String = name
     private lateinit var themePath : String
@@ -177,10 +169,7 @@ class TestTheme : Theme {
     override val backgroundScale: Float = 1.0f
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
-    override val cloudsDensity: Double = 10.0
-    override val cloudColors: Array<Int> = emptyArray()
-    override val cloudAlpha: Float = 1.0f
-    override val cloudAlphaThreshold: Float = 1.0f
+    override val cloudColors: Array<Long> = emptyArray()
 
     override fun loadTheme(context: Context): Boolean {
         return true
@@ -209,16 +198,10 @@ class TestTheme : Theme {
 class DefaultTheme : Theme {
 
     override val backgroundScale: Float = 1.0f
-    override val cloudsParticleScale: Float = 1.0f
-    override val starsParticleScale: Float = 1.0f
+    override val cloudsParticleScale: Float = 1.2f
+    override val starsParticleScale: Float = 1.5f
 
-    override val cloudsDensity: Double = 20.0
-
-    override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
-
-    override val cloudAlpha: Float = 1.0f
-
-    override val cloudAlphaThreshold: Float = 1.2f
+    override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
 
     override fun loadTheme(context: Context): Boolean {
         return true
@@ -323,7 +306,56 @@ class DefaultTheme : Theme {
     }
 
     override fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture {
-        return Texture.loadFromAssets2D(context, "themes/default/png/cloud.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+        return when {
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> {
+                //astc
+                KTXLoader.loadFromAssets(
+                    context,
+                    "themes/default/astc/cloudsprites.ktx",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> {
+                //etc2
+                KTXLoader.loadFromAssets(
+                    context,
+                    "themes/default/etc2/cloudsprites.ktx",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
+                //etc
+                Texture.loadFromAssets2D(
+                    context,
+                    "themes/default/png/cloudsprites.png",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+            else -> {
+                //png
+                Texture.loadFromAssets2D(
+                    context,
+                    "themes/default/png/cloudsprites.png",
+                    textureQuality,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear,
+                    Texture.Filtering.Linear
+                )
+            }
+        }
     }
 
     override fun hasBackground(): Boolean = true

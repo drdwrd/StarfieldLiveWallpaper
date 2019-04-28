@@ -15,13 +15,6 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
     var age = _age
         private set
 
-    val boundingSphereRadius : Float
-        get() = scale  * sqrt(2.0f)
-
-    val boundingSphere : BoundingSphere
-        get() = BoundingSphere(position, scale * sqrt(2.0f))
-
-
 /*    fun calculateBillboardModelMatrix(baseScale : Float, dir : vector3f, normal : vector3f) : matrix4f {
         val rotationMatrix2 = matrix4f()
         rotationMatrix2.setAxisRotation(dir, normal)
@@ -53,6 +46,15 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         return translationMatrix * rotationMatrix * scaleMatrix
     }
 */
+
+    fun boundingSphereRadius(baseScale : Float) : Float {
+        return baseScale * scale * sqrt(2.0f)
+    }
+
+    fun boundingSphere(baseScale: Float) : BoundingSphere {
+        return BoundingSphere(position, baseScale * scale * sqrt(2.0f))
+    }
+
     fun calculateModelMatrix(baseScale: Float) : matrix4f {
         val q = quaternion()
         q.setEulerRotation(age * rotation.x, age * rotation.y, age * rotation.z)
@@ -98,7 +100,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             return Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
         }
 
-        fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float, cloudColor : Int, cloudAlpha : Float) : Particle {
+        fun createCloud(spawningDir : vector3f, targetPoint : vector3f, distance : Float, cloudColor : Long) : Particle {
             val rp = vector3f.cross(spawningDir, RandomGenerator.rand3f(-1.0f, 1.0f)).normalized()
             rp *= RandomGenerator.randf(0.5f, 10.0f)
             val pos = distance * spawningDir + rp
@@ -106,9 +108,12 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val vel = (t - pos).normalized()
             val s = RandomGenerator.randf(2.5f, 5.0f)
             val rot = RandomGenerator.randf(-0.025f, 0.025f)
-            val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
+//            val roi = Rectangle(0.0f, 0.0f, 1.0f, 1.0f)
+            val i = RandomGenerator.rand(2) * 0.5f
+            val j = RandomGenerator.rand(2) * 0.5f
+            val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, 0.0f)
-            p.color.fromColor(cloudColor, cloudAlpha)
+            p.color.fromColor(cloudColor.toInt())
             return p
         }
     }

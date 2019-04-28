@@ -79,7 +79,7 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
             offset.zero()
             reset = false
         }
-        calculateWallpaperOffset(0.0f, 0.0f,currentTime, deltaTime)
+        calculateWallpaperOffset(0.0f, 0.0f, currentTime, deltaTime)
     }
 }
 

@@ -24,9 +24,6 @@ private const val cloudspriteModelViewProjectionMatrixUniform = 1
 private const val cloudspriteUvRoIUniform = 2
 private const val cloudspriteColorUniform = 3
 private const val cloudspriteFadeUniform = 4
-private const val cloudspriteAlphaThreshold = 5
-//private const val cloudspriteNoiseSampler = 6
-//private const val cloudspriteRotationMatrixUniform = 7
 
 private const val starspriteSampler = 0
 private const val starspriteNoiseSampler = 1
@@ -97,9 +94,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
     private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-    private var cloudsSpawnTimeMultiplier = 10.0
-    private var cloudsAlphaMultiplier = 1.0f
-    private var cloudsAlphaThreshold = 1.0f
+    private var cloudsSpawnTimeMultiplier = 15.0
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -113,7 +108,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     private fun getTextureCompressionMode(version : String, extensions : String) : Flag<SettingsProvider.TextureCompressionMode> {
         val modes  = Flag(SettingsProvider.TextureCompressionMode.UNKNOWN)
-        if(extensions.contains("KHR_compressed_texture_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
+        if(extensions.contains("KHR_texture_compression_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
             modes.setFlag(SettingsProvider.TextureCompressionMode.ASTC)
         }
         if(version.contains("OpenGL ES 3")) {
@@ -169,7 +164,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(SettingsProvider.textureCompressionMode.isFlag(SettingsProvider.TextureCompressionMode.UNKNOWN)) {
             SettingsProvider.textureCompressionMode = getTextureCompressionMode(version, extensions)
         }
-
 
         Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
 
@@ -240,12 +234,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(theme.hasClouds()) {
 
             //remove all particles behind camera
-            cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance - it.boundingSphereRadius ) }
+            cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance - it.boundingSphereRadius(theme.cloudsParticleScale) ) }
 
             lastCloudParticleSpawnTime += timer.deltaTime
             //if its time spawn new particle
             if (lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
-                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)], theme.cloudAlpha))
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)]))
                 lastCloudParticleSpawnTime = 0.0
             }
 
@@ -256,7 +250,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             noiseTexture.bind(1)
 
             cloudspriteShader.setSampler(cloudspriteSampler, 0)
-//            cloudspriteShader.setSampler(cloudspriteNoiseSampler, 1)
 
             val cloud = cloudSprites.iterator()
             while (cloud.hasNext()) {
@@ -264,7 +257,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val sprite = cloud.next()
 
-                val boundingSphere = sprite.boundingSphere
+                val boundingSphere = sprite.boundingSphere(theme.cloudsParticleScale)
 
                 if (frustum.contains(boundingSphere)) {
 
@@ -275,23 +268,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                         dir /= dist
                     }
 
-                    //normal
-//                    val normal = vector3f(0.0f, 0.0f, -1.0f)
 
-                    val fadeIn = smoothstep(0.0f, 2.5f, sprite.age)
-                    val fadeOut = smoothstep(0.0f, 1.0f, -dist * vector3f.dot(dir, eyeForward) )
+                    val fadeIn = smoothstep(0.0f, 3.5f, sprite.age)
+                    val fadeOut = smoothstep(1.0f, 2.5f, -dist * vector3f.dot(dir, eyeForward) )
 
-//                    val rotMatrix = matrix3f()
-//                    rotMatrix.setRotation(0.015f * sprite.age)
 
                     val modelMatrix = sprite.calculateModelMatrix(theme.cloudsParticleScale)
-//                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir, normal)
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
-                    cloudspriteShader.setUniformValue(cloudspriteColorUniform, cloudsAlphaMultiplier * sprite.color)
-//                    cloudspriteShader.setUniformValue(cloudspriteRotationMatrixUniform, rotMatrix)
-                    cloudspriteShader.setUniformValue(cloudspriteAlphaThreshold, cloudsAlphaThreshold)
+                    cloudspriteShader.setUniformValue(cloudspriteColorUniform, sprite.color)
                     cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
                     plane.draw()
@@ -330,7 +316,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val sprite = star.next()
 
-                val boundingSphere = sprite.boundingSphere
+                val boundingSphere = sprite.boundingSphere(theme.starsParticleScale)
 
                 if (frustum.contains(boundingSphere)) {
 
@@ -416,15 +402,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
         starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
 
-        cloudspriteShader = ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
+        cloudspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite_pm.frag", plane.vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
+        }
         cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
         cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
         cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
         cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
         cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
-        cloudspriteShader.registerUniform("u_AlphaThreshold", cloudspriteAlphaThreshold)
-//        cloudspriteShader.registerUniform("u_Noise", cloudspriteNoiseSampler)
-//        cloudspriteShader.registerUniform("u_RotationMatrix", cloudspriteRotationMatrixUniform)
 
         starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
@@ -433,18 +420,16 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
 
         if(theme.hasBackground()) {
-            starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+            starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
         }
         if(theme.hasStars()) {
-            starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+            starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
         }
         if(theme.hasClouds()) {
-            cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
+            cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
         }
 
-        cloudsSpawnTimeMultiplier = theme.cloudsDensity
-        cloudsAlphaMultiplier = theme.cloudAlpha
-        cloudsAlphaThreshold = theme.cloudAlphaThreshold
+//        cloudsSpawnTimeMultiplier = theme.cloudsDensity
 
         //misc
         noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
@@ -457,15 +442,17 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val eyeForward = eye.forward
         val eyePosition = eye.position
 
+        val starsCount = 500
         if(theme.hasStars()) {
-            for (i in 0 until 500) {
-                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance * i / 500.0f))
+            for (i in 0 until starsCount) {
+                starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance * i / starsCount))
             }
         }
 
+        val cloudsCount = (starsCount / cloudsSpawnTimeMultiplier).toInt()
         if(theme.hasClouds()) {
-            for (i in 0 until 50) {
-                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / 50.0f, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)], theme.cloudAlpha))
+            for (i in 0 until cloudsCount) {
+                cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / cloudsCount, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)]))
             }
         }
 

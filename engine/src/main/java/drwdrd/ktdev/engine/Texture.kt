@@ -153,6 +153,13 @@ class Texture {
 
     companion object {
 
+        fun emptyTexture2D() : Texture {
+            val texture = Texture()
+            texture.create()
+            texture.target = Target.Texture2D
+            return texture
+        }
+
         fun loadFromAssetsCubemap(context : Context, name : Array<String>, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
             val texture = Texture()
             texture.create()
