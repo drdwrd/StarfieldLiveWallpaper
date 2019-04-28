@@ -218,7 +218,7 @@ class DefaultTheme : Theme {
 
     override val cloudAlpha: Float = 1.0f
 
-    override val cloudAlphaThreshold: Float = 1.5f
+    override val cloudAlphaThreshold: Float = 1.2f
 
     override fun loadTheme(context: Context): Boolean {
         return true

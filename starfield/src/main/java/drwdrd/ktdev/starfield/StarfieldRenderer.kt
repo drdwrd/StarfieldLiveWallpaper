@@ -24,9 +24,9 @@ private const val cloudspriteModelViewProjectionMatrixUniform = 1
 private const val cloudspriteUvRoIUniform = 2
 private const val cloudspriteColorUniform = 3
 private const val cloudspriteFadeUniform = 4
-private const val cloudspriteNoiseSampler = 5
-private const val cloudspriteRotationMatrixUniform = 6
-private const val cloudspriteAlphaThreshold = 7
+private const val cloudspriteAlphaThreshold = 5
+//private const val cloudspriteNoiseSampler = 6
+//private const val cloudspriteRotationMatrixUniform = 7
 
 private const val starspriteSampler = 0
 private const val starspriteNoiseSampler = 1
@@ -256,7 +256,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             noiseTexture.bind(1)
 
             cloudspriteShader.setSampler(cloudspriteSampler, 0)
-            cloudspriteShader.setSampler(cloudspriteNoiseSampler, 1)
+//            cloudspriteShader.setSampler(cloudspriteNoiseSampler, 1)
 
             val cloud = cloudSprites.iterator()
             while (cloud.hasNext()) {
@@ -281,8 +281,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     val fadeIn = smoothstep(0.0f, 2.5f, sprite.age)
                     val fadeOut = smoothstep(0.0f, 1.0f, -dist * vector3f.dot(dir, eyeForward) )
 
-                    val rotMatrix = matrix3f()
-                    rotMatrix.setRotation(0.015f * sprite.age)
+//                    val rotMatrix = matrix3f()
+//                    rotMatrix.setRotation(0.015f * sprite.age)
 
                     val modelMatrix = sprite.calculateModelMatrix(theme.cloudsParticleScale)
 //                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir, normal)
@@ -290,7 +290,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
                     cloudspriteShader.setUniformValue(cloudspriteColorUniform, cloudsAlphaMultiplier * sprite.color)
-                    cloudspriteShader.setUniformValue(cloudspriteRotationMatrixUniform, rotMatrix)
+//                    cloudspriteShader.setUniformValue(cloudspriteRotationMatrixUniform, rotMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteAlphaThreshold, cloudsAlphaThreshold)
                     cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
@@ -422,9 +422,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
         cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
         cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
-        cloudspriteShader.registerUniform("u_Noise", cloudspriteNoiseSampler)
-        cloudspriteShader.registerUniform("u_RotationMatrix", cloudspriteRotationMatrixUniform)
         cloudspriteShader.registerUniform("u_AlphaThreshold", cloudspriteAlphaThreshold)
+//        cloudspriteShader.registerUniform("u_Noise", cloudspriteNoiseSampler)
+//        cloudspriteShader.registerUniform("u_RotationMatrix", cloudspriteRotationMatrixUniform)
 
         starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
