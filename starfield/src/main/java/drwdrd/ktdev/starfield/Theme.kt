@@ -18,8 +18,10 @@ interface Theme {
     val backgroundScale : Float
     val starsParticleScale : Float
     val cloudsParticleScale : Float
+    val cloudsDensity : Double
     val cloudColors : Array<Int>
     val cloudAlpha : Float
+    val cloudAlphaThreshold : Float
 
     fun loadTheme(context: Context) : Boolean
 
@@ -71,9 +73,13 @@ class ThemePackage(name : String) : Theme {
     override var starsParticleScale: Float = 1.0f
         private set
 
+    override val cloudsDensity: Double = 10.0       //TODO: add support
+
     override val cloudColors: Array<Int> = emptyArray()
 
-    override val cloudAlpha: Float = 1.0f
+    override val cloudAlpha: Float = 1.0f           //TODO: add support
+
+    override val cloudAlphaThreshold: Float = 1.0f      //TODO: add support
 
     private val themeName : String = name
     private lateinit var themePath : String
@@ -171,8 +177,10 @@ class TestTheme : Theme {
     override val backgroundScale: Float = 1.0f
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
+    override val cloudsDensity: Double = 10.0
     override val cloudColors: Array<Int> = emptyArray()
     override val cloudAlpha: Float = 1.0f
+    override val cloudAlphaThreshold: Float = 1.0f
 
     override fun loadTheme(context: Context): Boolean {
         return true
@@ -204,9 +212,13 @@ class DefaultTheme : Theme {
     override val cloudsParticleScale: Float = 1.0f
     override val starsParticleScale: Float = 1.0f
 
+    override val cloudsDensity: Double = 20.0
+
     override val cloudColors: Array<Int> = arrayOf(0x0c134e, 0x360e3a, 0x70b3ff)
 
-    override val cloudAlpha: Float = 0.6f
+    override val cloudAlpha: Float = 1.0f
+
+    override val cloudAlphaThreshold: Float = 1.5f
 
     override fun loadTheme(context: Context): Boolean {
         return true

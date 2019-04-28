@@ -24,6 +24,9 @@ private const val cloudspriteModelViewProjectionMatrixUniform = 1
 private const val cloudspriteUvRoIUniform = 2
 private const val cloudspriteColorUniform = 3
 private const val cloudspriteFadeUniform = 4
+private const val cloudspriteNoiseSampler = 5
+private const val cloudspriteRotationMatrixUniform = 6
+private const val cloudspriteAlphaThreshold = 7
 
 private const val starspriteSampler = 0
 private const val starspriteNoiseSampler = 1
@@ -34,8 +37,7 @@ private const val starspriteFadeInUniform = 5
 
 
 private const val minParticleDistance = -2.5f
-private const val particleSpawnDistance = 10.0f
-private const val cloudsSpawnTimeMultiplier = 10.0
+private const val particleSpawnDistance = 20.0f
 private const val maxStarParticlesCount = 5000        //hard limit just in case...
 private const val maxCloudParticlesCount = 500        //hard limit just in case...
 
@@ -95,7 +97,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
     private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+    private var cloudsSpawnTimeMultiplier = 10.0
     private var cloudsAlphaMultiplier = 1.0f
+    private var cloudsAlphaThreshold = 1.0f
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -236,7 +240,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         if(theme.hasClouds()) {
 
             //remove all particles behind camera
-            cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance) }
+            cloudSprites.removeAll { !frustum.isInDistance(it.position, minParticleDistance - it.boundingSphereRadius ) }
 
             lastCloudParticleSpawnTime += timer.deltaTime
             //if its time spawn new particle
@@ -249,8 +253,10 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
             cloudspriteShader.bind()
             cloudspritesTexture.bind(0)
+            noiseTexture.bind(1)
 
             cloudspriteShader.setSampler(cloudspriteSampler, 0)
+            cloudspriteShader.setSampler(cloudspriteNoiseSampler, 1)
 
             val cloud = cloudSprites.iterator()
             while (cloud.hasNext()) {
@@ -258,29 +264,34 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val sprite = cloud.next()
 
-
-                //face dir
-                val dir = eyePosition - sprite.position
-                val dist = dir.length()
-                if(dist > 0.0f) {
-                    dir /= dist
-                }
-
-                //normal
-                val normal = vector3f(0.0f, 0.0f, -1.0f)
-
-                val fadeIn = smoothstep(0.0f, 2.5f, sprite.age)
-                val fadeOut = smoothstep(0.5f, 2.5f, dist)
-
-                val boundingSphere = sprite.boundingSphere()
+                val boundingSphere = sprite.boundingSphere
 
                 if (frustum.contains(boundingSphere)) {
 
-                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir, normal)
+                    //face dir
+                    val dir = eyePosition - sprite.position
+                    val dist = dir.length()
+                    if(dist > 0.0f) {
+                        dir /= dist
+                    }
+
+                    //normal
+//                    val normal = vector3f(0.0f, 0.0f, -1.0f)
+
+                    val fadeIn = smoothstep(0.0f, 2.5f, sprite.age)
+                    val fadeOut = smoothstep(0.0f, 1.0f, -dist * vector3f.dot(dir, eyeForward) )
+
+                    val rotMatrix = matrix3f()
+                    rotMatrix.setRotation(0.015f * sprite.age)
+
+                    val modelMatrix = sprite.calculateModelMatrix(theme.cloudsParticleScale)
+//                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir, normal)
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
                     cloudspriteShader.setUniformValue(cloudspriteColorUniform, cloudsAlphaMultiplier * sprite.color)
+                    cloudspriteShader.setUniformValue(cloudspriteRotationMatrixUniform, rotMatrix)
+                    cloudspriteShader.setUniformValue(cloudspriteAlphaThreshold, cloudsAlphaThreshold)
                     cloudspriteShader.setUniformValue(cloudspriteFadeUniform, fadeIn * fadeOut)
 
                     plane.draw()
@@ -319,21 +330,21 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
                 val sprite = star.next()
 
-                //face dir
-                val dir = eyePosition - sprite.position
-                dir.normalize()
-
-                //normal
-                val normal = vector3f(0.0f, 0.0f, -1.0f)
-
-                val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
-
-                val rotMatrix = matrix3f()
-                rotMatrix.setRotation(0.1f * timer.currentTime.toFloat())
-
-                val boundingSphere = sprite.boundingSphere()
+                val boundingSphere = sprite.boundingSphere
 
                 if (frustum.contains(boundingSphere)) {
+
+                    //face dir
+                    val dir = eyePosition - sprite.position
+                    dir.normalize()
+
+                    //normal
+                    val normal = vector3f(0.0f, 0.0f, -1.0f)
+
+                    val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+
+                    val rotMatrix = matrix3f()
+                    rotMatrix.setRotation(0.1f * sprite.age)
 
                     val modelMatrix = sprite.calculateBillboardModelMatrix(theme.starsParticleScale, dir, normal)
 
@@ -411,6 +422,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
         cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
         cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
+        cloudspriteShader.registerUniform("u_Noise", cloudspriteNoiseSampler)
+        cloudspriteShader.registerUniform("u_RotationMatrix", cloudspriteRotationMatrixUniform)
+        cloudspriteShader.registerUniform("u_AlphaThreshold", cloudspriteAlphaThreshold)
 
         starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
@@ -428,7 +442,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode)!!
         }
 
+        cloudsSpawnTimeMultiplier = theme.cloudsDensity
         cloudsAlphaMultiplier = theme.cloudAlpha
+        cloudsAlphaThreshold = theme.cloudAlphaThreshold
 
         //misc
         noiseTexture = Texture.loadFromAssets2D(context, "themes/default/png/noise.png", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat, Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
