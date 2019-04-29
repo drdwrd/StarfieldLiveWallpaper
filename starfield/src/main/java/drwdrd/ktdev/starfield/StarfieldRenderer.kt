@@ -269,11 +269,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     }
 
 
-                    val fadeIn = smoothstep(0.0f, 3.5f, sprite.age)
-                    val fadeOut = smoothstep(1.0f, 2.5f, -dist * vector3f.dot(dir, eyeForward) )
+                    val fadeIn = smoothstep(0.0f, 3.5f, sprite.timeFromStart)
+                    val fadeOut = smoothstep(1.5f, 2.5f, -dist * vector3f.dot(dir, eyeForward) )
 
 
-                    val modelMatrix = sprite.calculateModelMatrix(theme.cloudsParticleScale)
+
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir)
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))
@@ -324,15 +325,12 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
                     val dir = eyePosition - sprite.position
                     dir.normalize()
 
-                    //normal
-                    val normal = vector3f(0.0f, 0.0f, -1.0f)
-
-                    val fadeIn = smoothstep(0.0f, 1.0f, sprite.age)
+                    val fadeIn = smoothstep(0.0f, 1.0f, sprite.timeFromStart)
 
                     val rotMatrix = matrix3f()
                     rotMatrix.setRotation(0.1f * sprite.age)
 
-                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.starsParticleScale, dir, normal)
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.starsParticleScale, dir)
 
                     starspriteShader.setUniformValue(starspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     starspriteShader.setUniformValue(starspriteRotationMatrixUniform, rotMatrix)
@@ -457,7 +455,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         }
 
         //opengl setup
-        GLES20.glDisable(GLES20.GL_CULL_FACE)
+        GLES20.glEnable(GLES20.GL_CULL_FACE)
+        GLES20.glFrontFace(GLES20.GL_CW)
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GLES20.glClearDepthf(1.0f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)

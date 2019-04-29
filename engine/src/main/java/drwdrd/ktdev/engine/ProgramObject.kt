@@ -29,6 +29,14 @@ fun Array<vector4f>.toFloatArray() : FloatArray {
     return array
 }
 
+fun Array<quaternion>.toFloatArray() : FloatArray {
+    val array = FloatArray(4 * this.size)
+    for(index in this.indices) {
+        this[index].put(array, 4 * index)
+    }
+    return array
+}
+
 fun Array<matrix2f>.toFloatArray() : FloatArray {
     val array = FloatArray(4 * this.size)
     for(index in this.indices) {
@@ -224,6 +232,26 @@ class ProgramObject(_name : String = "") {
     }
 
     fun setUniformValue(id : Int, value : Array<vector4f>) {
+        GLES20.glUniform4fv(uniforms[id].location, value.size, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(name : String, value : quaternion) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniform4fv(location, 1, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(id : Int, value : quaternion) {
+        GLES20.glUniform4fv(uniforms[id].location, 1, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(name : String, value : Array<quaternion>) {
+        val location = uniformMap[name]
+        check(location != null) { "Uniform $name not found in program this.$name" }
+        GLES20.glUniform4fv(location, value.size, value.toFloatArray(), 0)
+    }
+
+    fun setUniformValue(id : Int, value : Array<quaternion>) {
         GLES20.glUniform4fv(uniforms[id].location, value.size, value.toFloatArray(), 0)
     }
 

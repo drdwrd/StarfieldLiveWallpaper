@@ -31,6 +31,20 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
 
     fun toFloatArray() = e
 
+    fun put(buffer : FloatArray, offset : Int) {
+        buffer[offset] = e[0]
+        buffer[offset + 1] = e[1]
+        buffer[offset + 2] = e[2]
+        buffer[offset + 3] = e[3]
+    }
+
+    fun get(buffer: FloatArray, offset : Int) {
+        e[0] = buffer[offset]
+        e[1] = buffer[offset + 1]
+        e[2] = buffer[offset + 2]
+        e[3] = buffer[offset + 3]
+    }
+
     operator fun plus(q: quaternion) = quaternion(e[0] + q.e[0], e[1] + q.e[1], e[2] + q.e[2], e[3] + q.e[3])
     operator fun minus(q: quaternion) = quaternion(e[0] - q.e[0], e[1] - q.e[1], e[2] - q.e[2], e[3] - q.e[3])
 
@@ -163,13 +177,13 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
             e[0] = 0.0f
             e[1] = 0.0f
             e[2] = 0.0f
+        } else {
+            //angle
+            e[3] = vector3f.dot(dir, half)
+            e[0] = u.x
+            e[1] = u.y
+            e[2] = u.z
         }
-
-        //angle
-        e[3] = vector3f.dot(dir, half)
-        e[0] = u.x
-        e[1] = u.y
-        e[2] = u.z
     }
 
     fun getRotationMatrix() : matrix4f {
@@ -223,6 +237,17 @@ class quaternion(_x : Float, _y : Float, _z : Float, _w : Float) {
         m[15] = 1.0f
 
         return m
+    }
+
+    fun rotate(v : vector3f) : vector3f {
+        // Extract the vector part of the quaternion
+        val u = vector3f(e[0], e[1], e[2])
+
+        // Extract the scalar part of the quaternion
+        val s = e[3]
+
+        // Do the math
+        return 2.0f * vector3f.dot(u, v) * u + (s * s - vector3f.dot(u, u)) * v + 2.0f * s * vector3f.cross(u, v)
     }
 }
 

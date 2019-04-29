@@ -198,8 +198,8 @@ class TestTheme : Theme {
 class DefaultTheme : Theme {
 
     override val backgroundScale: Float = 1.0f
-    override val cloudsParticleScale: Float = 1.2f
-    override val starsParticleScale: Float = 1.5f
+    override val cloudsParticleScale: Float = 2.5f
+    override val starsParticleScale: Float = 0.05f
 
     override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
 
