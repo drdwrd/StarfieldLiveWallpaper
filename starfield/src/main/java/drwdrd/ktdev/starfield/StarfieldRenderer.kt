@@ -157,17 +157,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         Log.info(TAG, "OpenGL renderer: $renderer")
         Log.info(TAG, "OpenGL extensions: $extensions")
 
-        if(SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
-            SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
-        }
-
-        if(SettingsProvider.textureCompressionMode.isFlag(SettingsProvider.TextureCompressionMode.UNKNOWN)) {
-            SettingsProvider.textureCompressionMode = getTextureCompressionMode(version, extensions)
-        }
-
-        Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
-
-        create()
+        create(version, extensions)
     }
 
 
@@ -381,7 +371,18 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         parallaxEffectEngine.disconnect(sensorManager)
     }
 
-    private fun create() {
+    private fun create(version : String? = null, extensions: String? = null) {
+
+        if(SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
+            SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
+        }
+
+        if(SettingsProvider.textureCompressionMode.isFlag(SettingsProvider.TextureCompressionMode.UNKNOWN)) {
+            SettingsProvider.textureCompressionMode = getTextureCompressionMode(version ?: GLES20.glGetString(GLES20.GL_VERSION), extensions ?: GLES20.glGetString(GLES20.GL_EXTENSIONS))
+        }
+
+        Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
+
 
         val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
         Log.info(TAG, "Texture quality level set to $textureQuality")
