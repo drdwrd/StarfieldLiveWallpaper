@@ -32,7 +32,7 @@ object KTXLoader {
         0x00A.toByte()
     )
 
-    fun loadFromPath(context: Context, path: String, level: Int, wrapModeS: Texture.WrapMode, wrapModeT: Texture.WrapMode, minFilter: Texture.Filtering, magFilter: Texture.Filtering) : Texture {
+    fun loadFromPath(path: String, level: Int, wrapModeS: Texture.WrapMode, wrapModeT: Texture.WrapMode, minFilter: Texture.Filtering, magFilter: Texture.Filtering) : Texture {
         FileInputStream(path).use {
             val inputStreamSerializer = InputStreamSerializer(it, ByteOrder.nativeOrder(), 8192)
             return load(inputStreamSerializer, level, wrapModeS, wrapModeT, minFilter, magFilter)

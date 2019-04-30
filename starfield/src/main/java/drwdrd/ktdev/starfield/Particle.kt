@@ -66,12 +66,12 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
         return BoundingSphere(position, baseScale * scale * sqrt(2.0f))
     }
 
-    fun calculateModelMatrix(baseScale: Float) : matrix4f {
+/*    fun calculateModelMatrix(baseScale: Float) : matrix4f {
         val q = quaternion()
         q.setEulerRotation(age * rotation.x, age * rotation.y, age * rotation.z)
 
         return q.getMatrix(position, baseScale * scale)
-    }
+    }*/
 
 
     //TODO: fixed?

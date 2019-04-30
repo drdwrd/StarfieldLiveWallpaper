@@ -124,10 +124,10 @@ class ThemePackage(name : String) : Theme {
     override fun starfieldTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return when(starfieldInfo.textureCompressionMode) {
             SettingsProvider.TextureCompressionMode.NONE ->
-                Texture.loadFromPath(context, "$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+                Texture.loadFromPath("$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
-                KTXLoader.loadFromPath(context, "$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
+                KTXLoader.loadFromPath("$themePath/${starfieldInfo.name}", textureQuality, Texture.WrapMode.Repeat, Texture.WrapMode.Repeat,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             else -> null
         }
@@ -136,10 +136,10 @@ class ThemePackage(name : String) : Theme {
     override fun starsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return when(starsInfo.textureCompressionMode) {
             SettingsProvider.TextureCompressionMode.NONE ->
-                Texture.loadFromPath(context, "$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                Texture.loadFromPath("$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
-                KTXLoader.loadFromPath(context, "$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                KTXLoader.loadFromPath("$themePath/${starsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             else -> null
         }
@@ -148,10 +148,10 @@ class ThemePackage(name : String) : Theme {
     override fun cloudsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return when(cloudsInfo.textureCompressionMode) {
             SettingsProvider.TextureCompressionMode.NONE ->
-                Texture.loadFromPath(context, "$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                Texture.loadFromPath("$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             SettingsProvider.TextureCompressionMode.ASTC, SettingsProvider.TextureCompressionMode.ETC2, SettingsProvider.TextureCompressionMode.ETC1 ->
-                KTXLoader.loadFromPath(context, "$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                KTXLoader.loadFromPath("$themePath/${cloudsInfo.name}", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
                     Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
             else -> null
         }

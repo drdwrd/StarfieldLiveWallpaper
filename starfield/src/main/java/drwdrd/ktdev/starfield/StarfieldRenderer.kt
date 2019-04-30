@@ -264,7 +264,8 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
 
 
-                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir)
+//                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, dir)
+                    val modelMatrix = sprite.calculateBillboardModelMatrix(theme.cloudsParticleScale, -eyeForward)
 
                     cloudspriteShader.setUniformValue(cloudspriteModelViewProjectionMatrixUniform, viewProjectionMatrix * modelMatrix)
                     cloudspriteShader.setUniformValue(cloudspriteUvRoIUniform, vector4f(sprite.uvRoI.left, sprite.uvRoI.top, sprite.uvRoI.width, sprite.uvRoI.height))

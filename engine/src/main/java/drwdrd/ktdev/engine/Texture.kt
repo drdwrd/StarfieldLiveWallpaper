@@ -203,7 +203,7 @@ class Texture {
             return texture
         }
 
-        fun loadFromPath(context : Context, path : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
+        fun loadFromPath(path : String, level : Int, wrapModeS : WrapMode, wrapModeT : WrapMode, minFilter : Filtering, magFilter : Filtering) : Texture {
             val texture = Texture()
             texture.create()
             texture.wrapMode = arrayOf(wrapModeS, wrapModeT)
