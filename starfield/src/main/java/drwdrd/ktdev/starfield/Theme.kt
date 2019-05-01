@@ -1,10 +1,7 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import drwdrd.ktdev.engine.Flag
-import drwdrd.ktdev.engine.KTXLoader
-import drwdrd.ktdev.engine.Log
-import drwdrd.ktdev.engine.Texture
+import drwdrd.ktdev.engine.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -25,6 +22,9 @@ interface Theme {
     fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
     fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
+    fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject?
+    fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject?
+    fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject?
     fun hasClouds() : Boolean
     fun hasStars() : Boolean
     fun hasBackground() : Boolean
@@ -166,6 +166,26 @@ class ThemePackage(name : String) : Theme {
         }
     }
 
+    override fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", vertexFormat)
+    }
+
+    override fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", vertexFormat)
+        }
+    }
+
+    override fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite_pm.frag", vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", vertexFormat)
+        }
+    }
+
     override fun hasBackground(): Boolean = starfieldInfo.isValid
 
     override fun hasStars(): Boolean = starsInfo.isValid
@@ -195,6 +215,26 @@ class TestTheme : Theme {
     override fun starsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
         return Texture.loadFromAssets2D(context,"themes/stars_atlas.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+    }
+
+    override fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", vertexFormat)
+    }
+
+    override fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", vertexFormat)
+        }
+    }
+
+    override fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite_pm.frag", vertexFormat)
+        } else {
+            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", vertexFormat)
+        }
     }
 
     override fun hasBackground(): Boolean = false
@@ -238,61 +278,25 @@ class DefaultTheme : Theme {
     }
 
     override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
-        return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
-                //etc
-                Texture.loadFromAssets2D(
-                    context,
-                    "themes/default/png/starsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            else -> {
-                //png
-                Texture.loadFromAssets2D(
-                    context,
-                    "themes/default/png/starsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-        }
+        return Texture.loadFromAssets2D(context,"themes/default/png/starsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
     }
 
     override fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture {
-        return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
-                //etc
-                Texture.loadFromAssets2D(
-                    context,
-                    "themes/default/png/cloudsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            else -> {
-                //png
-                Texture.loadFromAssets2D(
-                    context,
-                    "themes/default/png/cloudsprites.png",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-        }
+        return Texture.loadFromAssets2D(context,"themes/default/png/cloudsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+                    Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)
+    }
+
+    override fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", vertexFormat)
+    }
+
+    override fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", vertexFormat)
+    }
+
+    override fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
+        return ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", vertexFormat)
     }
 
     override fun hasBackground(): Boolean = true

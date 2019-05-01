@@ -390,11 +390,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
         plane.create()
 
-        starspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", plane.vertexFormat)
-        } else {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", plane.vertexFormat)
-        }
+        starspriteShader = theme.starsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
         starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
         starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
         starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
@@ -402,18 +398,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
         starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
 
-        cloudspriteShader = if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
-            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite_pm.frag", plane.vertexFormat)
-        } else {
-            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", plane.vertexFormat)
-        }
+        cloudspriteShader = theme.cloudsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
         cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
         cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
         cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
         cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
         cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
 
-        starfieldShader = ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", plane.vertexFormat)
+        starfieldShader = theme.starfieldShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
         starfieldShader.registerUniform("u_Starfield", starfieldSampler)
         starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
         starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
