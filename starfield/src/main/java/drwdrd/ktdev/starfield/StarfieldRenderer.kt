@@ -452,6 +452,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
         val cloudsCount = (starsCount / cloudsSpawnTimeMultiplier).toInt()
         if(theme.hasClouds()) {
             for (i in 0 until cloudsCount) {
+                //TODO: crashes when cloudColors.size < 2
                 cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance * i / cloudsCount, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)]))
             }
         }

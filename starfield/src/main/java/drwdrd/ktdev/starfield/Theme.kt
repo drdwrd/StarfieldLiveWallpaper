@@ -70,7 +70,8 @@ class ThemePackage(name : String) : Theme {
     override var starsParticleScale: Float = 1.0f
         private set
 
-    override val cloudColors: Array<Long> = emptyArray()
+    override var cloudColors: Array<Long> = emptyArray()
+        private set
 
 
     private val themeName : String = name
@@ -111,6 +112,14 @@ class ThemePackage(name : String) : Theme {
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
                             cloudsInfo = ThemeTextureInfo(format, name)
                             cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
+                            var colorList = ArrayList<String>()
+                            for (j in 0 until node.childNodes.length) {
+                                val childNode = node.childNodes.item(j)
+                                if(childNode.nodeName == "color") {
+                                    colorList.add(childNode.textContent)
+                                }
+                            }
+                            cloudColors = Array(colorList.size) { index -> colorList[index].removePrefix("0x").toLong(16) }
                         }
                     }
                 }
@@ -199,7 +208,7 @@ class DefaultTheme : Theme {
 
     override val backgroundScale: Float = 1.0f
     override val cloudsParticleScale: Float = 2.5f
-    override val starsParticleScale: Float = 0.05f
+    override val starsParticleScale: Float = 0.07f
 
     override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
 
@@ -209,30 +218,6 @@ class DefaultTheme : Theme {
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> {
-                //astc
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/astc/starfield.ktx",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> {
-                //etc2
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/etc2/starfield.ktx",
-                    textureQuality,
-                    Texture.WrapMode.Repeat,
-                    Texture.WrapMode.Repeat,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
             SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
                 //etc
                 KTXLoader.loadFromAssets(
@@ -254,30 +239,6 @@ class DefaultTheme : Theme {
 
     override fun starsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture? {
         return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> {
-                //astc
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/astc/starsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> {
-                //etc2
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/etc2/starsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
             SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
                 //etc
                 Texture.loadFromAssets2D(
@@ -307,30 +268,6 @@ class DefaultTheme : Theme {
 
     override fun cloudsTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture {
         return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> {
-                //astc
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/astc/cloudsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> {
-                //etc2
-                KTXLoader.loadFromAssets(
-                    context,
-                    "themes/default/etc2/cloudsprites.ktx",
-                    textureQuality,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.WrapMode.ClampToEdge,
-                    Texture.Filtering.LinearMipmapLinear,
-                    Texture.Filtering.Linear
-                )
-            }
             SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> {
                 //etc
                 Texture.loadFromAssets2D(
