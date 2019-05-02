@@ -88,6 +88,8 @@ object SettingsProvider {
 
     var cameraMovementAcceleration = DEFAULT_CAMERA_MOVEMENT_ACCELERATION
 
+    var currentTheme = 0
+
     fun resetSettings() {
         textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
@@ -116,6 +118,7 @@ object SettingsProvider {
             it.write("textureQualityLevel=$textureQualityLevel\n")
             it.write("enableScrollingEffect=$enableScrollingEffect\n")
             it.write("scrollingEffectMultiplier=$scrollingEffectMultiplier\n")
+            it.write("currentTheme=$currentTheme\n")
         }
     }
 
@@ -138,6 +141,7 @@ object SettingsProvider {
                             "textureQualityLevel" -> textureQualityLevel = s[1].toInt()
                             "enableScrollingEffect" -> enableScrollingEffect = s[1].toBoolean()
                             "scrollingEffectMultiplier" -> scrollingEffectMultiplier = s[1].toFloat()
+                            "currentTheme" -> currentTheme = s[1].toInt()
                         }
                     }
                 }
@@ -149,5 +153,6 @@ object SettingsProvider {
             resetSettings()
             Log.warning(TAG, "Cannot parse settings!\n")
         }
+        ThemeInfo.themes[currentTheme].setActive(context, null)
     }
 }

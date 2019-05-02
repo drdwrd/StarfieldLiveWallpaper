@@ -112,13 +112,13 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         return true
     }
 
-    fun setActive(context: Context, activeTheme : ThemeInfo) {
+    fun setActive(context: Context, activeTheme : ThemeInfo?) {
         val theme = if(isDefaultTheme && !isDownloaded) DefaultTheme() else ThemePackage(name)
         if (!theme.loadTheme(context)) {
             Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
         } else {
             StarfieldRenderer.theme = theme
-            activeTheme.isActive = false
+            activeTheme?.isActive = false
             isActive = true
         }
     }
@@ -132,15 +132,24 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         }
     }
 
+    companion object {
+
+        val themes = arrayOf(
+            ThemeInfo("default", R.drawable.default_preview, true),
+            ThemeInfo("classic", android.R.color.black),
+            ThemeInfo("classic_color", android.R.color.black),
+            ThemeInfo("starfield2", R.drawable.starfield2_preview)
+        )
+    }
+
 }
 
 
 class ThemeMenuFragment : MenuFragment() {
 
-    inner class ThemeInfoAdapter(private val data : ArrayList<ThemeInfo>, context : Context) : RecyclerView.Adapter<ThemeInfoAdapter.ViewHolder>() {
+    inner class ThemeInfoAdapter(private val data : Array<ThemeInfo>, context : Context) : RecyclerView.Adapter<ThemeInfoAdapter.ViewHolder>() {
 
         private val inflater = LayoutInflater.from(context)
-        private var currentItem : Int = 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val downloadButton = inflater.inflate(R.layout.theme_gallery_item, parent, false)
@@ -224,7 +233,7 @@ class ThemeMenuFragment : MenuFragment() {
                         if (themeInfo.uninstall(context)) {
                             Toast.makeText(context, "Uninstalling...", Toast.LENGTH_SHORT).show()
                         }
-                        if (currentItem == adapterPosition) {
+                        if (SettingsProvider.currentTheme == adapterPosition) {
                             setCurrentItem(context, 0, true)
                         }
                     }
@@ -233,11 +242,11 @@ class ThemeMenuFragment : MenuFragment() {
             }
 
             private fun setCurrentItem(context: Context, pos : Int, force : Boolean = false) {
-                if(force || (currentItem != pos)) {
-                    data[pos].setActive(context, data[currentItem])
-                    notifyItemChanged(currentItem)
+                if(force || (SettingsProvider.currentTheme != pos)) {
+                    data[pos].setActive(context, data[SettingsProvider.currentTheme])
+                    notifyItemChanged(SettingsProvider.currentTheme)
                     notifyItemChanged(pos)
-                    currentItem = pos
+                    SettingsProvider.currentTheme = pos
                 }
             }
 
@@ -255,20 +264,13 @@ class ThemeMenuFragment : MenuFragment() {
             onMenuFragmentInteraction("browser", "back")
         }
 
-        val data = arrayListOf(
-            ThemeInfo("default", R.drawable.default_preview, true),
-            ThemeInfo("classic", android.R.color.black),
-            ThemeInfo("classic_color", android.R.color.black),
-            ThemeInfo("starfield2", R.drawable.starfield2_preview)
-        )
-
-        for (theme in data) {
+        for (theme in ThemeInfo.themes) {
             theme.checkInstallation(context!!)
         }
 
         val themeGallery = view.findViewById<RecyclerView>(R.id.themeGallery)
         themeGallery.setHasFixedSize(true)
         themeGallery.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        themeGallery.adapter = ThemeInfoAdapter(data, context!!)
+        themeGallery.adapter = ThemeInfoAdapter(ThemeInfo.themes, context!!)
     }
 }
