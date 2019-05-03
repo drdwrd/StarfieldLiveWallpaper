@@ -64,10 +64,10 @@ class SettingsFragment : Fragment() {
         }
 
         cameraRotationSpeedSlider = view.findViewById(R.id.cameraRotationSpeedSlider)
-        cameraRotationSpeedSlider.value = SettingsProvider.cameraRotationSpeed
+        cameraRotationSpeedSlider.value = -SettingsProvider.cameraRotationSpeed
         cameraRotationSpeedSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
             override fun onValueChanged(value: Float) {
-                SettingsProvider.cameraRotationSpeed = value
+                SettingsProvider.cameraRotationSpeed = -value
             }
         }
 
@@ -120,7 +120,7 @@ class SettingsFragment : Fragment() {
         adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
         starsSpawnTimeSlider.value = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - SettingsProvider.starsSpawnTimeMultiplier.toFloat()
         cloudsSpawnTimeSlider.value = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - SettingsProvider.cloudsSpawnTimeMultiplier.toFloat()
-        cameraRotationSpeedSlider.value = SettingsProvider.cameraRotationSpeed
+        cameraRotationSpeedSlider.value = -SettingsProvider.cameraRotationSpeed
         parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
