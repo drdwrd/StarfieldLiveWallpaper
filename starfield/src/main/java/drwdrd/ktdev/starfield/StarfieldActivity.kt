@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import com.google.firebase.auth.FirebaseAuth
@@ -13,7 +14,7 @@ import drwdrd.ktdev.engine.Log
 private const val TAG = "drwdrd.ktdev.starfield.StarfieldActivity"
 
 
-class StarfieldActivity : FragmentActivity(), MenuFragment.OnMenuFragmentInteractionListener {
+class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 
     private lateinit var glSurfaceView : GLSurfaceView
     private lateinit var renderer: StarfieldRenderer

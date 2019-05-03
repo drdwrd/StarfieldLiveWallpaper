@@ -39,17 +39,17 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
     private var lastXOffset = 0.0f
     private var scrollingEffectScale = SettingsProvider.scrollingEffectMultiplier
     private var cameraRotationSpeed = SettingsProvider.cameraRotationSpeed
-    private var cameraMovementAcceleration = SettingsProvider.cameraMovementAcceleration
+    private var parallaxEffectAcceleration = SettingsProvider.parallaxEffectAcceleration
 
     protected fun calculateWallpaperOffset(dx : Float, dy : Float, currentTime: Float, deltaTime: Float) {
         val cameraOffset = vector3f(0.0f, 0.0f, cameraRotationSpeed) * deltaTime
         when(orientation) {
             Configuration.ORIENTATION_PORTRAIT -> {
-                offset = (vector3f(-dy,dx + dxOffset, 0.0f) + cameraOffset) * cameraMovementAcceleration + (1.0f - cameraMovementAcceleration) * offset
+                offset = (vector3f(-dy,dx + dxOffset, 0.0f) + cameraOffset) * parallaxEffectAcceleration + (1.0f - parallaxEffectAcceleration) * offset
             }
 
             Configuration.ORIENTATION_LANDSCAPE -> {
-                offset = (vector3f(-dx, dy + dxOffset, 0.0f) + cameraOffset) * cameraMovementAcceleration + (1.0f - cameraMovementAcceleration) * offset
+                offset = (vector3f(-dx, dy + dxOffset, 0.0f) + cameraOffset) * parallaxEffectAcceleration + (1.0f - parallaxEffectAcceleration) * offset
             }
         }
         dxOffset = 0.0f
@@ -57,7 +57,7 @@ open class ScrollingWallpaperEffectEngine : ParallaxEffectEngine {
 
     override fun connect(sensorManager: SensorManager) {
         cameraRotationSpeed = SettingsProvider.cameraRotationSpeed
-        cameraMovementAcceleration = SettingsProvider.cameraMovementAcceleration
+        parallaxEffectAcceleration = SettingsProvider.parallaxEffectAcceleration
         scrollingEffectScale = if(SettingsProvider.enableScrollingEffect) {
             SettingsProvider.scrollingEffectMultiplier
         } else {

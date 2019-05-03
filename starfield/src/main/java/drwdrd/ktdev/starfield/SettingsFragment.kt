@@ -10,9 +10,11 @@ import androidx.fragment.app.Fragment
 
 class SettingsFragment : Fragment() {
 
-    private lateinit var particleSpeedSlider : SeekBar
-    private lateinit var starsSpawnTimeSlider : SeekBar
-    private lateinit var parallaxEffectMultiplierSlider : SeekBar
+    private lateinit var particleSpeedSlider : Slider
+    private lateinit var starsSpawnTimeSlider : Slider
+    private lateinit var parallaxEffectMultiplierSlider : Slider
+    private lateinit var parallaxEffectAccelerationSlider : Slider
+    private lateinit var cameraRotationSpeedSlider : Slider
     private lateinit var adaptiveFPS : CheckBox
     private lateinit var parallaxEffectEnabledCheckBox : CheckBox
     private lateinit var scrollingEffectEnableCheckBox : CheckBox
@@ -25,20 +27,12 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         particleSpeedSlider = view.findViewById(R.id.particleSpeedSlider)
-        particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
-        particleSpeedSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.particleSpeed = progress.toFloat() / 10.0f
+        particleSpeedSlider.value = SettingsProvider.particleSpeed
+        particleSpeedSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.particleSpeed = value
             }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        }
 
         starsSpawnTimeSlider = view.findViewById(R.id.starsSpawnTimeSlider)
         starsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
@@ -50,46 +44,49 @@ class SettingsFragment : Fragment() {
             SettingsProvider.adaptiveFPS = isChecked
         }
 
-        starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
-        starsSpawnTimeSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.particlesSpawnTimeMultiplier = (26.0 - progress.toDouble()) / 100.0
+        starsSpawnTimeSlider.value = SettingsProvider.particlesSpawnTimeMultiplier.toFloat()
+        starsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.particlesSpawnTimeMultiplier = value.toDouble()
             }
+        }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+        cameraRotationSpeedSlider = view.findViewById(R.id.cameraRotationSpeedSlider)
+        cameraRotationSpeedSlider.value = SettingsProvider.cameraRotationSpeed
+        cameraRotationSpeedSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.cameraRotationSpeed = value
             }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        }
 
         parallaxEffectMultiplierSlider = view.findViewById(R.id.parallaxEffectMultiplierSlider)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
+
+        parallaxEffectAccelerationSlider = view.findViewById(R.id.parallaxEffectAccelerationSlider)
+        parallaxEffectAccelerationSlider.isEnabled = SettingsProvider.enableParallaxEffect
 
         parallaxEffectEnabledCheckBox = view.findViewById(R.id.parallaxEffectEnabledCheckBox)
         parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             parallaxEffectMultiplierSlider.isEnabled = isChecked
+            parallaxEffectAccelerationSlider.isEnabled = isChecked
             SettingsProvider.enableParallaxEffect = isChecked
         }
 
-        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
-        parallaxEffectMultiplierSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                SettingsProvider.parallaxEffectMultiplier = progress.toFloat() / 50.0f
+        parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
+        parallaxEffectMultiplierSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.parallaxEffectMultiplier = value
             }
+        }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+        parallaxEffectAccelerationSlider.value = SettingsProvider.parallaxEffectAcceleration
+        parallaxEffectAccelerationSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.parallaxEffectAcceleration = value
             }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        }
 
         scrollingEffectEnableCheckBox = view.findViewById(R.id.scrollingEffectCheckBox)
         scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
@@ -107,13 +104,14 @@ class SettingsFragment : Fragment() {
 
     fun resetSettings() {
         SettingsProvider.resetSettings()
-        particleSpeedSlider.progress = (SettingsProvider.particleSpeed * 10.0f).toInt()
+        particleSpeedSlider.value = SettingsProvider.particleSpeed
         adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
-        starsSpawnTimeSlider.progress = 26 - (SettingsProvider.particlesSpawnTimeMultiplier * 100.0).toInt()
+        starsSpawnTimeSlider.value = SettingsProvider.particlesSpawnTimeMultiplier.toFloat()
+        cameraRotationSpeedSlider.value = SettingsProvider.cameraRotationSpeed
         parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
-        parallaxEffectMultiplierSlider.progress = (SettingsProvider.parallaxEffectMultiplier * 50.0f).toInt()
+        parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
         scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
     }

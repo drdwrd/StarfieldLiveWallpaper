@@ -9,50 +9,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <LinearLayout
-                android:orientation="vertical"
+        <drwdrd.ktdev.starfield.Slider
+                android:id="@+id/particleSpeedSlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="16dp">
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/label_stars_speed"
-                    android:textSize="24sp"/>
-
-            <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6dp">
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_arrow_right_24"/>
-
-                <SeekBar
-                        android:id="@+id/particleSpeedSlider"
-                        android:layout_width="0dp"
-                        android:layout_height="64dp"
-                        android:layout_weight="1"
-                        android:max="10"
-                        android:progress="2"/>
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_arrow3_right_24"/>
-
-            </LinearLayout>
-
-
-        </LinearLayout>
+                app:title="@string/label_stars_speed"
+                app:leftIcon="@drawable/ic_round_arrow_right_24"
+                app:rightIcon="@drawable/ic_round_arrow3_right_24"
+                app:minValue="0.0"
+                app:maxValue="5.0"
+                app:stepSize="0.1"
+                app:value="2.5"/>
 
         <LinearLayout
                 android:orientation="vertical"
@@ -70,85 +37,33 @@
                     android:text="@string/btn_adaptive_fps"
                     android:textSize="24sp"/>
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/label_stars_density"
-                    android:textSize="24sp"/>
-
-            <LinearLayout
-                    android:orientation="horizontal"
+            <drwdrd.ktdev.starfield.Slider
+                    android:id="@+id/starsSpawnTimeSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp">
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_stars_24"/>
-
-                <SeekBar
-                        android:id="@+id/starsSpawnTimeSlider"
-                        android:layout_width="0dp"
-                        android:layout_height="64dp"
-                        android:layout_weight="1"
-                        android:max="25"
-                        android:progress="10"/>
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_stars2_24"/>
-
-            </LinearLayout>
+                    app:title="@string/label_stars_density"
+                    app:leftIcon="@drawable/ic_round_stars_24"
+                    app:rightIcon="@drawable/ic_round_stars2_24"
+                    app:minValue="0.25"
+                    app:maxValue="0.05"
+                    app:stepSize="0.01"
+                    app:value="0.15"/>
 
         </LinearLayout>
 
-        <LinearLayout
-                android:orientation="vertical"
+        <drwdrd.ktdev.starfield.Slider
+                android:id="@+id/cameraRotationSpeedSlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                app:title="@string/label_camera_rotation"
+                app:leftIcon="@drawable/ic_round_left_24"
+                app:rightIcon="@drawable/ic_round_right_24"
+                app:minValue="-0.05"
+                app:maxValue="0.05"
+                app:stepSize="0.01"
+                app:value="0.0">
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Camera Rotation"
-                    android:textSize="24sp"/>
-
-            <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="6dp">
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_left_24"/>
-
-                <SeekBar
-                        android:layout_width="0dp"
-                        android:layout_height="64dp"
-                        android:layout_weight="1"
-                        android:max="10"
-                        android:progress="2"/>
-
-                <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_round_right_24"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        </drwdrd.ktdev.starfield.Slider>
 
         <LinearLayout
                 android:orientation="vertical"
@@ -163,15 +78,32 @@
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:text="@string/label_parallax_effect"
+                    android:text="@string/btn_parallax_effect"
                     android:textSize="24sp"/>
 
-            <SeekBar
+            <drwdrd.ktdev.starfield.Slider
                     android:id="@+id/parallaxEffectMultiplierSlider"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:max="50"
-                    android:progress="25"/>
+                    android:layout_height="wrap_content"
+                    app:title="Sensitivity"
+                    app:leftIcon="@color/iconColor"
+                    app:rightIcon="@color/iconColor"
+                    app:minValue="0.0"
+                    app:maxValue="1.0"
+                    app:stepSize="0.1"
+                    app:value="0.5"/>
+
+            <drwdrd.ktdev.starfield.Slider
+                    android:id="@+id/parallaxEffectAccelerationSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:title="Acceleration"
+                    app:leftIcon="@color/iconColor"
+                    app:rightIcon="@color/iconColor"
+                    app:minValue="0.0"
+                    app:maxValue="1.0"
+                    app:stepSize="0.1"
+                    app:value="1.0"/>
 
         </LinearLayout>
 

@@ -15,10 +15,10 @@ object SettingsProvider {
     private const val DEFAULT_PARTICLE_SPEED = 0.2f
     private const val DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER = 0.1
     private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.5f
+    private const val DEFAULT_PARALLAX_EFFECT_ACCELERATION = 0.01f
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
     private const val DEFAULT_SLIDE_EFFECT_MULTIPLIER = 0.5f
-    private const val DEFAULT_CAMERA_ROTATION_SPEED = 0.01f
-    private const val DEFAULT_CAMERA_MOVEMENT_ACCELERATION = 0.01f
+    private const val DEFAULT_CAMERA_ROTATION_SPEED = 0.0f
     const val TEXTURE_QUALITY_UNKNOWN = 100
 
     enum class ParallaxEffectEngineType(val type : Int) {
@@ -74,6 +74,8 @@ object SettingsProvider {
 
     var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
 
+    var parallaxEffectAcceleration = DEFAULT_PARALLAX_EFFECT_ACCELERATION
+
     var enableParallaxEffect = false
 
     var baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
@@ -86,8 +88,6 @@ object SettingsProvider {
 
     var cameraRotationSpeed = DEFAULT_CAMERA_ROTATION_SPEED
 
-    var cameraMovementAcceleration = DEFAULT_CAMERA_MOVEMENT_ACCELERATION
-
     var currentTheme = 0
 
     fun resetSettings() {
@@ -96,7 +96,9 @@ object SettingsProvider {
         adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
         particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
+        cameraRotationSpeed = DEFAULT_CAMERA_ROTATION_SPEED
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
+        parallaxEffectAcceleration = DEFAULT_PARALLAX_EFFECT_ACCELERATION
         enableParallaxEffect = false
         baseTextureQualityLevel = TEXTURE_QUALITY_UNKNOWN
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
@@ -112,7 +114,9 @@ object SettingsProvider {
             it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
             it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
+            it.write("cameraRotationSpeed=$cameraRotationSpeed\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
+            it.write("parallaxEffectAcceleration=$parallaxEffectAcceleration\n")
             it.write("enableParallaxEffect=$enableParallaxEffect\n")
             it.write("baseTextureQualityLevel=$baseTextureQualityLevel\n")
             it.write("textureQualityLevel=$textureQualityLevel\n")
@@ -134,8 +138,10 @@ object SettingsProvider {
                             "parallaxEffectEngine" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
+                            "cameraRotationSpeed" -> cameraRotationSpeed = s[1].toFloat()
                             "particlesSpawnTimeMultiplier" -> particlesSpawnTimeMultiplier = s[1].toDouble()
                             "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
+                            "parallaxEffectAcceleration" -> parallaxEffectAcceleration = s[1].toFloat()
                             "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
                             "baseTextureQualityLevel" -> baseTextureQualityLevel = s[1].toInt()
                             "textureQualityLevel" -> textureQualityLevel = s[1].toInt()

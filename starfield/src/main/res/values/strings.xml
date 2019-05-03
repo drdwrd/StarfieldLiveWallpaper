@@ -10,9 +10,12 @@
     <string name="btn_edit_settings">Settings</string>
 
     <string name="label_stars_speed">Stars Speed</string>
-    <string name="btn_adaptive_fps">Adaptive FPS</string>
     <string name="label_stars_density">Stars Density</string>
-    <string name="label_parallax_effect">Parallax Effect</string>
+    <string name="label_camera_rotation">Camera Rotation</string>
+    <string name="label_parallax_effect_sensitivity">Sensitivity</string>
+    <string name="label_parallax_effect_acceleration">Acceleration</string>
+    <string name="btn_parallax_effect">Parallax Effect</string>
+    <string name="btn_adaptive_fps">Adaptive FPS</string>
     <string name="btn_scrolling_effect">Wallpaper Scrolling</string>
     <string name="btn_texture_quality">High Quality Textures</string>
 
