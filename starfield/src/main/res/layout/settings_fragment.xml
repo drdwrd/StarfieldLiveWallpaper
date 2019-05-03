@@ -16,7 +16,7 @@
                 app:title="@string/label_stars_speed"
                 app:leftIcon="@drawable/ic_round_arrow_right_24"
                 app:rightIcon="@drawable/ic_round_arrow3_right_24"
-                app:minValue="0.01"
+                app:minValue="0.1"
                 app:maxValue="1.5"
                 app:stepSize="0.1"
                 app:value="0.25"/>
@@ -44,7 +44,7 @@
                     app:title="@string/label_stars_density"
                     app:leftIcon="@drawable/ic_round_stars_24"
                     app:rightIcon="@drawable/ic_round_stars2_24"
-                    app:minValue="0.015"
+                    app:minValue="0.005"
                     app:maxValue="0.15"
                     app:stepSize="0.001"
                     app:value="0.05"/>
@@ -56,7 +56,7 @@
                     app:title="@string/label_clouds_density"
                     app:leftIcon="@drawable/ic_round_clouds_24"
                     app:rightIcon="@drawable/ic_round_clouds2_24"
-                    app:minValue="0.15"
+                    app:minValue="0.05"
                     app:maxValue="1.5"
                     app:stepSize="0.01"
                     app:value="0.5"/>
@@ -112,10 +112,10 @@
                     app:title="Acceleration"
                     app:leftIcon="@color/iconColor"
                     app:rightIcon="@color/iconColor"
-                    app:minValue="0.0"
+                    app:minValue="0.01"
                     app:maxValue="1.0"
-                    app:stepSize="0.1"
-                    app:value="1.0"/>
+                    app:stepSize="0.01"
+                    app:value="0.1"/>
 
         </LinearLayout>
 

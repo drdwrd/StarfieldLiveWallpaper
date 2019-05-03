@@ -72,6 +72,7 @@ object SettingsProvider {
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
     var starsSpawnTimeMultiplier = DEFAULT_STARS_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
+
     var cloudsSpawnTimeMultiplier = DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
 
     var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
