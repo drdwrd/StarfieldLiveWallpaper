@@ -57,12 +57,14 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
                     if (frameTime > 16.9) {
-                        maxParticleSpawnTime = clamp(1.05 * maxParticleSpawnTime, 0.015, 0.25)
+                        maxStarsSpawnTime = clamp(1.05 * maxStarsSpawnTime, 0.015, 0.25)
+                        maxCloudsSpawnTime = clamp(1.05 * maxCloudsSpawnTime, 0.15, 2.5)
                     } else if (frameTime < 16.8) {
-                        maxParticleSpawnTime = clamp(0.95 * maxParticleSpawnTime, 0.015, 0.25)
+                        maxStarsSpawnTime = clamp(0.95 * maxStarsSpawnTime, 0.015, 0.25)
+                        maxCloudsSpawnTime = clamp(0.95 * maxCloudsSpawnTime, 0.15, 2.5)
                     }
                 }
-                Log.debug(TAG, "frameTime = %.2f ms, particleSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxParticleSpawnTime))
+                Log.debug(TAG, "frameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudsSpawnTime = %.2f ms, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxStarsSpawnTime, 1000.0 * maxCloudsSpawnTime))
             }
         }
     }
@@ -93,8 +95,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     //global preferences
     private var particleSpeed = SettingsProvider.particleSpeed
-    private var maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
-    private var cloudsSpawnTimeMultiplier = 15.0
+    //TODO: possible division by 0.0
+    private var maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
+    private var maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -228,9 +231,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
             lastCloudParticleSpawnTime += timer.deltaTime
             //if its time spawn new particle
-            if (lastCloudParticleSpawnTime >= cloudsSpawnTimeMultiplier * maxParticleSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
+            while (lastCloudParticleSpawnTime >= maxCloudsSpawnTime && cloudSprites.size < maxCloudParticlesCount) {
                 cloudSprites.add(0, Particle.createCloud(eyeForward, eyePosition, particleSpawnDistance, theme.cloudColors[RandomGenerator.rand(theme.cloudColors.size - 1)]))
-                lastCloudParticleSpawnTime = 0.0
+                lastCloudParticleSpawnTime -= maxCloudsSpawnTime
             }
 
             //render cloud sprites
@@ -289,9 +292,9 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
             lastStarParticleSpawnTime += timer.deltaTime
             //if its time spawn new particles
-            while (lastStarParticleSpawnTime >= maxParticleSpawnTime && starSprites.size < maxStarParticlesCount) {
+            while (lastStarParticleSpawnTime >= maxStarsSpawnTime && starSprites.size < maxStarParticlesCount) {
                 starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance))
-                lastStarParticleSpawnTime -= maxParticleSpawnTime
+                lastStarParticleSpawnTime -= maxStarsSpawnTime
             }
 
             //render stars sprites
@@ -358,11 +361,15 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
     }
 
     override fun onResume() {
+        lastStarParticleSpawnTime = 0.0
+        lastCloudParticleSpawnTime = 0.0
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         parallaxEffectEngine.connect(sensorManager)
         particleSpeed = SettingsProvider.particleSpeed
         if(!SettingsProvider.adaptiveFPS) {
-            maxParticleSpawnTime = SettingsProvider.particlesSpawnTimeMultiplier
+            //TODO: possible division by 0
+            maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
+            maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
         }
         timer.reset()
     }
@@ -441,7 +448,7 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             }
         }
 
-        val cloudsCount = (starsCount / cloudsSpawnTimeMultiplier).toInt()
+        val cloudsCount = 50
         if(theme.hasClouds()) {
             for (i in 0 until cloudsCount) {
                 //TODO: crashes when cloudColors.size < 2

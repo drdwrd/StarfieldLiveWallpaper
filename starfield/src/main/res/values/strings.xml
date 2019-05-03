@@ -11,6 +11,7 @@
 
     <string name="label_stars_speed">Stars Speed</string>
     <string name="label_stars_density">Stars Density</string>
+    <string name="label_clouds_density">Clouds Density</string>
     <string name="label_camera_rotation">Camera Rotation</string>
     <string name="label_parallax_effect_sensitivity">Sensitivity</string>
     <string name="label_parallax_effect_acceleration">Acceleration</string>

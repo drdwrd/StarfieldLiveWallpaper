@@ -28,9 +28,15 @@ class Slider : ConstraintLayout {
     private lateinit var title : CharSequence
     private var leftIcon : Drawable? = null
     private var rightIcon : Drawable? = null
-    private var minValue : Float = 0.0f
-    private var maxValue : Float = 100.0f
-    private var stepSize : Float = 0.1f
+
+    var minValue : Float = 0.0f
+        private set
+
+    var maxValue : Float = 100.0f
+        private set
+
+    var stepSize : Float = 0.1f
+        private set
 
     var value : Float = 0.0f
         set(v) {

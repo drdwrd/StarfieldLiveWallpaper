@@ -12,6 +12,7 @@ class SettingsFragment : Fragment() {
 
     private lateinit var particleSpeedSlider : Slider
     private lateinit var starsSpawnTimeSlider : Slider
+    private lateinit var cloudsSpawnTimeSlider : Slider
     private lateinit var parallaxEffectMultiplierSlider : Slider
     private lateinit var parallaxEffectAccelerationSlider : Slider
     private lateinit var cameraRotationSpeedSlider : Slider
@@ -37,17 +38,28 @@ class SettingsFragment : Fragment() {
         starsSpawnTimeSlider = view.findViewById(R.id.starsSpawnTimeSlider)
         starsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
 
+        cloudsSpawnTimeSlider = view.findViewById(R.id.cloudsSpawnTimeSlider)
+        cloudsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
+
         adaptiveFPS = view.findViewById(R.id.adaptiveFPSCheckbox)
         adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
         adaptiveFPS.setOnCheckedChangeListener { buttonView, isChecked ->
             starsSpawnTimeSlider.isEnabled = !isChecked
+            cloudsSpawnTimeSlider.isEnabled = !isChecked
             SettingsProvider.adaptiveFPS = isChecked
         }
 
-        starsSpawnTimeSlider.value = SettingsProvider.particlesSpawnTimeMultiplier.toFloat()
+        starsSpawnTimeSlider.value = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - SettingsProvider.starsSpawnTimeMultiplier.toFloat()
         starsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
             override fun onValueChanged(value: Float) {
-                SettingsProvider.particlesSpawnTimeMultiplier = value.toDouble()
+                SettingsProvider.starsSpawnTimeMultiplier = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - value.toDouble()
+            }
+        }
+
+        cloudsSpawnTimeSlider.value = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - SettingsProvider.cloudsSpawnTimeMultiplier.toFloat()
+        cloudsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.cloudsSpawnTimeMultiplier = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - value.toDouble()
             }
         }
 
@@ -106,7 +118,8 @@ class SettingsFragment : Fragment() {
         SettingsProvider.resetSettings()
         particleSpeedSlider.value = SettingsProvider.particleSpeed
         adaptiveFPS.isChecked = SettingsProvider.adaptiveFPS
-        starsSpawnTimeSlider.value = SettingsProvider.particlesSpawnTimeMultiplier.toFloat()
+        starsSpawnTimeSlider.value = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - SettingsProvider.starsSpawnTimeMultiplier.toFloat()
+        cloudsSpawnTimeSlider.value = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - SettingsProvider.cloudsSpawnTimeMultiplier.toFloat()
         cameraRotationSpeedSlider.value = SettingsProvider.cameraRotationSpeed
         parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)

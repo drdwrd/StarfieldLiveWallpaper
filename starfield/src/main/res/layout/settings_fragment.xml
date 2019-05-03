@@ -16,10 +16,10 @@
                 app:title="@string/label_stars_speed"
                 app:leftIcon="@drawable/ic_round_arrow_right_24"
                 app:rightIcon="@drawable/ic_round_arrow3_right_24"
-                app:minValue="0.0"
-                app:maxValue="5.0"
+                app:minValue="0.01"
+                app:maxValue="1.5"
                 app:stepSize="0.1"
-                app:value="2.5"/>
+                app:value="0.25"/>
 
         <LinearLayout
                 android:orientation="vertical"
@@ -44,10 +44,22 @@
                     app:title="@string/label_stars_density"
                     app:leftIcon="@drawable/ic_round_stars_24"
                     app:rightIcon="@drawable/ic_round_stars2_24"
-                    app:minValue="0.25"
-                    app:maxValue="0.05"
+                    app:minValue="0.015"
+                    app:maxValue="0.15"
+                    app:stepSize="0.001"
+                    app:value="0.05"/>
+
+            <drwdrd.ktdev.starfield.Slider
+                    android:id="@+id/cloudsSpawnTimeSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:title="@string/label_clouds_density"
+                    app:leftIcon="@drawable/ic_round_clouds_24"
+                    app:rightIcon="@drawable/ic_round_clouds2_24"
+                    app:minValue="0.15"
+                    app:maxValue="1.5"
                     app:stepSize="0.01"
-                    app:value="0.15"/>
+                    app:value="0.5"/>
 
         </LinearLayout>
 
@@ -58,9 +70,9 @@
                 app:title="@string/label_camera_rotation"
                 app:leftIcon="@drawable/ic_round_left_24"
                 app:rightIcon="@drawable/ic_round_right_24"
-                app:minValue="-0.05"
-                app:maxValue="0.05"
-                app:stepSize="0.01"
+                app:minValue="-0.025"
+                app:maxValue="0.025"
+                app:stepSize="0.001"
                 app:value="0.0">
 
         </drwdrd.ktdev.starfield.Slider>

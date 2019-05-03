@@ -12,8 +12,9 @@ private const val TAG = "drwdrd.ktdev.starfield.SettingsProvider"
 
 object SettingsProvider {
 
-    private const val DEFAULT_PARTICLE_SPEED = 0.2f
-    private const val DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER = 0.1
+    private const val DEFAULT_PARTICLE_SPEED = 0.25f
+    private const val DEFAULT_STARS_SPAWN_TIME_MULTIPLIER = 0.015
+    private const val DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER = 0.15
     private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_PARALLAX_EFFECT_ACCELERATION = 0.01f
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
@@ -70,7 +71,8 @@ object SettingsProvider {
 
     var particleSpeed = DEFAULT_PARTICLE_SPEED                     // (0.1, 10.0) ????
 
-    var particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
+    var starsSpawnTimeMultiplier = DEFAULT_STARS_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
+    var cloudsSpawnTimeMultiplier = DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER       //in ms time delay between star particles spawn
 
     var parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
 
@@ -95,7 +97,8 @@ object SettingsProvider {
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
         adaptiveFPS = true
         particleSpeed = DEFAULT_PARTICLE_SPEED
-        particlesSpawnTimeMultiplier = DEFAULT_PARTICLE_SPAWN_TIME_MULTIPLIER
+        starsSpawnTimeMultiplier = DEFAULT_STARS_SPAWN_TIME_MULTIPLIER
+        cloudsSpawnTimeMultiplier = DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER
         cameraRotationSpeed = DEFAULT_CAMERA_ROTATION_SPEED
         parallaxEffectMultiplier = DEFAULT_PARALLAX_EFFECT_MULTIPLIER
         parallaxEffectAcceleration = DEFAULT_PARALLAX_EFFECT_ACCELERATION
@@ -113,7 +116,8 @@ object SettingsProvider {
             it.write("parallaxEffectEngine=${parallaxEffectEngineType.type}\n")
             it.write("adaptiveFPS=$adaptiveFPS\n")
             it.write("particleSpeed=$particleSpeed\n")
-            it.write("particlesSpawnTimeMultiplier=$particlesSpawnTimeMultiplier\n")
+            it.write("starsSpawnTimeMultiplier=$starsSpawnTimeMultiplier\n")
+            it.write("cloudsSpawnTimeMultiplier=$cloudsSpawnTimeMultiplier\n")
             it.write("cameraRotationSpeed=$cameraRotationSpeed\n")
             it.write("parallaxEffectMultiplier=$parallaxEffectMultiplier\n")
             it.write("parallaxEffectAcceleration=$parallaxEffectAcceleration\n")
@@ -139,7 +143,8 @@ object SettingsProvider {
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
                             "particleSpeed" -> particleSpeed = s[1].toFloat()
                             "cameraRotationSpeed" -> cameraRotationSpeed = s[1].toFloat()
-                            "particlesSpawnTimeMultiplier" -> particlesSpawnTimeMultiplier = s[1].toDouble()
+                            "starsSpawnTimeMultiplier" -> starsSpawnTimeMultiplier = s[1].toDouble()
+                            "cloudsSpawnTimeMultiplier" -> cloudsSpawnTimeMultiplier = s[1].toDouble()
                             "parallaxEffectMultiplier" -> parallaxEffectMultiplier = s[1].toFloat()
                             "parallaxEffectAcceleration" -> parallaxEffectAcceleration = s[1].toFloat()
                             "enableParallaxEffect" -> enableParallaxEffect = s[1].toBoolean()
