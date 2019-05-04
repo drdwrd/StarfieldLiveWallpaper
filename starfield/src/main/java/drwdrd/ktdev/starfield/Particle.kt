@@ -124,7 +124,7 @@ class Particle(_position : vector3f, _velocity : vector3f, _rotation : vector3f,
             val j = RandomGenerator.rand(2) * 0.5f
             val roi = Rectangle(i , j, i + 0.5f, j + 0.5f)
             val p = Particle(pos, vel, vector3f(0.0f, 0.0f, rot), s, roi, RandomGenerator.randf(0.0f, 100.0f))
-            p.color.fromColor(cloudColor.toInt())
+            p.color.fromColorPremultiply(cloudColor.toInt())
             return p
         }
     }

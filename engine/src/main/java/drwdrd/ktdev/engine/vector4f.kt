@@ -45,6 +45,13 @@ class vector4f(x : Float, y : Float, z : Float, w : Float) {
         e[3] = v[3]
     }
 
+    fun fromColorPremultiply(color : Int) {
+        e[3] = Color.alpha(color) / 255.0f
+        e[0] = e[3] * Color.red(color) / 255.0f
+        e[1] = e[3] * Color.green(color) / 255.0f
+        e[2] = e[3] * Color.blue(color) / 255.0f
+    }
+
     fun fromColor(color : Int) {
         e[0] = Color.red(color) / 255.0f
         e[1] = Color.green(color) / 255.0f
