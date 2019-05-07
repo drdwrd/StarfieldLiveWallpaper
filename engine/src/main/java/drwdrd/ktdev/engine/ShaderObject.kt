@@ -5,10 +5,7 @@ import android.content.Context
 import java.io.InputStream
 
 
-class ShaderObject(_name : String, _type : ShaderType) {
-
-    val name : String = _name
-    val type : ShaderType = _type
+class ShaderObject(val name : String, val type : ShaderType) {
 
     var glShaderId : Int = 0
         private set

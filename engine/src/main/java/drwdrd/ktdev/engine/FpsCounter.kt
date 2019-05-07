@@ -1,12 +1,11 @@
 package drwdrd.ktdev.engine
 
-class FpsCounter(cycle : Double) {
+class FpsCounter(val measureCycle : Double) {
 
     interface OnMeasureListener {
         fun onMeasure(frameTime : Double)
     }
 
-    private val measureCycle = cycle
     private var duration = 0.0
     private var counter = 0
 

@@ -76,9 +76,7 @@ class Uniform() {
         private set
 }
 
-class ProgramObject(_name : String = "") {
-
-    val name : String = _name
+class ProgramObject(val name : String = "") {
 
     private val uniformMap = hashMapOf<String, Int>()
     private lateinit var uniforms : Array<Uniform>

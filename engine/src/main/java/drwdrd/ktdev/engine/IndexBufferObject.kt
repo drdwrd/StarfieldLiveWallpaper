@@ -4,14 +4,13 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class IndexBufferObject(_indicesFormat : IndicesFormat) {
+class IndexBufferObject(val indicesFormat : IndicesFormat) {
 
     constructor(_indicesFormat: IndicesFormat, _indicesCount: Int) : this(_indicesFormat) {
         alloc(_indicesCount)
     }
 
     val bufferObject = StaticBuffer(BufferObject.Type.ElementArray)
-    val indicesFormat: IndicesFormat = _indicesFormat
 
     var indicesCount : Int = 0
         private set

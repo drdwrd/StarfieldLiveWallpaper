@@ -4,13 +4,11 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class VertexBuffer(_vertexFormat : VertexFormat) {
+class VertexBuffer(val vertexFormat : VertexFormat) {
 
-    constructor(_vertexFormat: VertexFormat, _vertexCount : Int) : this(_vertexFormat) {
-        alloc(_vertexCount)
+    constructor(vertexFormat: VertexFormat, vertexCount : Int) : this(vertexFormat) {
+        alloc(vertexCount)
     }
-
-    val vertexFormat : VertexFormat = _vertexFormat
 
     var vertexCount : Int = 0
         private set
@@ -22,9 +20,9 @@ class VertexBuffer(_vertexFormat : VertexFormat) {
         get() = vertexCount * vertexFormat.vertexSize
 
 
-    fun alloc(_vertexCount : Int) {
-        vertexCount = _vertexCount
-        vertexData = ByteBuffer.allocateDirect(vertexBufferSize).order(ByteOrder.nativeOrder())
+    fun alloc(vertexCount : Int) {
+        this.vertexCount = vertexCount
+        this.vertexData = ByteBuffer.allocateDirect(vertexBufferSize).order(ByteOrder.nativeOrder())
     }
 
     fun enableVertexArray() {

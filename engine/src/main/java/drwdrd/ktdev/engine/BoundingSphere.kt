@@ -1,10 +1,6 @@
 package drwdrd.ktdev.engine
 
-class BoundingSphere(c : vector3f, r : Float) {
-
-    val center  = c
-
-    val radius = r
+class BoundingSphere(val center : vector3f, val radius : Float) {
 
     fun contains(p : vector3f) : Boolean {
         val dist = (p - center).length()

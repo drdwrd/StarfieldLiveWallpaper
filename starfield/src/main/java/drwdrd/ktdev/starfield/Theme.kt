@@ -30,25 +30,13 @@ interface Theme {
     fun hasBackground() : Boolean
 }
 
-class ThemePackage(name : String) : Theme {
+class ThemePackage(private val themeName : String) : Theme {
 
-    private inner class ThemeTextureInfo {
+    private inner class ThemeTextureInfo(val name : String, format : String, val isValid : Boolean = true) {
 
-        constructor() {
-            isValid = false
-            name = ""
-            textureCompressionMode = SettingsProvider.TextureCompressionMode.UNKNOWN
-        }
+        constructor() : this("null", "unknown", false)
 
-        constructor(_format : String, _name : String) {
-            isValid = true
-            name = _name
-            textureCompressionMode = parseTextureCompressionFormat(_format)
-        }
-
-        val isValid : Boolean
-        val name : String
-        val textureCompressionMode : SettingsProvider.TextureCompressionMode
+        val textureCompressionMode = parseTextureCompressionFormat(format)
 
         private fun parseTextureCompressionFormat(format : String) : SettingsProvider.TextureCompressionMode {
             return when(format) {
@@ -74,7 +62,6 @@ class ThemePackage(name : String) : Theme {
         private set
 
 
-    private val themeName : String = name
     private lateinit var themePath : String
     private var starfieldInfo = ThemeTextureInfo()
     private var starsInfo = ThemeTextureInfo()

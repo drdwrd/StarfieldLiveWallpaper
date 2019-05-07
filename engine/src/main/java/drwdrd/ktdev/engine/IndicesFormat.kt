@@ -3,10 +3,7 @@ package drwdrd.ktdev.engine
 import android.opengl.GLES20
 
 
-class IndicesFormat(_layout : Layout, _type : Type) {
-
-    val layout : Layout = _layout
-    val type : Type = _type
+class IndicesFormat(val layout : Layout, val type : Type) {
 
     enum class Type(val glType: Int, val size : Int) {
 

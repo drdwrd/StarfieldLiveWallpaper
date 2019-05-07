@@ -3,10 +3,7 @@ package drwdrd.ktdev.engine
 import android.opengl.GLES20
 import java.nio.ByteBuffer
 
-open class BufferObject(_type : Type, _usage : Usage) {
-
-    val type = _type
-    val usage = _usage
+open class BufferObject(val type : Type, val usage : Usage) {
 
     private val _glBufferId = intArrayOf(0)
 

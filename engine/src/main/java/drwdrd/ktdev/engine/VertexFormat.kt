@@ -3,11 +3,9 @@ package drwdrd.ktdev.engine
 import android.opengl.GLES20
 
 
-class VertexFormat(_vertexLayout: Layout) {
+class VertexFormat(val vertexLayout: Layout) {
 
     constructor() : this(Layout.Interleaved)
-
-    val vertexLayout : Layout = _vertexLayout
 
     var vertexSize: Int = 0
         private set

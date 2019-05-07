@@ -4,13 +4,11 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class IndexBuffer(_indicesFormat : IndicesFormat) {
+class IndexBuffer(val indicesFormat : IndicesFormat) {
 
-    constructor(_indicesFormat: IndicesFormat, _indicesCount: Int) : this(_indicesFormat) {
-        alloc(_indicesCount)
+    constructor(indicesFormat: IndicesFormat, indicesCount: Int) : this(indicesFormat) {
+        alloc(indicesCount)
     }
-
-    val indicesFormat: IndicesFormat = _indicesFormat
 
     var indicesCount : Int = 0
         private set
@@ -22,9 +20,9 @@ class IndexBuffer(_indicesFormat : IndicesFormat) {
         get() = indicesCount * indicesFormat.type.size
 
 
-    fun alloc(_indicesCount : Int) {
-        indicesCount = _indicesCount
-        indexData = ByteBuffer.allocateDirect(indexBufferSize).order(ByteOrder.nativeOrder())
+    fun alloc(indicesCount : Int) {
+        this.indicesCount = indicesCount
+        this.indexData = ByteBuffer.allocateDirect(indexBufferSize).order(ByteOrder.nativeOrder())
     }
 
     fun drawElements() {
