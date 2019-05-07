@@ -85,19 +85,19 @@ class ThemePackage(private val themeName : String) : Theme {
                         "background" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            starfieldInfo = ThemeTextureInfo(format, name)
+                            starfieldInfo = ThemeTextureInfo(name, format)
                             backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                         }
                         "starsprites" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            starsInfo = ThemeTextureInfo(format, name)
+                            starsInfo = ThemeTextureInfo(name, format)
                             starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                         }
                         "cloudsprites" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            cloudsInfo = ThemeTextureInfo(format, name)
+                            cloudsInfo = ThemeTextureInfo(name, format)
                             cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                             var colorList = ArrayList<String>()
                             for (j in 0 until node.childNodes.length) {
