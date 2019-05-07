@@ -19,7 +19,7 @@ class StarfieldDreamService : DreamService() {
         isFullscreen = true
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        val renderer = StarfieldRenderer.createRenderer(this)
+        val renderer = StarfieldRenderer.rendererInstances.createRenderer(this)
         liveCycleListener = renderer
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY

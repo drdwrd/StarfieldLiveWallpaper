@@ -45,7 +45,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
         glSurfaceView = findViewById(R.id.glSurfaceView)
         glSurfaceView.setEGLContextClientVersion(2)
         glSurfaceView.preserveEGLContextOnPause = true
-        renderer = StarfieldRenderer.createRenderer(this)
+        renderer = StarfieldRenderer.rendererInstances.createRenderer(this)
         glSurfaceView.setRenderer(renderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 

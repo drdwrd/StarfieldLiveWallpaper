@@ -109,7 +109,7 @@ class SettingsFragment : Fragment() {
         highQualityTexturesCheckBox = view.findViewById(R.id.highQualityTexturesCheckBox)
         highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
         highQualityTexturesCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            StarfieldRenderer.notifyRestart()
+            StarfieldRenderer.rendererInstances.notifyRestart()
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1
         }
     }

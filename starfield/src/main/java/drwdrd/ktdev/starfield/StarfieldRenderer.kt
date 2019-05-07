@@ -39,10 +39,38 @@ private const val maxStarParticlesCount = 5000        //hard limit just in case.
 private const val maxCloudParticlesCount = 500        //hard limit just in case...
 
 
-class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
+class StarfieldRenderer private constructor(private val context: Context): GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
-    private constructor(_context : Context, file : String) : this(_context) {
-        SettingsProvider.load(_context, file)
+    private var requestRestart = false
+    private val plane = Plane3D()
+    private var aspect = vector2f(1.0f, 1.0f)
+    private var starspriteShader = ProgramObject()
+    private var cloudspriteShader = ProgramObject()
+    private var starfieldShader  = ProgramObject()
+    private var starfieldTexture = Texture()
+    private var starspritesTexture = Texture()
+    private var cloudspritesTexture = Texture()
+    private var noiseTexture = Texture()
+    private val timer = Timer()
+    private val fpsCounter = FpsCounter(1.0)
+    private var lastStarParticleSpawnTime = 0.0
+    private val starSprites : MutableList<Particle> = ArrayList()
+    private var lastCloudParticleSpawnTime = 0.0
+    private val cloudSprites : MutableList<Particle> = ArrayList()
+    private val eye = Eye()
+
+    private val backgroundTextureMatrix = matrix3f.identity()
+    private val backgroundRandomTextureMatrix = matrix3f.identity()
+
+    private val parallaxEffectEngine : ParallaxEffectEngine
+
+    //global preferences
+    private var particleSpeed = SettingsProvider.particleSpeed
+    //TODO: possible division by 0.0
+    private var maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
+    private var maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
+
+    init {
         if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
         }
@@ -68,36 +96,6 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
             }
         }
     }
-
-    private val context : Context = _context
-    private var requestRestart = false
-    private val plane = Plane3D()
-    private var aspect = vector2f(1.0f, 1.0f)
-    private var starspriteShader = ProgramObject()
-    private var cloudspriteShader = ProgramObject()
-    private var starfieldShader  = ProgramObject()
-    private var starfieldTexture = Texture()
-    private var starspritesTexture = Texture()
-    private var cloudspritesTexture = Texture()
-    private var noiseTexture = Texture()
-    private val timer = Timer()
-    private val fpsCounter = FpsCounter(1.0)
-    private var lastStarParticleSpawnTime = 0.0
-    private val starSprites : MutableList<Particle> = ArrayList()
-    private var lastCloudParticleSpawnTime = 0.0
-    private val cloudSprites : MutableList<Particle> = ArrayList()
-    private val eye = Eye()
-
-    private val backgroundTextureMatrix = matrix3f.identity()
-    private val backgroundRandomTextureMatrix = matrix3f.identity()
-
-    private lateinit var parallaxEffectEngine : ParallaxEffectEngine
-
-    //global preferences
-    private var particleSpeed = SettingsProvider.particleSpeed
-    //TODO: possible division by 0.0
-    private var maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
-    private var maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
 
     private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -485,32 +483,46 @@ class StarfieldRenderer private constructor(_context: Context) : GLSurfaceView.R
 
     companion object {
 
-        var theme : Theme = DefaultTheme()
-            set(value) {
-                field = value
-                notifyRestart()
+        class RendererInstances {
+
+            private val instances = ArrayList<WeakReference<StarfieldRenderer>>()
+
+            fun createRenderer(context: Context) : StarfieldRenderer {
+                synchronized(this) {
+                    if(instances.size == 0) {
+                        //load settings from file only when no running instances
+                        SettingsProvider.load(context, "starfield.ini")
+                    }
+                    val renderer = StarfieldRenderer(context)
+                    instances.add(WeakReference(renderer))
+                    return renderer
+                }
             }
 
-        private var instances = ArrayList<WeakReference<StarfieldRenderer>>()
-
-        fun createRenderer(context: Context) : StarfieldRenderer {
-            val renderer = StarfieldRenderer(context, "starfield.ini")
-            instances.add(WeakReference(renderer))
-            return renderer
-        }
-
-        fun notifyRestart() {
-            with(instances.iterator()) {
-                while(hasNext()) {
-                    val ref = next().get()
-                    if(ref == null) {
-                        remove()
-                    } else {
-                        ref.requestRestart = true
+            fun notifyRestart() {
+                synchronized(this) {
+                    with(instances.iterator()) {
+                        while (hasNext()) {
+                            val ref = next().get()
+                            if (ref == null) {
+                                remove()
+                            } else {
+                                ref.requestRestart = true
+                            }
+                        }
                     }
                 }
             }
+
         }
+
+        var theme : Theme = DefaultTheme()
+            set(value) {
+                field = value
+                rendererInstances.notifyRestart()
+            }
+
+        val rendererInstances = RendererInstances()
     }
 }
 

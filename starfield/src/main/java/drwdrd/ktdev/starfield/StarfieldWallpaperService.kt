@@ -10,7 +10,7 @@ class StarfieldWallpaperService : GLWallpaperService() {
     }
 
     override fun createRenderer() : GLSurfaceView.Renderer {
-        val renderer = StarfieldRenderer.createRenderer(this)
+        val renderer = StarfieldRenderer.rendererInstances.createRenderer(this)
         wallpaperLiveCycleListener = renderer
         onOffsetChangedListener = renderer
         return renderer

@@ -118,6 +118,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
             Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
         } else {
             StarfieldRenderer.theme = theme
+//            StarfieldRenderer.theme = TestTheme()
             activeTheme?.isActive = false
             isActive = true
         }
