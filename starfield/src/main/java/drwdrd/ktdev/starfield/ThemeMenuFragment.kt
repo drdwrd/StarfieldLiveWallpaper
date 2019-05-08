@@ -137,8 +137,8 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
 
         val themes = arrayOf(
             ThemeInfo("default", R.drawable.default_preview, true),
-            ThemeInfo("classic", android.R.color.black),
-            ThemeInfo("classic_color", android.R.color.black),
+            ThemeInfo("classic", R.drawable.classic_preview),
+            ThemeInfo("classic_color", R.drawable.classic_color_preview),
             ThemeInfo("starfield2", R.drawable.starfield2_preview)
         )
     }
