@@ -144,8 +144,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_round_stars2_24" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/icons/round-stars2-24px.svg" />
+                            <entry key="outputName" value="ic_baseline_3d_rotation_24" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/icons/baseline-3d_rotation-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>
