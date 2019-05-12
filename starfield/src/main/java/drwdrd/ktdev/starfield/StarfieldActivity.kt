@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import com.google.firebase.auth.FirebaseAuth
 import drwdrd.ktdev.engine.Log

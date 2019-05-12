@@ -21,7 +21,7 @@ import java.util.zip.ZipInputStream
 class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean = false) {
 
     interface OnDownloadListener {
-        fun onSucces()
+        fun onSuccess()
         fun onFailure()
         fun onProgress(bytesTransferred : Long, totalByteCount : Long)
     }
@@ -60,18 +60,18 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         val fileRef = storage.getReference(getPackageName())
         val localFile = File.createTempFile("theme", "zip")
         fileRef.getFile(localFile).addOnSuccessListener {
-            Toast.makeText(context, "Installing...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.msg_install_in_progress, Toast.LENGTH_SHORT).show()
             if(install(context, localFile)) {
                 localFile.delete()
                 isDownloaded = true
-                onDownloadListener?.onSucces()
+                onDownloadListener?.onSuccess()
             } else {
                 uninstall(context)
-                Toast.makeText(context, "Cannot install theme!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.msg_install_failed, Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
             localFile.delete()
-            Toast.makeText(context, "File download failed!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.msg_download_failed, Toast.LENGTH_SHORT).show()
             onDownloadListener?.onFailure()
         }.addOnProgressListener {
             onDownloadListener?.onProgress(it.bytesTransferred, it.totalByteCount)
@@ -112,15 +112,17 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         return true
     }
 
-    fun setActive(context: Context, activeTheme : ThemeInfo?) {
+    fun setActive(context: Context, activeTheme : ThemeInfo?) : Boolean {
         val theme = if(isDefaultTheme && !isDownloaded) DefaultTheme() else ThemePackage(name)
-        if (!theme.loadTheme(context)) {
-            Toast.makeText(context, "Cannot load theme!", Toast.LENGTH_SHORT).show()
+        return if (!theme.loadTheme(context)) {
+            Toast.makeText(context, R.string.msg_theme_load_failed, Toast.LENGTH_SHORT).show()
+            false
         } else {
             StarfieldRenderer.theme = theme
 //            StarfieldRenderer.theme = TestTheme()
             activeTheme?.isActive = false
             isActive = true
+            true
         }
     }
 
@@ -148,7 +150,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
 
 class ThemeMenuFragment : MenuFragment() {
 
-    inner class ThemeInfoAdapter(private val data : Array<ThemeInfo>, context : Context) : RecyclerView.Adapter<ThemeInfoAdapter.ViewHolder>() {
+    class ThemeInfoAdapter(private val context : Context, private val data : Array<ThemeInfo>) : RecyclerView.Adapter<ThemeInfoAdapter.ViewHolder>() {
 
         private val inflater = LayoutInflater.from(context)
 
@@ -159,9 +161,9 @@ class ThemeMenuFragment : MenuFragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val themeInfo = data[position]
-            holder.setupThemeButton(context!!, themeInfo)
+            holder.setupThemeButton(context, themeInfo)
             if(position == 0) {
-                holder.setupDefaultThemeButton(context!!, themeInfo)
+                holder.setupDefaultThemeButton(context, themeInfo)
             }
         }
 
@@ -170,14 +172,15 @@ class ThemeMenuFragment : MenuFragment() {
         }
 
         inner class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+
             private val downloadButton : DownloadButton = itemView as DownloadButton
 
             fun setupDefaultThemeButton(context: Context, themeInfo: ThemeInfo) {
-                if(!themeInfo.isDownloaded && themeInfo.shouldTryDownload) {
-                    AlertDialog.Builder(context).setTitle("Notification").setMessage("Download optimized textures for default theme?").setIcon(android.R.drawable.ic_dialog_info)
-                        .setPositiveButton(android.R.string.yes) { dialog, which ->  data[0].download(context, object : ThemeInfo.OnDownloadListener {
+                if(!themeInfo.isDownloaded && themeInfo.shouldTryDownload && SettingsProvider.askDownloadDefaultTheme) {
+                    AlertDialog.Builder(context).setTitle(R.string.dlg_download_texture_title).setMessage(R.string.dlg_download_texture_text)
+                        .setPositiveButton(R.string.btn_yes) { dialog, which ->  data[0].download(context, object : ThemeInfo.OnDownloadListener {
 
-                            override fun onSucces() {
+                            override fun onSuccess() {
                                 setCurrentItem(context, adapterPosition, true)
                                 downloadButton.setProgress(0, 0)
                                 downloadButton.isEnabled = true
@@ -193,8 +196,14 @@ class ThemeMenuFragment : MenuFragment() {
                             }
 
                         }) }
-                        .setNegativeButton(android.R.string.no) {
+                        .setNegativeButton(R.string.btn_no) {
                             dialog, which -> themeInfo.shouldTryDownload = false
+                        }
+                        .setNeutralButton(R.string.btn_never) {
+                            dialog, which ->
+                            themeInfo.shouldTryDownload = false
+                            SettingsProvider.askDownloadDefaultTheme = false
+
                         }
                         .show()
                 }
@@ -208,7 +217,7 @@ class ThemeMenuFragment : MenuFragment() {
                         downloadButton.isEnabled = false
                         themeInfo.download(context, object : ThemeInfo.OnDownloadListener {
 
-                            override fun onSucces() {
+                            override fun onSuccess() {
                                 setCurrentItem(context, adapterPosition)
                                 downloadButton.setProgress(0, 0)
                                 downloadButton.isEnabled = true
@@ -244,13 +253,13 @@ class ThemeMenuFragment : MenuFragment() {
 
             private fun setCurrentItem(context: Context, pos : Int, force : Boolean = false) {
                 if(force || (SettingsProvider.currentTheme != pos)) {
-                    data[pos].setActive(context, data[SettingsProvider.currentTheme])
-                    notifyItemChanged(SettingsProvider.currentTheme)
-                    notifyItemChanged(pos)
-                    SettingsProvider.currentTheme = pos
+                    if(data[pos].setActive(context, data[SettingsProvider.currentTheme])) {
+                        notifyItemChanged(SettingsProvider.currentTheme)
+                        notifyItemChanged(pos)
+                        SettingsProvider.currentTheme = pos
+                    }
                 }
             }
-
         }
     }
 
@@ -272,6 +281,6 @@ class ThemeMenuFragment : MenuFragment() {
         val themeGallery = view.findViewById<RecyclerView>(R.id.themeGallery)
         themeGallery.setHasFixedSize(true)
         themeGallery.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        themeGallery.adapter = ThemeInfoAdapter(ThemeInfo.themes, context!!)
+        themeGallery.adapter = ThemeInfoAdapter(context!!, ThemeInfo.themes)
     }
 }

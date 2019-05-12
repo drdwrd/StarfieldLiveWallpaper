@@ -1,22 +1,16 @@
 package drwdrd.ktdev.starfield
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.DynamicLayout
 import android.text.Layout
 import android.util.AttributeSet
-import android.widget.ImageButton
 import android.text.TextPaint
-import android.text.StaticLayout
+import androidx.appcompat.widget.AppCompatImageButton
 
 
-
-
-
-
-class DownloadButton : ImageButton {
+class DownloadButton : AppCompatImageButton {
 
     var totalBytesCount : Long = 0
     var bytesTransferred : Long = 0
@@ -37,17 +31,6 @@ class DownloadButton : ImageButton {
         init(context, attrs)
     }
 
-    @TargetApi(21)
-    constructor(context : Context, attrs : AttributeSet, defStyleAttr : Int) : super(context, attrs, defStyleAttr, 0) {
-        init(context, attrs)
-    }
-
-    @TargetApi(21)
-    constructor(context: Context, attrs : AttributeSet, defStyleAttr : Int, defStyleRes : Int) : super(context, attrs, defStyleAttr, defStyleRes) {
-        setFocusable(true)
-        init(context, attrs)
-    }
-
     fun setProgress(bytesTransferred : Long, totalBytesCount : Long) {
         this.bytesTransferred = bytesTransferred
         this.totalBytesCount = totalBytesCount
@@ -65,12 +48,12 @@ class DownloadButton : ImageButton {
         progressPaint.style = Paint.Style.STROKE
         progressPaint.strokeCap = Paint.Cap.ROUND
         progressPaint.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.download_button_stroke_width).toFloat()
-        progressPaint.color = Color.parseColor("#7FFFFFFF")
+        progressPaint.color = 0x7FFFFFFF
 
         textPaint = TextPaint()
         textPaint.isAntiAlias = true
         textPaint.textSize = 12.0f * resources.displayMetrics.density
-        textPaint.color = Color.parseColor("#7FFFFFFF")
+        textPaint.color = 0x7FFFFFFF
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

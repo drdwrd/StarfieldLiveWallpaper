@@ -5,6 +5,18 @@
     <string name="author">drdwrd</string>
     <string name="settings_activity_title">Settings</string>
 
+    <string name="btn_no">No</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_never">Never</string>
+
+    <string name="dlg_download_texture_title">Notification</string>
+    <string name="dlg_download_texture_text">Download optimized textures for default theme?</string>
+
+    <string name="msg_install_in_progress">Installing&#8230;</string>
+    <string name="msg_install_failed">Cannot install theme!</string>
+    <string name="msg_download_failed">File download failed!</string>
+    <string name="msg_theme_load_failed">Cannot load theme!</string>
+
     <string name="btn_set_wallpaper">Set Wallpaper</string>
     <string name="btn_set_screensaver">Set Screensaver</string>
     <string name="btn_edit_settings">Settings</string>

@@ -99,7 +99,7 @@ class ThemePackage(private val themeName : String) : Theme {
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
                             cloudsInfo = ThemeTextureInfo(name, format)
                             cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
-                            var colorList = ArrayList<String>()
+                            val colorList = ArrayList<String>()
                             for (j in 0 until node.childNodes.length) {
                                 val childNode = node.childNodes.item(j)
                                 if(childNode.nodeName == "color") {
@@ -179,7 +179,7 @@ class ThemePackage(private val themeName : String) : Theme {
 
     override fun hasClouds(): Boolean = cloudsInfo.isValid
 }
-
+/*
 class TestTheme : Theme {
 
     override val backgroundScale: Float = 1.0f
@@ -226,7 +226,7 @@ class TestTheme : Theme {
 
     override fun hasStars(): Boolean = true
 }
-
+*/
 class DefaultTheme : Theme {
 
     override val backgroundScale: Float = 1.0f

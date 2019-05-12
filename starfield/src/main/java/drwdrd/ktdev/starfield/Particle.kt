@@ -3,13 +3,13 @@ package drwdrd.ktdev.starfield
 import drwdrd.ktdev.engine.*
 import kotlin.math.sqrt
 
+
 class Particle(val position : vector3f, private val velocity : vector3f, private val rotation : vector3f, private val scale : Float, val uvRoI : Rectangle, private val startAge : Float) {
 
     val color = vector4f(0.0f, 0.0f, 0.0f, 0.0f)
 
     //normal
-    var normal = vector3f(0.0f, 0.0f, -1.0f)
-        private set
+    private val normal = vector3f(0.0f, 0.0f, -1.0f)
 
 
     var age = startAge

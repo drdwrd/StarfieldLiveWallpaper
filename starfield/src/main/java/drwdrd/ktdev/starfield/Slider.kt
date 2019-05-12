@@ -10,9 +10,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import drwdrd.ktdev.engine.clamp
 import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
 
 
 class Slider : ConstraintLayout {

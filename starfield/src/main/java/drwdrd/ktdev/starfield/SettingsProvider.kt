@@ -93,6 +93,8 @@ object SettingsProvider {
 
     var currentTheme = 0
 
+    var askDownloadDefaultTheme = true
+
     fun resetSettings() {
         textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
@@ -108,6 +110,8 @@ object SettingsProvider {
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
         enableScrollingEffect = true
         scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
+        currentTheme = 0
+        askDownloadDefaultTheme = true
     }
 
     //changed some params names because of collision with older ini files format (file are backed up so old file was restored and messed up initialization)
@@ -128,6 +132,7 @@ object SettingsProvider {
             it.write("enableScrollingEffect=$enableScrollingEffect\n")
             it.write("scrollingEffectMultiplier=$scrollingEffectMultiplier\n")
             it.write("currentTheme=$currentTheme\n")
+            it.write("askDownloadDefaultTheme=$askDownloadDefaultTheme\n")
         }
     }
 
@@ -154,6 +159,7 @@ object SettingsProvider {
                             "enableScrollingEffect" -> enableScrollingEffect = s[1].toBoolean()
                             "scrollingEffectMultiplier" -> scrollingEffectMultiplier = s[1].toFloat()
                             "currentTheme" -> currentTheme = s[1].toInt()
+                            "askDownloadDefaultTheme" -> askDownloadDefaultTheme = s[1].toBoolean()
                         }
                     }
                 }
@@ -165,6 +171,8 @@ object SettingsProvider {
             resetSettings()
             Log.warning(TAG, "Cannot parse settings!\n")
         }
-        ThemeInfo.themes[currentTheme].setActive(context, null)
+        if(!ThemeInfo.themes[currentTheme].setActive(context, null)) {
+            currentTheme = 0
+        }
     }
 }

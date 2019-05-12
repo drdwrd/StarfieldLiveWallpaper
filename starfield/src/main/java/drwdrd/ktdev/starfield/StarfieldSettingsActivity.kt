@@ -5,8 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import drwdrd.ktdev.engine.Log
 
 
 class StarfieldSettingsActivity : AppCompatActivity() {
@@ -41,10 +39,6 @@ class StarfieldSettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onStart() {
-        super.onStart()
     }
 
     override fun onStop() {
