@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="menu_button_size">48dp</dimen>
     <dimen name="menu_button_margin">4dp</dimen>
     <dimen name="menu_button_padding">8dp</dimen>
     <dimen name="download_button_stroke_width">4dp</dimen>
-    <dimen name="slider_icon_size">32dp</dimen>
-    <dimen name="slider_text_size">24sp</dimen>
+    <dimen name="download_button_text_size">12sp</dimen>
 </resources>

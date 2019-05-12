@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="menu_button_size">48dp</dimen>
+    <dimen name="menu_button_radius">12dp</dimen>
+    <dimen name="menu_divider">32dp</dimen>
+    <dimen name="gallery_item_size">96dp</dimen>
+    <dimen name="gallery_back_button_width">48dp</dimen>
+    <dimen name="menu_checkbox_text_size">32sp</dimen>
+    <dimen name="slider_icon_size">32dp</dimen>
+    <dimen name="slider_text_size">24sp</dimen>
+</resources>

@@ -3,10 +3,8 @@ package drwdrd.ktdev.starfield
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import android.text.DynamicLayout
-import android.text.Layout
+import android.text.*
 import android.util.AttributeSet
-import android.text.TextPaint
 import androidx.appcompat.widget.AppCompatImageButton
 
 
@@ -22,6 +20,8 @@ class DownloadButton : AppCompatImageButton {
     private lateinit var progressPaint : Paint
     private lateinit var progressRect : RectF
     private lateinit var textPaint : TextPaint
+    private lateinit var textLayout : DynamicLayout
+    private lateinit var textBuilder : Editable
 
     constructor(context : Context) : super(context, null) {
         init(context, null)
@@ -47,19 +47,23 @@ class DownloadButton : AppCompatImageButton {
         progressPaint.isAntiAlias = true
         progressPaint.style = Paint.Style.STROKE
         progressPaint.strokeCap = Paint.Cap.ROUND
-        progressPaint.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.download_button_stroke_width).toFloat()
+        progressPaint.strokeWidth = context.resources.getDimension(R.dimen.download_button_stroke_width)
         progressPaint.color = 0x7FFFFFFF
 
         textPaint = TextPaint()
         textPaint.isAntiAlias = true
-        textPaint.textSize = 12.0f * resources.displayMetrics.density
+        textPaint.textSize = context.resources.getDimension(R.dimen.download_button_text_size)
         textPaint.color = 0x7FFFFFFF
+
+        textBuilder = SpannableStringBuilder("")
+        textLayout = DynamicLayout(textBuilder, textPaint, width, Layout.Alignment.ALIGN_CENTER, 1.0f, 0f, false)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         notificationIconRect = Rect((0.33f * w).toInt(), (0.66f * h).toInt(), (0.66f * h).toInt(), w)
-        progressRect = RectF(0.33f * w, 0.3f * h, 0.66f * w, 0.66f * h)
+        progressRect = RectF(0.33f * w, 0.33f * h, 0.66f * w, 0.66f * h)
+        textLayout.increaseWidthTo(w)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -68,12 +72,10 @@ class DownloadButton : AppCompatImageButton {
             (totalBytesCount > 0) -> {
                 val progress = 100.0f * bytesTransferred / totalBytesCount
                 canvas?.drawArc(progressRect, 0.0f, progress * 360.0f / 100.0f, false, progressPaint)
-                val text = String.format("%.2f/%.2f MB", bytesTransferred / 1000000.0f, totalBytesCount / 1000000.0f)
-                val width = textPaint.measureText(text).toInt()
-                val dynamicLayout = DynamicLayout(text, textPaint, width, Layout.Alignment.ALIGN_CENTER, 1.0f, 0f, false)
+                textBuilder.replace(0, textBuilder.length, String.format("%.2f/%.2f MB", bytesTransferred / 1000000.0f, totalBytesCount / 1000000.0f))
                 canvas?.save()
-                canvas?.translate(10.0f, 10.0f)
-                dynamicLayout.draw(canvas)
+                canvas?.translate(0.0f, notificationIconRect.centerY().toFloat())
+                textLayout.draw(canvas)
                 canvas?.restore()
             }
             !(themeInfo?.isInstalled ?: false)-> {

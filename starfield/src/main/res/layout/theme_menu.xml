@@ -9,8 +9,8 @@
     <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/backButton"
             android:background="@drawable/menu_back_button"
-            android:layout_width="48dp"
-            android:layout_height="96dp"
+            android:layout_width="@dimen/gallery_back_button_width"
+            android:layout_height="@dimen/gallery_item_size"
             app:srcCompat="@drawable/ic_round_arrow_back_24"/>
 
 

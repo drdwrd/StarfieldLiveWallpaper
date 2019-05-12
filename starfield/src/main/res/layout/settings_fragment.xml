@@ -31,11 +31,11 @@
             <CheckBox
                     android:id="@+id/adaptiveFPSCheckbox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
                     android:text="@string/btn_adaptive_fps"
-                    android:textSize="24sp"/>
+                    android:textSize="@dimen/menu_checkbox_text_size"/>
 
             <drwdrd.ktdev.starfield.Slider
                     android:id="@+id/starsSpawnTimeSlider"
@@ -87,17 +87,17 @@
             <CheckBox
                     android:id="@+id/parallaxEffectEnabledCheckBox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
                     android:text="@string/btn_parallax_effect"
-                    android:textSize="24sp"/>
+                    android:textSize="@dimen/menu_checkbox_text_size"/>
 
             <drwdrd.ktdev.starfield.Slider
                     android:id="@+id/parallaxEffectMultiplierSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:title="Sensitivity"
+                    app:title="@string/label_parallax_effect_sensitivity"
                     app:leftIcon="@drawable/ic_baseline_3d2_rotation_24"
                     app:rightIcon="@drawable/ic_baseline_3d_rotation_24"
                     app:minValue="0.0"
@@ -109,7 +109,7 @@
                     android:id="@+id/parallaxEffectAccelerationSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:title="Acceleration"
+                    app:title="@string/label_parallax_effect_acceleration"
                     app:leftIcon="@drawable/ic_baseline_3d_acc_24"
                     app:rightIcon="@drawable/ic_baseline_3d2_acc_24"
                     app:minValue="0.01"
@@ -123,21 +123,19 @@
                 android:id="@+id/scrollingEffectCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/btn_scrolling_effect"
-                android:textSize="24sp"/>
+                android:textSize="@dimen/menu_checkbox_text_size"/>
 
         <CheckBox
                 android:id="@+id/highQualityTexturesCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/btn_texture_quality"
-                android:textSize="24sp"/>
+                android:textSize="@dimen/menu_checkbox_text_size"/>
 
     </LinearLayout>
 </ScrollView>
