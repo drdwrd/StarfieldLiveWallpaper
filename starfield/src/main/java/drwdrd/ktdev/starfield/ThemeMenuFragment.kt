@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.storage.FileDownloadTask
 import com.google.firebase.storage.FirebaseStorage
 import java.io.*
 import java.lang.Exception
@@ -39,6 +40,16 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
             return isDownloaded || isDefaultTheme
         }
 
+    private var fileDownloadTask : FileDownloadTask? = null
+    private var cacheFile : File? = null
+
+    fun stopAllTasks() {
+        fileDownloadTask?.cancel()
+        fileDownloadTask = null
+        cacheFile?.delete()
+        cacheFile = null
+    }
+
     fun uninstall(context: Context) : Boolean {
         val location = File(context.getExternalFilesDir(null), name)
         if(location.exists() && location.isDirectory) {
@@ -59,7 +70,8 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
         val fileRef = storage.getReference(getPackageName())
         val localFile = File.createTempFile("theme", "zip")
-        fileRef.getFile(localFile).addOnSuccessListener {
+        val downloadTask = fileRef.getFile(localFile)
+        downloadTask.addOnSuccessListener {
             Toast.makeText(context, R.string.msg_install_in_progress, Toast.LENGTH_SHORT).show()
             if(install(context, localFile)) {
                 localFile.delete()
@@ -76,6 +88,8 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         }.addOnProgressListener {
             onDownloadListener?.onProgress(it.bytesTransferred, it.totalByteCount)
         }
+        fileDownloadTask = downloadTask
+        cacheFile = localFile
     }
 
     private fun install(context: Context, cacheFile : File) : Boolean {
@@ -282,5 +296,12 @@ class ThemeMenuFragment : MenuFragment() {
         themeGallery.setHasFixedSize(true)
         themeGallery.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         themeGallery.adapter = ThemeInfoAdapter(context!!, ThemeInfo.themes)
+    }
+
+    override fun onDestroyView() {
+        for(theme in ThemeInfo.themes) {
+            theme.stopAllTasks()
+        }
+        super.onDestroyView()
     }
 }

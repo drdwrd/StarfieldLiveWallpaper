@@ -9,16 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 
 class StarfieldSettingsActivity : AppCompatActivity() {
 
-    private val settingsFragment = SettingsFragment()
+    private lateinit var settingsFragment : SettingsFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(null)        //ignore saved
         setupActionBar()
-        if(savedInstanceState == null) {
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.add(android.R.id.content, settingsFragment)
-            transaction.commit()
-        }
+        settingsFragment = SettingsFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(android.R.id.content, settingsFragment)
+        transaction.commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

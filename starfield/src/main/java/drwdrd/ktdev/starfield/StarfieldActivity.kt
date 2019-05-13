@@ -22,7 +22,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(null)
+        super.onCreate(null)        //ignore saved state
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
@@ -53,7 +53,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
 
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-        fragmentTransaction.add(R.id.menuFrame, mainMenuFragment)
+        fragmentTransaction.replace(R.id.menuFrame, mainMenuFragment)
         fragmentTransaction.commit()
     }
 
@@ -89,8 +89,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
                 "browse" -> {
                     val fragmentTransaction = supportFragmentManager.beginTransaction()
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    fragmentTransaction.remove(mainMenuFragment)
-                    fragmentTransaction.add(R.id.menuFrame, themeMenuFragment)
+                    fragmentTransaction.replace(R.id.menuFrame, themeMenuFragment)
                     fragmentTransaction.commit()
                 }
             }
@@ -98,8 +97,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
                 "back" -> {
                     val fragmentTransaction = supportFragmentManager.beginTransaction()
                     fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    fragmentTransaction.remove(themeMenuFragment)
-                    fragmentTransaction.add(R.id.menuFrame, mainMenuFragment)
+                    fragmentTransaction.replace(R.id.menuFrame, mainMenuFragment)
                     fragmentTransaction.commit()
                 }
             }
