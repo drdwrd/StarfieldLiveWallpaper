@@ -1,141 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:tag="layout_sw600dp"
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
 
     <LinearLayout
+            android:id="@+id/settingsContentFrame"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <drwdrd.ktdev.starfield.Slider
-                android:id="@+id/particleSpeedSlider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:title="@string/label_stars_speed"
-                app:leftIcon="@drawable/ic_round_arrow_right_24"
-                app:rightIcon="@drawable/ic_round_arrow3_right_24"
-                app:minValue="0.1"
-                app:maxValue="1.5"
-                app:stepSize="0.1"
-                app:value="0.25"/>
-
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-
-            <CheckBox
-                    android:id="@+id/adaptiveFPSCheckbox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/btn_adaptive_fps"
-                    android:textSize="@dimen/menu_checkbox_text_size"/>
-
-            <drwdrd.ktdev.starfield.Slider
-                    android:id="@+id/starsSpawnTimeSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:title="@string/label_stars_density"
-                    app:leftIcon="@drawable/ic_round_stars_24"
-                    app:rightIcon="@drawable/ic_round_stars2_24"
-                    app:minValue="0.005"
-                    app:maxValue="0.15"
-                    app:stepSize="0.001"
-                    app:value="0.05"/>
-
-            <drwdrd.ktdev.starfield.Slider
-                    android:id="@+id/cloudsSpawnTimeSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:title="@string/label_clouds_density"
-                    app:leftIcon="@drawable/ic_round_clouds_24"
-                    app:rightIcon="@drawable/ic_round_clouds2_24"
-                    app:minValue="0.05"
-                    app:maxValue="1.5"
-                    app:stepSize="0.01"
-                    app:value="0.5"/>
-
-        </LinearLayout>
-
-        <drwdrd.ktdev.starfield.Slider
-                android:id="@+id/cameraRotationSpeedSlider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:title="@string/label_camera_rotation"
-                app:leftIcon="@drawable/ic_round_left_24"
-                app:rightIcon="@drawable/ic_round_right_24"
-                app:minValue="-0.025"
-                app:maxValue="0.025"
-                app:stepSize="0.001"
-                app:value="0.0">
-
-        </drwdrd.ktdev.starfield.Slider>
-
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-
-            <CheckBox
-                    android:id="@+id/parallaxEffectEnabledCheckBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/btn_parallax_effect"
-                    android:textSize="@dimen/menu_checkbox_text_size"/>
-
-            <drwdrd.ktdev.starfield.Slider
-                    android:id="@+id/parallaxEffectMultiplierSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:title="@string/label_parallax_effect_sensitivity"
-                    app:leftIcon="@drawable/ic_baseline_3d2_rotation_24"
-                    app:rightIcon="@drawable/ic_baseline_3d_rotation_24"
-                    app:minValue="0.0"
-                    app:maxValue="1.0"
-                    app:stepSize="0.1"
-                    app:value="0.5"/>
-
-            <drwdrd.ktdev.starfield.Slider
-                    android:id="@+id/parallaxEffectAccelerationSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:title="@string/label_parallax_effect_acceleration"
-                    app:leftIcon="@drawable/ic_baseline_3d_acc_24"
-                    app:rightIcon="@drawable/ic_baseline_3d2_acc_24"
-                    app:minValue="0.01"
-                    app:maxValue="1.0"
-                    app:stepSize="0.01"
-                    app:value="0.1"/>
-
-        </LinearLayout>
-
-        <CheckBox
-                android:id="@+id/scrollingEffectCheckBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="@string/btn_scrolling_effect"
-                android:textSize="@dimen/menu_checkbox_text_size"/>
-
-        <CheckBox
-                android:id="@+id/highQualityTexturesCheckBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="@string/btn_texture_quality"
-                android:textSize="@dimen/menu_checkbox_text_size"/>
-
     </LinearLayout>
+
 </ScrollView>

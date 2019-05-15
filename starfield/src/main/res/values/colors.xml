@@ -7,4 +7,5 @@
     <color name="menuIconColor">#afffffff</color>
     <color name="iconColor">#7f7f7f7f</color>
     <color name="ic_starfield_background">#191919</color>
+    <color name="toggleButtonColor">#ffefefef</color>
 </resources>

@@ -43,7 +43,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
     private var fileDownloadTask : FileDownloadTask? = null
     private var cacheFile : File? = null
 
-    fun stopAllTasks() {
+    fun stopAsyncTasks() {
         fileDownloadTask?.cancel()
         fileDownloadTask = null
         cacheFile?.delete()
@@ -300,7 +300,7 @@ class ThemeMenuFragment : MenuFragment() {
 
     override fun onDestroyView() {
         for(theme in ThemeInfo.themes) {
-            theme.stopAllTasks()
+            theme.stopAsyncTasks()
         }
         super.onDestroyView()
     }
