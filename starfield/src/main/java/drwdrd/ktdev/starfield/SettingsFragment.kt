@@ -27,11 +27,9 @@ class SettingsFragment : Fragment() {
             particlesSettingsFragment = ParticlesSettingsFragment()
             cameraSettingsFragment = CameraSettingsFragment()
             systemSettingsFragment = SystemSettingsFragment()
-            val transaction = fragmentManager.beginTransaction()
-            transaction.add(R.id.settingsContentFrame, particlesSettingsFragment)
-            transaction.add(R.id.settingsContentFrame, cameraSettingsFragment)
-            transaction.add(R.id.settingsContentFrame, systemSettingsFragment)
-            transaction.commit()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, particlesSettingsFragment).commit()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, cameraSettingsFragment).commit()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, systemSettingsFragment).commit()
         }
 
         override fun onResetSettings() {
@@ -51,50 +49,35 @@ class SettingsFragment : Fragment() {
         override fun onViewCreated(view: View, fragmentManager: FragmentManager) {
 
             settingsListFragment = SettingsListFragment()
-
-            val transaction3 = fragmentManager.beginTransaction()
-            transaction3.add(R.id.tabFrame, settingsListFragment)
-            transaction3.commit()
+            fragmentManager.beginTransaction().add(R.id.tabFrame, settingsListFragment).commit()
 
             particlesSettingsFragment = ParticlesSettingsFragment()
-            cameraSettingsFragment = CameraSettingsFragment()
-            systemSettingsFragment = SystemSettingsFragment()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, particlesSettingsFragment).commit()
 
-            val transaction2 = fragmentManager.beginTransaction()
-            transaction2.add(R.id.settingsContentFrame, particlesSettingsFragment)
-            transaction2.add(R.id.settingsContentFrame, cameraSettingsFragment)
-            transaction2.hide(cameraSettingsFragment)
-            transaction2.add(R.id.settingsContentFrame, systemSettingsFragment)
-            transaction2.hide(systemSettingsFragment)
-            transaction2.commit()
+            cameraSettingsFragment = CameraSettingsFragment()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, cameraSettingsFragment).hide(cameraSettingsFragment).commit()
+
+            systemSettingsFragment = SystemSettingsFragment()
+            fragmentManager.beginTransaction().add(R.id.settingsContentFrame, systemSettingsFragment).hide(systemSettingsFragment).commit()
 
 
             settingsListFragment.onSettingSelectedListener = object : SettingsListFragment.OnSettingSelectedListener {
                 override fun onSettingSelected(pos: Int) {
                     when(pos) {
                         0 -> {
-                            val transaction = fragmentManager.beginTransaction()
-                            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            transaction.show(particlesSettingsFragment)
-                            transaction.hide(cameraSettingsFragment)
-                            transaction.hide(systemSettingsFragment)
-                            transaction.commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(cameraSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(systemSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).show(particlesSettingsFragment).commit()
                         }
                         1 -> {
-                            val transaction = fragmentManager.beginTransaction()
-                            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            transaction.hide(particlesSettingsFragment)
-                            transaction.show(cameraSettingsFragment)
-                            transaction.hide(systemSettingsFragment)
-                            transaction.commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(particlesSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(systemSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).show(cameraSettingsFragment).commit()
                         }
                         2 -> {
-                            val transaction = fragmentManager.beginTransaction()
-                            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            transaction.hide(particlesSettingsFragment)
-                            transaction.hide(cameraSettingsFragment)
-                            transaction.show(systemSettingsFragment)
-                            transaction.commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(particlesSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).hide(cameraSettingsFragment).commit()
+                            fragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).show(systemSettingsFragment).commit()
                         }
                     }
                 }
