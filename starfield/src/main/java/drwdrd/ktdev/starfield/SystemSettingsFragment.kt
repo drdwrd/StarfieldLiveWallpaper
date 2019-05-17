@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
+import android.widget.Switch
 import androidx.fragment.app.Fragment
 
 class SystemSettingsFragment : Fragment() {
 
-    private lateinit var scrollingEffectEnableCheckBox : CheckBox
-    private lateinit var highQualityTexturesCheckBox : CheckBox
+    private lateinit var scrollingEffectEnableSwitch : Switch
+    private lateinit var highQualityTexturesSwitch : Switch
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -19,23 +19,23 @@ class SystemSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        scrollingEffectEnableCheckBox = view.findViewById(R.id.scrollingEffectCheckBox)
-        scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
-        scrollingEffectEnableCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+        scrollingEffectEnableSwitch = view.findViewById(R.id.scrollingEffectSwitch)
+        scrollingEffectEnableSwitch.isChecked = SettingsProvider.enableScrollingEffect
+        scrollingEffectEnableSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             SettingsProvider.enableScrollingEffect = isChecked
         }
 
-        highQualityTexturesCheckBox = view.findViewById(R.id.highQualityTexturesCheckBox)
-        highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
-        highQualityTexturesCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+        highQualityTexturesSwitch = view.findViewById(R.id.highQualityTexturesSwitch)
+        highQualityTexturesSwitch.isChecked = (SettingsProvider.textureQualityLevel == 0)
+        highQualityTexturesSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             StarfieldRenderer.rendererInstances.notifyRestart()
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1
         }
     }
 
     fun resetSettings() {
-        scrollingEffectEnableCheckBox.isChecked = SettingsProvider.enableScrollingEffect
-        highQualityTexturesCheckBox.isChecked = (SettingsProvider.textureQualityLevel == 0)
+        scrollingEffectEnableSwitch.isChecked = SettingsProvider.enableScrollingEffect
+        highQualityTexturesSwitch.isChecked = (SettingsProvider.textureQualityLevel == 0)
     }
 
 }

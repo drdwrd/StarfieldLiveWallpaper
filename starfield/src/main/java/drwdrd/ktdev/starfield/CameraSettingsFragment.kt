@@ -1,10 +1,11 @@
 package drwdrd.ktdev.starfield
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
+import android.widget.Switch
 import androidx.fragment.app.Fragment
 
 class CameraSettingsFragment : Fragment() {
@@ -12,7 +13,7 @@ class CameraSettingsFragment : Fragment() {
     private lateinit var parallaxEffectMultiplierSlider : Slider
     private lateinit var parallaxEffectAccelerationSlider : Slider
     private lateinit var cameraRotationSpeedSlider : Slider
-    private lateinit var parallaxEffectEnabledCheckBox : CheckBox
+    private lateinit var parallaxEffectEnabledSwitch : Switch
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -35,10 +36,10 @@ class CameraSettingsFragment : Fragment() {
         parallaxEffectAccelerationSlider = view.findViewById(R.id.parallaxEffectAccelerationSlider)
         parallaxEffectAccelerationSlider.isEnabled = SettingsProvider.enableParallaxEffect
 
-        parallaxEffectEnabledCheckBox = view.findViewById(R.id.parallaxEffectEnabledCheckBox)
-        parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
-        parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
-        parallaxEffectEnabledCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+        parallaxEffectEnabledSwitch = view.findViewById(R.id.parallaxEffectEnabledSwitch)
+        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+        parallaxEffectEnabledSwitch.isChecked = SettingsProvider.enableParallaxEffect
+        parallaxEffectEnabledSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             parallaxEffectMultiplierSlider.isEnabled = isChecked
             parallaxEffectAccelerationSlider.isEnabled = isChecked
             SettingsProvider.enableParallaxEffect = isChecked
@@ -61,8 +62,8 @@ class CameraSettingsFragment : Fragment() {
 
     fun resetSettings() {
         cameraRotationSpeedSlider.value = -SettingsProvider.cameraRotationSpeed
-        parallaxEffectEnabledCheckBox.isChecked = SettingsProvider.enableParallaxEffect
-        parallaxEffectEnabledCheckBox.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+        parallaxEffectEnabledSwitch.isChecked = SettingsProvider.enableParallaxEffect
+        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
         parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
     }

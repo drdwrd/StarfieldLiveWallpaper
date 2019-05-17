@@ -27,12 +27,14 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp">
 
-        <CheckBox
-                android:id="@+id/parallaxEffectEnabledCheckBox"
-                android:layout_width="match_parent"
+        <Switch
+                android:id="@+id/parallaxEffectEnabledSwitch"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:switchPadding="48dp"
+                android:layout_marginStart="8dp"
                 android:text="@string/btn_parallax_effect"
                 android:textSize="@dimen/menu_checkbox_text_size"/>
 

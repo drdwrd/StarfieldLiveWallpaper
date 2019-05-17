@@ -5,21 +5,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <CheckBox
-            android:id="@+id/scrollingEffectCheckBox"
-            android:layout_width="match_parent"
+    <Switch
+            android:id="@+id/scrollingEffectSwitch"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:switchPadding="48dp"
+            android:layout_marginStart="8dp"
             android:text="@string/btn_scrolling_effect"
             android:textSize="@dimen/menu_checkbox_text_size"/>
 
-    <CheckBox
-            android:id="@+id/highQualityTexturesCheckBox"
-            android:layout_width="match_parent"
+    <Switch
+            android:id="@+id/highQualityTexturesSwitch"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:switchPadding="48dp"
+            android:layout_marginStart="8dp"
             android:text="@string/btn_texture_quality"
             android:textSize="@dimen/menu_checkbox_text_size"/>
 
