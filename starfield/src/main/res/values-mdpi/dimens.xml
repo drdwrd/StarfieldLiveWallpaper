@@ -4,7 +4,7 @@
     <dimen name="menu_divider">12dp</dimen>
     <dimen name="gallery_item_size">72dp</dimen>
     <dimen name="gallery_back_button_width">36dp</dimen>
-    <dimen name="menu_checkbox_text_size">24sp</dimen>
+    <dimen name="menu_checkbox_text_size">18sp</dimen>
     <dimen name="slider_icon_size">24dp</dimen>
     <dimen name="slider_text_size">18sp</dimen>
 </resources>
