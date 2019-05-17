@@ -5,16 +5,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <LinearLayout
+    <FrameLayout
             android:id="@+id/tabFrame"
             android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:background="@color/iconColor">
-
-    </LinearLayout>
+            android:layout_alignParentTop="true">
+    </FrameLayout>
 
     <ScrollView
             android:id="@+id/settingsFrame"

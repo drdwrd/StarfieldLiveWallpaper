@@ -5,46 +5,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <RadioGroup
+    <FrameLayout
             android:id="@+id/tabFrame"
             android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:checkedButton="@id/particlesSettings">
-
-        <RadioButton
-                android:id="@+id/particlesSettings"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:button="@null"
-                android:background="@drawable/settings_toggle_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:text="Particles"/>
-
-        <RadioButton
-                android:id="@+id/cameraSettings"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:button="@null"
-                android:background="@drawable/settings_toggle_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:text="Camera"/>
-
-        <RadioButton
-                android:id="@+id/systemSettings"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:button="@null"
-                android:background="@drawable/settings_toggle_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:text="System"/>
-
-    </RadioGroup>
+            android:layout_alignParentTop="true">
+    </FrameLayout>
 
     <ScrollView
             android:id="@+id/settingsFrame"

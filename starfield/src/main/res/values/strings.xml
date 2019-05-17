@@ -33,4 +33,10 @@
     <string name="btn_texture_quality">High Quality Textures</string>
 
     <string name="menu_reset">Reset</string>
+
+    <string-array name="list_settings_category">
+        <item>Particles</item>
+        <item>Camera</item>
+        <item>System</item>
+    </string-array>
 </resources>

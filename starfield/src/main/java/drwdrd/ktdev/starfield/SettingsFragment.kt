@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import drwdrd.ktdev.engine.Log
@@ -11,7 +12,7 @@ import drwdrd.ktdev.engine.Log
 class SettingsFragment : Fragment() {
 
     interface FragmentHandler {
-        fun onViewCreated(fragmentManager : FragmentManager)
+        fun onViewCreated(view: View, fragmentManager : FragmentManager)
         fun onResetSettings()
     }
 
@@ -21,7 +22,7 @@ class SettingsFragment : Fragment() {
         private lateinit var cameraSettingsFragment: CameraSettingsFragment
         private lateinit var systemSettingsFragment: SystemSettingsFragment
 
-        override fun onViewCreated(fragmentManager : FragmentManager) {
+        override fun onViewCreated(view: View, fragmentManager : FragmentManager) {
             particlesSettingsFragment = ParticlesSettingsFragment()
             cameraSettingsFragment = CameraSettingsFragment()
             systemSettingsFragment = SystemSettingsFragment()
@@ -41,12 +42,54 @@ class SettingsFragment : Fragment() {
 
     class MultiPaneFragmentHandler : FragmentHandler {
 
-        override fun onViewCreated(fragmentManager: FragmentManager) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        private lateinit var settingsListFragment: SettingsListFragment
+        private lateinit var particlesSettingsFragment: ParticlesSettingsFragment
+        private lateinit var cameraSettingsFragment: CameraSettingsFragment
+        private lateinit var systemSettingsFragment: SystemSettingsFragment
+
+        override fun onViewCreated(view: View, fragmentManager: FragmentManager) {
+
+            settingsListFragment = SettingsListFragment()
+
+            val transaction2 = fragmentManager.beginTransaction()
+            transaction2.add(R.id.tabFrame, settingsListFragment)
+            transaction2.commit()
+
+            particlesSettingsFragment = ParticlesSettingsFragment()
+            cameraSettingsFragment = CameraSettingsFragment()
+            systemSettingsFragment = SystemSettingsFragment()
+
+            settingsListFragment.onSettingSelectedListener = object : SettingsListFragment.OnSettingSelectedListener {
+                override fun onSettingSelected(pos: Int) {
+                    when(pos) {
+                        0 -> {
+                            val transaction = fragmentManager.beginTransaction()
+                            transaction.replace(R.id.settingsContentFrame, particlesSettingsFragment)
+                            transaction.commit()
+                        }
+                        1 -> {
+                            val transaction = fragmentManager.beginTransaction()
+                            transaction.replace(R.id.settingsContentFrame, cameraSettingsFragment)
+                            transaction.commit()
+                        }
+                        2 -> {
+                            val transaction = fragmentManager.beginTransaction()
+                            transaction.replace(R.id.settingsContentFrame, systemSettingsFragment)
+                            transaction.commit()
+                        }
+                    }
+                }
+            }
+
+            val transaction = fragmentManager.beginTransaction()
+            transaction.add(R.id.settingsContentFrame, particlesSettingsFragment)
+            transaction.commit()
         }
 
         override fun onResetSettings() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            particlesSettingsFragment.resetSettings()
+            cameraSettingsFragment.resetSettings()
+            systemSettingsFragment.resetSettings()
         }
     }
 
@@ -56,12 +99,16 @@ class SettingsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.settings_fragment, container, false)
         Log.debug("SettingsFragment", "layout tag: ${view.tag}")
-        fragmentHandler = SinglePaneFragmentHandler()
+        fragmentHandler = when(view.tag) {
+            "layout_sw600dp_land" -> MultiPaneFragmentHandler()
+            "layout_sw720dp_land" -> MultiPaneFragmentHandler()
+            else -> SinglePaneFragmentHandler()
+        }
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        fragmentHandler.onViewCreated(childFragmentManager)
+        fragmentHandler.onViewCreated(view, childFragmentManager)
     }
 
     fun resetSettings() {
