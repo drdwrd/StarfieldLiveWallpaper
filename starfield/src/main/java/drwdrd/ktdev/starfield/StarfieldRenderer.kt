@@ -5,11 +5,13 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import android.view.WindowManager
 import drwdrd.ktdev.engine.*
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.min
 
 
 private const val TAG = "drwdrd.ktdev.starfield.StarfieldRenderer"
@@ -41,7 +43,15 @@ private const val maxCloudParticlesCount = 500        //hard limit just in case.
 
 class StarfieldRenderer private constructor(private val context: Context): GLSurfaceView.Renderer, GLWallpaperService.WallpaperLiveCycleListener, GLWallpaperService.OnOffsetChangedListener {
 
-    private var requestRestart = false
+    enum class RendererState {
+        Start,
+        Render,
+        Restart,
+        LoadTheme
+    }
+
+    private var rendererState = RendererState.Start
+    private lateinit var theme : Theme
     private val plane = Plane3D()
     private var aspect = vector2f(1.0f, 1.0f)
     private var starspriteShader = ProgramObject()
@@ -82,17 +92,40 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             else -> ScrollingWallpaperEffectEngine()
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
+
+            private var targetFrameTime = 16.0
+            private var averageParticleTime = 0.0
+
+            override fun onStart() {
+                targetFrameTime = 1000.0 / clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate.toDouble(), 30.0, 120.0)
+                Log.debug(TAG, "frameTime = %.2f ms, targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(0.0, targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+            }
+
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
-                    if (frameTime > 16.9) {
-                        maxStarsSpawnTime = clamp(1.05 * maxStarsSpawnTime, 0.015, 0.25)
-                        maxCloudsSpawnTime = clamp(1.05 * maxCloudsSpawnTime, 0.15, 2.5)
-                    } else if (frameTime < 16.8) {
-                        maxStarsSpawnTime = clamp(0.95 * maxStarsSpawnTime, 0.015, 0.25)
-                        maxCloudsSpawnTime = clamp(0.95 * maxCloudsSpawnTime, 0.15, 2.5)
+                    if (frameTime > 1.1 * targetFrameTime) {
+                        val cloudRatio = maxCloudsSpawnTime / maxStarsSpawnTime
+                        val averageParticleFlow = particleSpeed * targetFrameTime / averageParticleTime
+
+                        maxStarsSpawnTime = particleSpawnDistance / averageParticleFlow
+                        maxCloudsSpawnTime = cloudRatio * particleSpawnDistance / averageParticleFlow
+                    } else if(frameTime < 1.05 * targetFrameTime) {
+                        maxStarsSpawnTime *= 0.99
+                        maxCloudsSpawnTime *= 0.99
                     }
+                    targetFrameTime = min(frameTime, targetFrameTime)
                 }
-                Log.debug(TAG, "frameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = ${starSprites.size}, cloudsSpawnTime = %.2f ms, cloudParticles = ${cloudSprites.size}".format(frameTime, 1000.0 * maxStarsSpawnTime, 1000.0 * maxCloudsSpawnTime))
+                Log.debug(TAG, "frameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(frameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+            }
+
+            override fun onTick(deltaFrameTime : Double) {
+                averageParticleTime =  if(averageParticleTime > 0.0) {
+                    0.99 * averageParticleTime + 0.01 * deltaFrameTime / (starSprites.size + cloudSprites.size)
+                } else {
+                    deltaFrameTime / (starSprites.size + cloudSprites.size)
+                }
             }
         }
     }
@@ -178,10 +211,9 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     override fun onDrawFrame(p0: GL10?) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
-        if(requestRestart) {
+        if(rendererState != RendererState.Render) {
             destroy()
             create()
-            requestRestart = false
         }
 
         timer.tick()
@@ -364,15 +396,16 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         parallaxEffectEngine.connect(sensorManager)
         particleSpeed = SettingsProvider.particleSpeed
-        if(!SettingsProvider.adaptiveFPS) {
-            //TODO: possible division by 0
-            maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
-            maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
-        }
+        //TODO: possible division by 0
+        maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
+        maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
+        fpsCounter.start()
         timer.reset()
     }
 
     override fun onPause() {
+        SettingsProvider.starsSpawnTimeMultiplier = maxStarsSpawnTime * particleSpeed
+        SettingsProvider.cloudsSpawnTimeMultiplier = maxCloudsSpawnTime * particleSpeed
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         parallaxEffectEngine.disconnect(sensorManager)
     }
@@ -380,6 +413,9 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     private fun create(version : String? = null, extensions: String? = null) {
         //block thread until created
         synchronized(rendererInstances) {
+
+            //must keep local copy of instance of theme or synchronize main render loop (not very efficient)
+            this.theme = rendererInstances.theme
 
             if (SettingsProvider.baseTextureQualityLevel >= SettingsProvider.TEXTURE_QUALITY_UNKNOWN) {
                 SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
@@ -429,8 +465,6 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                 cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
             }
 
-//        cloudsSpawnTimeMultiplier = theme.cloudsDensity
-
             //misc
             noiseTexture = Texture.loadFromAssets2D(
                 context,
@@ -450,14 +484,23 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             val eyeForward = eye.forward
             val eyePosition = eye.position
 
-            val starsCount = 500
+            //when load theme and on adaptiveFPS, reset density settings to default
+            if(SettingsProvider.adaptiveFPS && rendererState == RendererState.LoadTheme) {
+                SettingsProvider.starsSpawnTimeMultiplier = theme.starsDensity
+                SettingsProvider.cloudsSpawnTimeMultiplier = theme.cloudDensity
+                maxStarsSpawnTime = SettingsProvider.starsSpawnTimeMultiplier / particleSpeed
+                maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
+            }
+
+
+            val starsCount = (particleSpawnDistance / SettingsProvider.starsSpawnTimeMultiplier).toInt()
             if (theme.hasStars()) {
                 for (i in 0 until starsCount) {
                     starSprites.add(0, Particle.createStar(eyeForward, eyePosition, particleSpawnDistance * i / starsCount))
                 }
             }
 
-            val cloudsCount = 50
+            val cloudsCount = (particleSpawnDistance / SettingsProvider.cloudsSpawnTimeMultiplier).toInt()
             if (theme.hasClouds()) {
                 for (i in 0 until cloudsCount) {
                     //TODO: crashes when cloudColors.size < 2
@@ -479,7 +522,9 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
             GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
+            fpsCounter.start()
             timer.reset()
+            rendererState = RendererState.Render
         }
     }
 
@@ -505,6 +550,9 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
 
             private val instances = ArrayList<WeakReference<StarfieldRenderer>>()
 
+            var theme : Theme = DefaultTheme()
+                private set
+
             fun createRenderer(context: Context) : StarfieldRenderer {
                 synchronized(this) {
                     if(instances.size == 0) {
@@ -517,7 +565,23 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                 }
             }
 
-            fun notifyRestart() {
+            fun requestLoadTheme(theme: Theme) {
+                synchronized(this) {
+                    this.theme = theme
+                    with(instances.iterator()) {
+                        while (hasNext()) {
+                            val ref = next().get()
+                            if (ref == null) {
+                                remove()
+                            } else {
+                                ref.rendererState = RendererState.LoadTheme
+                            }
+                        }
+                    }
+                }
+            }
+
+            fun requestRestart() {
                 synchronized(this) {
                     with(instances.iterator()) {
                         while (hasNext()) {
@@ -525,20 +589,13 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                             if (ref == null) {
                                 remove()
                             } else {
-                                ref.requestRestart = true
+                                ref.rendererState = RendererState.Restart
                             }
                         }
                     }
                 }
             }
-
         }
-
-        var theme : Theme = DefaultTheme()
-            set(value) {
-                field = value
-                rendererInstances.notifyRestart()
-            }
 
         val rendererInstances = RendererInstances()
     }

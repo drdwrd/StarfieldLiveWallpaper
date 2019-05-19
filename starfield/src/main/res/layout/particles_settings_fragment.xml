@@ -13,10 +13,10 @@
             app:title="@string/label_stars_speed"
             app:leftIcon="@drawable/ic_round_arrow_right_24"
             app:rightIcon="@drawable/ic_round_arrow3_right_24"
-            app:minValue="0.1"
+            app:minValue="0.5"
             app:maxValue="1.5"
             app:stepSize="0.1"
-            app:value="0.25"/>
+            app:value="1.0"/>
 
     <LinearLayout
             android:orientation="vertical"

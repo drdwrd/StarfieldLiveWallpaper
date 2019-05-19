@@ -132,7 +132,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
             Toast.makeText(context, R.string.msg_theme_load_failed, Toast.LENGTH_SHORT).show()
             false
         } else {
-            StarfieldRenderer.theme = theme
+            StarfieldRenderer.rendererInstances.requestLoadTheme(theme)
 //            StarfieldRenderer.theme = TestTheme()
             activeTheme?.isActive = false
             isActive = true

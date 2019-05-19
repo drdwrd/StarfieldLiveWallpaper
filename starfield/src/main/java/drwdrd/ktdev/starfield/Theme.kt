@@ -17,6 +17,9 @@ interface Theme {
     val cloudsParticleScale : Float
     val cloudColors : Array<Long>
 
+    val starsDensity : Double
+    val cloudDensity : Double
+
     fun loadTheme(context: Context) : Boolean
 
     fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : Texture?
@@ -61,6 +64,12 @@ class ThemePackage(private val themeName : String) : Theme {
     override var cloudColors: Array<Long> = emptyArray()
         private set
 
+    override var starsDensity: Double = 0.025
+        private set
+
+    override var cloudDensity: Double = 0.25
+        private set
+
 
     private lateinit var themePath : String
     private var starfieldInfo = ThemeTextureInfo()
@@ -92,12 +101,14 @@ class ThemePackage(private val themeName : String) : Theme {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
                             starsInfo = ThemeTextureInfo(name, format)
+                            starsDensity = node.attributes.getNamedItem("density")?.nodeValue?.toDouble() ?: 0.025
                             starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                         }
                         "cloudsprites" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
                             cloudsInfo = ThemeTextureInfo(name, format)
+                            cloudDensity = node.attributes.getNamedItem("density")?.nodeValue?.toDouble() ?: 0.25
                             cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                             val colorList = ArrayList<String>()
                             for (j in 0 until node.childNodes.length) {
@@ -234,6 +245,9 @@ class DefaultTheme : Theme {
     override val starsParticleScale: Float = 0.07f
 
     override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
+
+    override val starsDensity: Double = 0.15
+    override val cloudDensity: Double = 1.5
 
     override fun loadTheme(context: Context): Boolean {
         return true

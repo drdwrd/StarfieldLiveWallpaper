@@ -28,7 +28,7 @@ class SystemSettingsFragment : Fragment() {
         highQualityTexturesSwitch = view.findViewById(R.id.highQualityTexturesSwitch)
         highQualityTexturesSwitch.isChecked = (SettingsProvider.textureQualityLevel == 0)
         highQualityTexturesSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            StarfieldRenderer.rendererInstances.notifyRestart()
+            StarfieldRenderer.rendererInstances.requestRestart()
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1
         }
     }

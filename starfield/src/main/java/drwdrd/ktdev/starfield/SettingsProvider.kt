@@ -12,9 +12,9 @@ private const val TAG = "drwdrd.ktdev.starfield.SettingsProvider"
 
 object SettingsProvider {
 
-    private const val DEFAULT_PARTICLE_SPEED = 0.25f
-    private const val DEFAULT_STARS_SPAWN_TIME_MULTIPLIER = 0.015
-    private const val DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER = 0.15
+    private const val DEFAULT_PARTICLE_SPEED = 1.0f
+    private const val DEFAULT_STARS_SPAWN_TIME_MULTIPLIER = 0.025
+    private const val DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER = 0.25
     private const val DEFAULT_PARALLAX_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_PARALLAX_EFFECT_ACCELERATION = 0.01f
     private const val DEFAULT_TEXTURE_QUALITY_LEVEL = 0
