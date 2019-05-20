@@ -110,7 +110,6 @@ object SettingsProvider {
         textureQualityLevel = DEFAULT_TEXTURE_QUALITY_LEVEL
         enableScrollingEffect = true
         scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
-        currentTheme = 0
         askDownloadDefaultTheme = true
     }
 

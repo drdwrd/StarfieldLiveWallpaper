@@ -11,7 +11,6 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.min
 
 
 private const val TAG = "drwdrd.ktdev.starfield.StarfieldRenderer"
@@ -95,36 +94,42 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
 
             private var targetFrameTime = 16.0
             private var averageParticleTime = 0.0
+            private var averageFrameTime = 0.0
 
             override fun onStart() {
                 targetFrameTime = 1000.0 / clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate.toDouble(), 30.0, 120.0)
-                Log.debug(TAG, "frameTime = %.2f ms, targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
-                    .format(0.0, targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+                Log.debug(TAG, "targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
             }
 
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
-                    if (frameTime > 1.1 * targetFrameTime) {
+                    averageFrameTime = if(averageFrameTime > 0.0) {
+                        0.8 * averageFrameTime + 0.2 * frameTime
+                    } else {
+                        frameTime
+                    }
+                    if (averageFrameTime > 1.1 * targetFrameTime) {
                         val cloudRatio = maxCloudsSpawnTime / maxStarsSpawnTime
                         val averageParticleFlow = particleSpeed * targetFrameTime / averageParticleTime
 
                         maxStarsSpawnTime = particleSpawnDistance / averageParticleFlow
                         maxCloudsSpawnTime = cloudRatio * particleSpawnDistance / averageParticleFlow
-                    } else if(frameTime < 1.05 * targetFrameTime) {
+                    } else if(averageFrameTime < 1.05 * targetFrameTime) {
                         maxStarsSpawnTime *= 0.99
                         maxCloudsSpawnTime *= 0.99
                     }
-                    targetFrameTime = min(frameTime, targetFrameTime)
+//                    targetFrameTime = min(averageFrameTime, targetFrameTime)
                 }
-                Log.debug(TAG, "frameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
-                    .format(frameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+                Log.debug(TAG, "averageFrameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(averageFrameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
             }
 
             override fun onTick(deltaFrameTime : Double) {
                 averageParticleTime =  if(averageParticleTime > 0.0) {
-                    0.99 * averageParticleTime + 0.01 * deltaFrameTime / (starSprites.size + cloudSprites.size)
+                    0.99 * averageParticleTime + 0.01 * deltaFrameTime / (starSprites.size + cloudSprites.size + 1.0)
                 } else {
-                    deltaFrameTime / (starSprites.size + cloudSprites.size)
+                    deltaFrameTime / (starSprites.size + cloudSprites.size + 1.0)
                 }
             }
         }
