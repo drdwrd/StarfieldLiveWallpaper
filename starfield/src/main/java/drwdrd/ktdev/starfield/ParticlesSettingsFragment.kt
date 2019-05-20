@@ -30,9 +30,21 @@ class ParticlesSettingsFragment : Fragment() {
 
         starsSpawnTimeSlider = view.findViewById(R.id.starsSpawnTimeSlider)
         starsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
+        starsSpawnTimeSlider.value = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - SettingsProvider.starsSpawnTimeMultiplier.toFloat()
+        starsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.starsSpawnTimeMultiplier = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - value.toDouble()
+            }
+        }
 
         cloudsSpawnTimeSlider = view.findViewById(R.id.cloudsSpawnTimeSlider)
         cloudsSpawnTimeSlider.isEnabled = !SettingsProvider.adaptiveFPS
+        cloudsSpawnTimeSlider.value = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - SettingsProvider.cloudsSpawnTimeMultiplier.toFloat()
+        cloudsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.cloudsSpawnTimeMultiplier = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - value.toDouble()
+            }
+        }
 
         adaptiveFPSSwitch = view.findViewById(R.id.adaptiveFPSSwitch)
         adaptiveFPSSwitch.isChecked = SettingsProvider.adaptiveFPS
@@ -42,19 +54,7 @@ class ParticlesSettingsFragment : Fragment() {
             SettingsProvider.adaptiveFPS = isChecked
         }
 
-        starsSpawnTimeSlider.value = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - SettingsProvider.starsSpawnTimeMultiplier.toFloat()
-        starsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
-            override fun onValueChanged(value: Float) {
-                SettingsProvider.starsSpawnTimeMultiplier = starsSpawnTimeSlider.maxValue + starsSpawnTimeSlider.minValue - value.toDouble()
-            }
-        }
 
-        cloudsSpawnTimeSlider.value = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - SettingsProvider.cloudsSpawnTimeMultiplier.toFloat()
-        cloudsSpawnTimeSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
-            override fun onValueChanged(value: Float) {
-                SettingsProvider.cloudsSpawnTimeMultiplier = cloudsSpawnTimeSlider.maxValue + cloudsSpawnTimeSlider.minValue - value.toDouble()
-            }
-        }
     }
 
     fun resetSettings() {

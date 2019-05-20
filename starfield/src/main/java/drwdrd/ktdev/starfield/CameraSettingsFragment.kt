@@ -32,9 +32,21 @@ class CameraSettingsFragment : Fragment() {
 
         parallaxEffectMultiplierSlider = view.findViewById(R.id.parallaxEffectMultiplierSlider)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
+        parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
+        parallaxEffectMultiplierSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.parallaxEffectMultiplier = value
+            }
+        }
 
         parallaxEffectAccelerationSlider = view.findViewById(R.id.parallaxEffectAccelerationSlider)
         parallaxEffectAccelerationSlider.isEnabled = SettingsProvider.enableParallaxEffect
+        parallaxEffectAccelerationSlider.value = SettingsProvider.parallaxEffectAcceleration
+        parallaxEffectAccelerationSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
+            override fun onValueChanged(value: Float) {
+                SettingsProvider.parallaxEffectAcceleration = value
+            }
+        }
 
         parallaxEffectEnabledSwitch = view.findViewById(R.id.parallaxEffectEnabledSwitch)
         parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
@@ -43,20 +55,6 @@ class CameraSettingsFragment : Fragment() {
             parallaxEffectMultiplierSlider.isEnabled = isChecked
             parallaxEffectAccelerationSlider.isEnabled = isChecked
             SettingsProvider.enableParallaxEffect = isChecked
-        }
-
-        parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
-        parallaxEffectMultiplierSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
-            override fun onValueChanged(value: Float) {
-                SettingsProvider.parallaxEffectMultiplier = value
-            }
-        }
-
-        parallaxEffectAccelerationSlider.value = SettingsProvider.parallaxEffectAcceleration
-        parallaxEffectAccelerationSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
-            override fun onValueChanged(value: Float) {
-                SettingsProvider.parallaxEffectAcceleration = value
-            }
         }
     }
 

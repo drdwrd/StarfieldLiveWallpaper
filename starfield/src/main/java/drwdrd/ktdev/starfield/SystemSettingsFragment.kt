@@ -36,6 +36,7 @@ class SystemSettingsFragment : Fragment() {
 
         targetFrameRateSlider = view.findViewById(R.id.targetFrameRateSlider)
         targetFrameRateSlider.isEnabled = SettingsProvider.overrideSystemFrameRate
+        targetFrameRateSlider.value = SettingsProvider.targetFrameRate
         targetFrameRateSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
             override fun onValueChanged(value: Float) {
                 SettingsProvider.targetFrameRate = value
