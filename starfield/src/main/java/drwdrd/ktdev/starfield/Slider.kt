@@ -4,11 +4,13 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import drwdrd.ktdev.engine.clamp
+import java.text.DecimalFormat
 import kotlin.math.ceil
 
 
@@ -19,12 +21,15 @@ class Slider : ConstraintLayout {
     }
 
     private var seekBar : SeekBar? = null
-    private var textView : TextView? = null
+    private var captionTextView : TextView? = null
+    private var valueTextView : TextView? = null
     private var leftImageView : ImageView? = null
     private var rightImageView : ImageView? = null
-    private lateinit var title : CharSequence
+    private var title : CharSequence? = null
     private var leftIcon : Drawable? = null
     private var rightIcon : Drawable? = null
+    private var showValueTextView : Boolean = false
+    private lateinit var decimalFormat : DecimalFormat
 
     var minValue : Float = 0.0f
         private set
@@ -68,6 +73,9 @@ class Slider : ConstraintLayout {
             maxValue = getFloat(R.styleable.Slider_maxValue, 100.0f)
             stepSize = getFloat(R.styleable.Slider_stepSize, 0.1f)
             value = clamp(getFloat(R.styleable.Slider_value, 0.0f), minValue, maxValue)
+            showValueTextView = getBoolean(R.styleable.Slider_showValue, false)
+            val format = getString(R.styleable.Slider_decimalFormat) ?: "##"
+            decimalFormat = DecimalFormat(format)
             recycle()
         }
     }
@@ -80,6 +88,7 @@ class Slider : ConstraintLayout {
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value = minValue + progress * stepSize
+                valueTextView?.text = decimalFormat.format(value)
                 onValueChangedListener?.onValueChanged(value)
             }
 
@@ -92,14 +101,34 @@ class Slider : ConstraintLayout {
             }
         })
 
-        textView = findViewById(R.id.sliderTextView)
-        textView?.text = title.toString()
+        captionTextView = findViewById(R.id.sliderCaptionTextView)
+        if(title != null) {
+            captionTextView?.text = title.toString()
+        } else {
+            captionTextView?.visibility = View.GONE
+        }
+
+        val textView = findViewById<TextView>(R.id.sliderValueTextView)
+        if(showValueTextView) {
+            textView.text = decimalFormat.format(value)
+            valueTextView = textView
+        } else {
+            textView.visibility = View.GONE
+        }
 
         leftImageView = findViewById(R.id.sliderLeftImageView)
-        leftImageView?.setImageDrawable(leftIcon)
+        if(leftIcon != null) {
+            leftImageView?.setImageDrawable(leftIcon)
+        } else {
+            leftImageView?.visibility = View.GONE
+        }
 
         rightImageView = findViewById(R.id.sliderRightImageView)
-        rightImageView?.setImageDrawable(rightIcon)
+        if(rightIcon != null) {
+            rightImageView?.setImageDrawable(rightIcon)
+        } else {
+            rightImageView?.visibility = View.GONE
+        }
     }
 
     override fun setEnabled(enabled: Boolean) {

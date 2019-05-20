@@ -95,6 +95,10 @@ object SettingsProvider {
 
     var askDownloadDefaultTheme = true
 
+    var overrideSystemFrameRate = false
+
+    var targetFrameRate = 60.0f
+
     fun resetSettings() {
         textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
@@ -111,6 +115,8 @@ object SettingsProvider {
         enableScrollingEffect = true
         scrollingEffectMultiplier = DEFAULT_SLIDE_EFFECT_MULTIPLIER
         askDownloadDefaultTheme = true
+        overrideSystemFrameRate = false
+        targetFrameRate = 60.0f
     }
 
     //changed some params names because of collision with older ini files format (file are backed up so old file was restored and messed up initialization)
@@ -132,6 +138,8 @@ object SettingsProvider {
             it.write("scrollingEffectMultiplier=$scrollingEffectMultiplier\n")
             it.write("currentTheme=$currentTheme\n")
             it.write("askDownloadDefaultTheme=$askDownloadDefaultTheme\n")
+            it.write("overrideSystemFrameRate=$overrideSystemFrameRate\n")
+            it.write("targetFrameRate=$targetFrameRate\n")
         }
     }
 
@@ -159,6 +167,8 @@ object SettingsProvider {
                             "scrollingEffectMultiplier" -> scrollingEffectMultiplier = s[1].toFloat()
                             "currentTheme" -> currentTheme = s[1].toInt()
                             "askDownloadDefaultTheme" -> askDownloadDefaultTheme = s[1].toBoolean()
+                            "overrideSystemFrameRate" -> overrideSystemFrameRate = s[1].toBoolean()
+                            "targetFrameRate" -> targetFrameRate = s[1].toFloat()
                         }
                     }
                 }

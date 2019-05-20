@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:app="http://schemas.android.com/apk/res-auto">
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
-            android:id="@+id/sliderTextView"
+            android:id="@+id/sliderCaptionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:textSize="@dimen/slider_text_size"/>
+            android:textSize="@dimen/slider_caption_text_size"/>
 
     <ImageView
             android:id="@+id/sliderLeftImageView"
@@ -24,7 +26,7 @@
             android:id="@+id/sliderSeekBar"
             android:layout_width="0dp"
             android:layout_height="@dimen/slider_icon_size"
-            app:layout_constraintTop_toBottomOf="@+id/sliderTextView"
+            app:layout_constraintTop_toBottomOf="@+id/sliderCaptionTextView"
             app:layout_constraintStart_toEndOf="@+id/sliderLeftImageView"
             app:layout_constraintEnd_toStartOf="@id/sliderRightImageView"
             android:max="10"
@@ -38,5 +40,14 @@
             app:layout_constraintTop_toTopOf="@+id/sliderSeekBar"
             app:layout_constraintBottom_toBottomOf="@id/sliderSeekBar"
             app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/sliderValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/sliderSeekBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="@dimen/slider_text_size"/>
 
 </merge>

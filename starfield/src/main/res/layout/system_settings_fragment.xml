@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -15,6 +16,28 @@
             android:layout_marginStart="8dp"
             android:text="@string/btn_scrolling_effect"
             android:textSize="@dimen/menu_checkbox_text_size"/>
+
+    <Switch
+            android:id="@+id/overrideTargetFrameRateSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:switchPadding="48dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/btn_override_system_framerate"
+            android:textSize="@dimen/menu_checkbox_text_size"/>
+
+    <drwdrd.ktdev.starfield.Slider
+            android:id="@+id/targetFrameRateSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:showValue="true"
+            app:decimalFormat="##"
+            app:minValue="30.0"
+            app:maxValue="120.0"
+            app:stepSize="1.0"
+            app:value="60.0"/>
 
     <Switch
             android:id="@+id/highQualityTexturesSwitch"

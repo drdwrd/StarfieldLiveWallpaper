@@ -11,5 +11,7 @@
     <dimen name="gallery_back_button_width">36dp</dimen>
     <dimen name="menu_checkbox_text_size">18sp</dimen>
     <dimen name="slider_icon_size">24dp</dimen>
-    <dimen name="slider_text_size">18sp</dimen>
+    <dimen name="slider_caption_text_size">18sp</dimen>
+    <dimen name="slider_text_size">12sp</dimen>
+
 </resources>

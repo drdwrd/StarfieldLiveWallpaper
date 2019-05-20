@@ -97,7 +97,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             private var averageFrameTime = 0.0
 
             override fun onStart() {
-                targetFrameTime = 1000.0 / clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate.toDouble(), 30.0, 120.0)
+                targetFrameTime = 1000.0 / SettingsProvider.targetFrameRate
                 Log.debug(TAG, "targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
                     .format(targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
             }
@@ -396,6 +396,9 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     }
 
     override fun onResume() {
+        if(!SettingsProvider.overrideSystemFrameRate) {
+            SettingsProvider.targetFrameRate = clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate, 30.0f, 120.0f)
+        }
         lastStarParticleSpawnTime = 0.0
         lastCloudParticleSpawnTime = 0.0
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager

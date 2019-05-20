@@ -27,10 +27,12 @@
     <string name="label_camera_rotation">Camera Rotation</string>
     <string name="label_parallax_effect_sensitivity">Sensitivity</string>
     <string name="label_parallax_effect_acceleration">Acceleration</string>
+    <string name="label_target_framerate">Frame Rate</string>
     <string name="btn_parallax_effect">Parallax Effect</string>
     <string name="btn_adaptive_fps">Adaptive FPS</string>
     <string name="btn_scrolling_effect">Wallpaper Scrolling</string>
     <string name="btn_texture_quality">High Quality Textures</string>
+    <string name="btn_override_system_framerate">Override Frame Rate</string>
 
     <string name="menu_reset">Reset</string>
 

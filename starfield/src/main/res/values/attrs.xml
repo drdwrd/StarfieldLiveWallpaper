@@ -12,5 +12,7 @@
         <attr name="maxValue" format="float"/>
         <attr name="stepSize" format="float"/>
         <attr name="value" format="float"/>
+        <attr name="decimalFormat" format="string"/>
+        <attr name="showValue" format="boolean"/>
     </declare-styleable>
 </resources>
