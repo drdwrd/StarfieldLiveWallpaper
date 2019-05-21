@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import drwdrd.ktdev.engine.Log
+import drwdrd.ktdev.engine.logd
 
 class SettingsFragment : Fragment() {
 
@@ -96,7 +95,7 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.settings_fragment, container, false)
-        Log.debug("SettingsFragment", "layout tag: ${view.tag}")
+        logd("layout tag: ${view.tag}")
         fragmentHandler = when(view.tag) {
             "layout_sw600dp_land" -> MultiPaneFragmentHandler()
             "layout_sw720dp_land" -> MultiPaneFragmentHandler()

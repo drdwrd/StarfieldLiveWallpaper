@@ -11,9 +11,8 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.max
 
-
-private const val TAG = "drwdrd.ktdev.starfield.StarfieldRenderer"
 
 private const val starfieldSampler = 0
 private const val starfieldAspectUniform = 1
@@ -83,7 +82,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
         if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
         }
-        Log.info(TAG, "Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
+        logi("Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
             SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
             SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
@@ -98,8 +97,8 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
 
             override fun onStart() {
                 targetFrameTime = 1000.0 / SettingsProvider.targetFrameRate
-                Log.debug(TAG, "targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
-                    .format(targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+                logd("targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size), enclosingClass = StarfieldRenderer::class)
             }
 
             override fun onMeasure(frameTime: Double) {
@@ -119,10 +118,12 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                         maxStarsSpawnTime *= 0.99
                         maxCloudsSpawnTime *= 0.99
                     }
+                    maxStarsSpawnTime = max(maxStarsSpawnTime, theme.starsDensity / particleSpeed)
+                    maxCloudsSpawnTime = max(maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
 //                    targetFrameTime = min(averageFrameTime, targetFrameTime)
                 }
-                Log.debug(TAG, "averageFrameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
-                    .format(averageFrameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size))
+                logd("averageFrameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(averageFrameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size), enclosingClass = StarfieldRenderer::class)
             }
 
             override fun onTick(deltaFrameTime : Double) {
@@ -191,10 +192,10 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
         val renderer = GLES20.glGetString(GLES20.GL_RENDERER)
         val extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS)
 
-        Log.info(TAG, "OpenGL version: $version")
-        Log.info(TAG, "OpenGL vendor: $vendor")
-        Log.info(TAG, "OpenGL renderer: $renderer")
-        Log.info(TAG, "OpenGL extensions: $extensions")
+        logi("OpenGL version: $version")
+        logi("OpenGL vendor: $vendor")
+        logi("OpenGL renderer: $renderer")
+        logi("OpenGL extensions: $extensions")
 
         create(version, extensions)
     }
@@ -434,11 +435,11 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                     getTextureCompressionMode(version ?: GLES20.glGetString(GLES20.GL_VERSION), extensions ?: GLES20.glGetString(GLES20.GL_EXTENSIONS))
             }
 
-            Log.info(TAG, "Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
+            logi("Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
 
 
             val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
-            Log.info(TAG, "Texture quality level set to $textureQuality")
+            logi("Texture quality level set to $textureQuality")
 
             plane.create()
 

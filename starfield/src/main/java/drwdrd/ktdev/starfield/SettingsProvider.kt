@@ -3,12 +3,10 @@ package drwdrd.ktdev.starfield
 import android.content.Context
 import drwdrd.ktdev.engine.Flag
 import drwdrd.ktdev.engine.FlagType
-import drwdrd.ktdev.engine.Log
+import drwdrd.ktdev.engine.logw
 import java.io.File
 import java.io.FileNotFoundException
 import java.lang.NumberFormatException
-
-private const val TAG = "drwdrd.ktdev.starfield.SettingsProvider"
 
 object SettingsProvider {
 
@@ -175,10 +173,10 @@ object SettingsProvider {
             }
         } catch(e : FileNotFoundException) {
             resetSettings()
-            Log.warning(TAG, "No settings file found!\n")
+            logw("No settings file found!\n")
         } catch(e : NumberFormatException) {
             resetSettings()
-            Log.warning(TAG, "Cannot parse settings!\n")
+            logw("Cannot parse settings!\n")
         }
         if(!ThemeInfo.themes[currentTheme].setActive(context, null)) {
             currentTheme = 0

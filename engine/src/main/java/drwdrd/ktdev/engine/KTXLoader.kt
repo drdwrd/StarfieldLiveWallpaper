@@ -2,9 +2,7 @@ package drwdrd.ktdev.engine
 
 import android.content.Context
 import android.opengl.GLES20
-import android.opengl.GLES30
 import java.io.*
-import java.lang.Exception
 import java.lang.RuntimeException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -17,7 +15,7 @@ class KTXLoaderException(msg : String) : RuntimeException(msg)
 
 object KTXLoader {
 
-    val headerSignature = byteArrayOf(
+    private val headerSignature = byteArrayOf(
         0x0AB.toByte(),
         0x04B.toByte(),
         0x054.toByte(),
@@ -46,7 +44,7 @@ object KTXLoader {
         }
     }
 
-    fun load(inputStream : InputStreamSerializer, level : Int, wrapModeS : Texture.WrapMode, wrapModeT : Texture.WrapMode, minFilter : Texture.Filtering, magFilter : Texture.Filtering) : Texture {
+    private fun load(inputStream : InputStreamSerializer, level : Int, wrapModeS : Texture.WrapMode, wrapModeT : Texture.WrapMode, minFilter : Texture.Filtering, magFilter : Texture.Filtering) : Texture {
         for( i in 0 until HEADER_LENGTH) {
             if(inputStream.readByte() != headerSignature[i]) {
                 throw KTXLoaderException("Invalid KTX file header")
@@ -90,7 +88,7 @@ object KTXLoader {
         val numberOfMipmapLevels = inputStream.readInt()
         val bytesOfKeyValueData = inputStream.readInt()
 
-        Log.info("drwdrd.ktdev.engine.KTXLoader","KTX Texture info : glInternalFormat = $glInternalFormat, glBaseInternalFormat = $glBaseInternalFormat, pixelWidth = $pixelWidth, pixelHeight = $pixelHeight, " +
+        logi("KTX Texture info : glInternalFormat = $glInternalFormat, glBaseInternalFormat = $glBaseInternalFormat, pixelWidth = $pixelWidth, pixelHeight = $pixelHeight, " +
                 "numberOfMipmapLevels = $numberOfMipmapLevels, bytesOfKeyValueData = $bytesOfKeyValueData")
 
         inputStream.skip(bytesOfKeyValueData)

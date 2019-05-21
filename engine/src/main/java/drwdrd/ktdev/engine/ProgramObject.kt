@@ -117,7 +117,7 @@ class ProgramObject(val name : String = "") {
         GLES20.glGetProgramiv(glProgramId, GLES20.GL_LINK_STATUS, status, 0)
         if(status[0] == GLES20.GL_FALSE) {
             val info = GLES20.glGetProgramInfoLog(glProgramId)
-            Log.error("drwdrd.ktdev.engine.ProgramObject", "Cannot link program: $info")
+            loge("Cannot link program: $info")
             return false
         }
         val count = intArrayOf(1)

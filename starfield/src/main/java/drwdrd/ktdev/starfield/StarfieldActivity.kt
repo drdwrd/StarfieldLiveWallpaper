@@ -8,10 +8,10 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import com.google.firebase.auth.FirebaseAuth
+import drwdrd.ktdev.engine.FileLogOutput
 import drwdrd.ktdev.engine.Log
-
-private const val TAG = "drwdrd.ktdev.starfield.StarfieldActivity"
-
+import drwdrd.ktdev.engine.loge
+import drwdrd.ktdev.engine.logi
 
 class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 
@@ -20,9 +20,11 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
     private lateinit var mainMenuFragment : MenuFragment
     private lateinit var themeMenuFragment: ThemeMenuFragment
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)        //ignore saved state
+        if(Log.logOutput == null) {
+            Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
@@ -31,13 +33,13 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
         if(firebaseAuth.currentUser == null) {
             firebaseAuth.signInAnonymously().addOnCompleteListener {
                 if(!it.isSuccessful) {
-                    Log.error(TAG, "User authentication failed!")
+                    loge("User authentication failed!")
                 } else {
-                    Log.info(TAG, "User authenticated!")
+                    logi("User authenticated!")
                 }
             }
         } else {
-            Log.info(TAG, "User already logged!")
+            logi("User already logged!")
         }
 
 

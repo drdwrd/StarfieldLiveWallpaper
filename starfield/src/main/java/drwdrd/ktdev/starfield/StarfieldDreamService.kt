@@ -2,7 +2,9 @@ package drwdrd.ktdev.starfield
 
 import android.opengl.GLSurfaceView
 import android.service.dreams.DreamService
+import drwdrd.ktdev.engine.FileLogOutput
 import drwdrd.ktdev.engine.GLWallpaperService
+import drwdrd.ktdev.engine.Log
 
 class StarfieldDreamService : DreamService() {
 
@@ -10,6 +12,9 @@ class StarfieldDreamService : DreamService() {
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
 
     override fun onCreate() {
+        if(Log.logOutput == null) {
+            Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
+        }
         glSurfaceView = GLSurfaceView(this)
         super.onCreate()
     }

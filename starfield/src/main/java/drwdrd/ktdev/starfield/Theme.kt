@@ -8,8 +8,6 @@ import java.io.FileNotFoundException
 import java.lang.Exception
 import javax.xml.parsers.DocumentBuilderFactory
 
-private const val TAG = "drwdrd.ktdev.starfield.Theme"
-
 interface Theme {
 
     val backgroundScale : Float
@@ -246,8 +244,8 @@ class DefaultTheme : Theme {
 
     override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
 
-    override val starsDensity: Double = 0.15
-    override val cloudDensity: Double = 1.5
+    override val starsDensity: Double = 0.06
+    override val cloudDensity: Double = 0.6
 
     override fun loadTheme(context: Context): Boolean {
         return true
@@ -268,7 +266,7 @@ class DefaultTheme : Theme {
                 )
             }
             else -> {
-                Log.error(TAG, "Unsupported texture compression format : ${textureCompressionMode.flags}")
+                loge("Unsupported texture compression format : ${textureCompressionMode.flags}")
                 null
             }
         }
