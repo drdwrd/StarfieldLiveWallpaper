@@ -91,9 +91,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
 
-            private var targetFrameTime = 16.0
-            private var averageParticleTime = 0.0
-            private var averageFrameTime = 0.0
+            private var targetFrameTime = 16.67
 
             override fun onStart() {
                 targetFrameTime = 1000.0 / SettingsProvider.targetFrameRate
@@ -103,35 +101,20 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
 
             override fun onMeasure(frameTime: Double) {
                 if(SettingsProvider.adaptiveFPS) {
-                    averageFrameTime = if(averageFrameTime > 0.0) {
-                        0.8 * averageFrameTime + 0.2 * frameTime
-                    } else {
-                        frameTime
+                    if (frameTime > 1.15 * targetFrameTime) {
+                        maxStarsSpawnTime = max(1.05 * maxStarsSpawnTime, theme.starsDensity / particleSpeed)
+                        maxCloudsSpawnTime = max(1.05 * maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
+                    } else if (frameTime < 1.05 * targetFrameTime) {
+                        maxStarsSpawnTime = max(0.95 * maxStarsSpawnTime, theme.starsDensity / particleSpeed)
+                        maxCloudsSpawnTime = max(0.95 * maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
                     }
-                    if (averageFrameTime > 1.1 * targetFrameTime) {
-                        val cloudRatio = maxCloudsSpawnTime / maxStarsSpawnTime
-                        val averageParticleFlow = particleSpeed * targetFrameTime / averageParticleTime
-
-                        maxStarsSpawnTime = particleSpawnDistance / averageParticleFlow
-                        maxCloudsSpawnTime = cloudRatio * particleSpawnDistance / averageParticleFlow
-                    } else if(averageFrameTime < 1.05 * targetFrameTime) {
-                        maxStarsSpawnTime *= 0.99
-                        maxCloudsSpawnTime *= 0.99
-                    }
-                    maxStarsSpawnTime = max(maxStarsSpawnTime, theme.starsDensity / particleSpeed)
-                    maxCloudsSpawnTime = max(maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
-//                    targetFrameTime = min(averageFrameTime, targetFrameTime)
                 }
-                logd("averageFrameTime = %.2f ms, targetFrameTime = %.2f ms, averageParticleTime = %.4f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
-                    .format(averageFrameTime, targetFrameTime, averageParticleTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size), enclosingClass = StarfieldRenderer::class)
+                logd("frameTime = %.2f ms, targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
+                    .format(frameTime, targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size), enclosingClass = StarfieldRenderer::class)
             }
 
             override fun onTick(deltaFrameTime : Double) {
-                averageParticleTime =  if(averageParticleTime > 0.0) {
-                    0.99 * averageParticleTime + 0.01 * deltaFrameTime / (starSprites.size + cloudSprites.size + 1.0)
-                } else {
-                    deltaFrameTime / (starSprites.size + cloudSprites.size + 1.0)
-                }
+
             }
         }
     }

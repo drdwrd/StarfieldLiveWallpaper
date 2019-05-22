@@ -10,8 +10,8 @@ import androidx.appcompat.widget.AppCompatImageButton
 
 class DownloadButton : AppCompatImageButton {
 
-    var totalBytesCount : Long = 0
-    var bytesTransferred : Long = 0
+    private var totalBytesCount : Long = 0
+    private var bytesTransferred : Long = 0
 
     var themeInfo : ThemeInfo? = null
     private var downloadIcon : Drawable? = null
