@@ -14,6 +14,11 @@ class DownloadButton : AppCompatImageButton {
     private var bytesTransferred : Long = 0
 
     var themeInfo : ThemeInfo? = null
+        set(value) {
+            totalBytesCount = 0
+            bytesTransferred = 0
+            field = value
+        }
     private var downloadIcon : Drawable? = null
     private var currentIcon: Drawable? = null
     private lateinit var notificationIconRect : Rect

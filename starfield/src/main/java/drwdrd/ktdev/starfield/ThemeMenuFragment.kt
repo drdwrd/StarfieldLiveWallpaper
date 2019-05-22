@@ -27,6 +27,8 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         fun onProgress(bytesTransferred : Long, totalByteCount : Long)
     }
 
+    var onDownloadListener: OnDownloadListener? = null
+
     var isActive = false
         private set
 
@@ -66,7 +68,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
         isDownloaded = (location.exists() && location.isDirectory)
     }
 
-    fun download(context: Context, onDownloadListener: OnDownloadListener?) {
+    fun download(context: Context) {
         val storage = FirebaseStorage.getInstance("gs://starfield-23195.appspot.com/")
         val fileRef = storage.getReference(getPackageName())
         val localFile = File.createTempFile("theme", "zip")
@@ -193,29 +195,30 @@ class ThemeMenuFragment : MenuFragment() {
             fun setupDefaultThemeButton(context: Context, themeInfo: ThemeInfo) {
                 downloadButton.themeInfo = themeInfo
                 downloadButton.setImageResource(themeInfo.resId)
+                themeInfo.onDownloadListener = object : ThemeInfo.OnDownloadListener {
+
+                    override fun onSuccess() {
+                        setCurrentItem(context, 0, true)
+                        downloadButton.setProgress(0, 0)
+                        downloadButton.isEnabled = true
+                    }
+
+                    override fun onFailure() {
+                        downloadButton.setProgress(0, 0)
+                        downloadButton.isEnabled = true
+                    }
+
+                    override fun onProgress(bytesTransferred: Long, totalByteCount: Long) {
+                        downloadButton.setProgress(bytesTransferred, totalByteCount)
+                    }
+
+                }
                 if(!themeInfo.isDownloaded && themeInfo.shouldTryDownload && SettingsProvider.askDownloadDefaultTheme) {
                     AlertDialog.Builder(context).setTitle(R.string.dlg_download_texture_title).setMessage(R.string.dlg_download_texture_text)
                         .setPositiveButton(R.string.btn_yes) { dialog, which ->
                             downloadButton.isEnabled = false
                             themeInfo.shouldTryDownload = false
-                            themeInfo.download(context, object : ThemeInfo.OnDownloadListener {
-
-                                override fun onSuccess() {
-                                    setCurrentItem(context, 0, true)
-                                    downloadButton.setProgress(0, 0)
-                                    downloadButton.isEnabled = true
-                                }
-
-                                override fun onFailure() {
-                                    downloadButton.setProgress(0, 0)
-                                    downloadButton.isEnabled = true
-                                }
-
-                                override fun onProgress(bytesTransferred: Long, totalByteCount: Long) {
-                                    downloadButton.setProgress(bytesTransferred, totalByteCount)
-                                }
-
-                            })
+                            themeInfo.download(context)
                         }
                         .setNegativeButton(R.string.btn_no) {
                             dialog, which -> themeInfo.shouldTryDownload = false
@@ -248,26 +251,27 @@ class ThemeMenuFragment : MenuFragment() {
             fun setupThemeButton(context: Context, themeInfo : ThemeInfo) {
                 downloadButton.themeInfo = themeInfo
                 downloadButton.setImageResource(themeInfo.resId)
+                themeInfo.onDownloadListener = object : ThemeInfo.OnDownloadListener {
+
+                    override fun onSuccess() {
+                        setCurrentItem(context, adapterPosition)
+                        downloadButton.setProgress(0, 0)
+                        downloadButton.isEnabled = true
+                    }
+
+                    override fun onFailure() {
+                        downloadButton.setProgress(0, 0)
+                        downloadButton.isEnabled = true
+                    }
+
+                    override fun onProgress(bytesTransferred: Long, totalByteCount: Long) {
+                        downloadButton.setProgress(bytesTransferred, totalByteCount)
+                    }
+                }
                 downloadButton.setOnClickListener {
                     if(!themeInfo.isDownloaded && !themeInfo.isDefaultTheme) {
                         downloadButton.isEnabled = false
-                        themeInfo.download(context, object : ThemeInfo.OnDownloadListener {
-
-                            override fun onSuccess() {
-                                setCurrentItem(context, adapterPosition)
-                                downloadButton.setProgress(0, 0)
-                                downloadButton.isEnabled = true
-                            }
-
-                            override fun onFailure() {
-                                downloadButton.setProgress(0, 0)
-                                downloadButton.isEnabled = true
-                            }
-
-                            override fun onProgress(bytesTransferred: Long, totalByteCount: Long) {
-                                downloadButton.setProgress(bytesTransferred, totalByteCount)
-                            }
-                        })
+                        themeInfo.download(context)
                     } else {
                         setCurrentItem(context, adapterPosition)
                     }
