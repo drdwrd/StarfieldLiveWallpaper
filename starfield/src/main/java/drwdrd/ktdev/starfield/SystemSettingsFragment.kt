@@ -11,8 +11,6 @@ class SystemSettingsFragment : Fragment() {
 
     private lateinit var scrollingEffectEnableSwitch : Switch
     private lateinit var highQualityTexturesSwitch : Switch
-    private lateinit var overrideSystemFrameRateSwith : Switch
-    private lateinit var targetFrameRateSlider: Slider
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -33,30 +31,11 @@ class SystemSettingsFragment : Fragment() {
             StarfieldRenderer.rendererInstances.requestRestart()
             SettingsProvider.textureQualityLevel = if(isChecked) 0 else 1
         }
-
-        targetFrameRateSlider = view.findViewById(R.id.targetFrameRateSlider)
-        targetFrameRateSlider.isEnabled = SettingsProvider.overrideSystemFrameRate
-        targetFrameRateSlider.value = SettingsProvider.targetFrameRate
-        targetFrameRateSlider.onValueChangedListener = object : Slider.OnValueChangedListener {
-            override fun onValueChanged(value: Float) {
-                SettingsProvider.targetFrameRate = value
-            }
-        }
-
-        overrideSystemFrameRateSwith = view.findViewById(R.id.overrideTargetFrameRateSwitch)
-        overrideSystemFrameRateSwith.isChecked = SettingsProvider.overrideSystemFrameRate
-        overrideSystemFrameRateSwith.setOnCheckedChangeListener { buttonView, isChecked ->
-            targetFrameRateSlider.isEnabled = isChecked
-            SettingsProvider.overrideSystemFrameRate = isChecked
-        }
-
     }
 
     fun resetSettings() {
         scrollingEffectEnableSwitch.isChecked = SettingsProvider.enableScrollingEffect
         highQualityTexturesSwitch.isChecked = (SettingsProvider.textureQualityLevel == 0)
-        overrideSystemFrameRateSwith.isChecked = SettingsProvider.overrideSystemFrameRate
-        targetFrameRateSlider.value = SettingsProvider.targetFrameRate
     }
 
 }

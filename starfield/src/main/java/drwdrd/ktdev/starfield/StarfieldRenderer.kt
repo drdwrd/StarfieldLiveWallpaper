@@ -11,7 +11,6 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import kotlin.math.max
 
 
 private const val starfieldSampler = 0
@@ -94,19 +93,21 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             private var targetFrameTime = 16.67
 
             override fun onStart() {
-                targetFrameTime = 1000.0 / SettingsProvider.targetFrameRate
+                targetFrameTime = 1000.0 / clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate, 30.0f, 120.0f)
                 logd("targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
                     .format(targetFrameTime, 1000.0 * maxStarsSpawnTime, starSprites.size, 1000.0 * maxCloudsSpawnTime, cloudSprites.size), enclosingClass = StarfieldRenderer::class)
             }
 
             override fun onMeasure(frameTime: Double) {
+                val defaultStarsSpawnTime = theme.starsDensity / particleSpeed
+                val defaultCloudsSpawnTime = theme.cloudDensity / particleSpeed
                 if(SettingsProvider.adaptiveFPS) {
                     if (frameTime > 1.15 * targetFrameTime) {
-                        maxStarsSpawnTime = max(1.05 * maxStarsSpawnTime, theme.starsDensity / particleSpeed)
-                        maxCloudsSpawnTime = max(1.05 * maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
+                        maxStarsSpawnTime = clamp(1.05 * maxStarsSpawnTime, 0.25 * defaultStarsSpawnTime, defaultStarsSpawnTime)
+                        maxCloudsSpawnTime = clamp(1.05 * maxCloudsSpawnTime, 0.25 * defaultCloudsSpawnTime, defaultCloudsSpawnTime)
                     } else if (frameTime < 1.05 * targetFrameTime) {
-                        maxStarsSpawnTime = max(0.95 * maxStarsSpawnTime, theme.starsDensity / particleSpeed)
-                        maxCloudsSpawnTime = max(0.95 * maxCloudsSpawnTime, theme.cloudDensity / particleSpeed)
+                        maxStarsSpawnTime = clamp(0.95 * maxStarsSpawnTime, 0.25 * defaultStarsSpawnTime, defaultStarsSpawnTime)
+                        maxCloudsSpawnTime = clamp(0.95 * maxCloudsSpawnTime, 0.25 * defaultCloudsSpawnTime, defaultCloudsSpawnTime)
                     }
                 }
                 logd("frameTime = %.2f ms, targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
@@ -380,9 +381,6 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     }
 
     override fun onResume() {
-        if(!SettingsProvider.overrideSystemFrameRate) {
-            SettingsProvider.targetFrameRate = clamp((context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.refreshRate, 30.0f, 120.0f)
-        }
         lastStarParticleSpawnTime = 0.0
         lastCloudParticleSpawnTime = 0.0
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager

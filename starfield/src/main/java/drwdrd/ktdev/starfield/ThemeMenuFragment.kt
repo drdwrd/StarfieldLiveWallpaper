@@ -19,12 +19,18 @@ import java.util.zip.ZipInputStream
 
 
 
-class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean = false) {
+class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.PackageTheme) {
 
     interface OnDownloadListener {
         fun onSuccess()
         fun onFailure()
         fun onProgress(bytesTransferred : Long, totalByteCount : Long)
+    }
+
+    enum class Type {
+        DefaultTheme,
+        TestTheme,
+        PackageTheme
     }
 
     var onDownloadListener: OnDownloadListener? = null
@@ -39,7 +45,7 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
 
     val isInstalled : Boolean
         get() {
-            return isDownloaded || isDefaultTheme
+            return isDownloaded || themeType != Type.PackageTheme
         }
 
     private var fileDownloadTask : FileDownloadTask? = null
@@ -129,13 +135,16 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
     }
 
     fun setActive(context: Context, activeTheme : ThemeInfo?) : Boolean {
-        val theme = if(isDefaultTheme && !isDownloaded) DefaultTheme() else ThemePackage(name)
+        val theme = when {
+            themeType == Type.TestTheme -> TestTheme()
+            themeType == Type.DefaultTheme && !isDownloaded -> DefaultTheme()
+            else -> ThemePackage(name)
+        }
         return if (!theme.loadTheme(context)) {
             Toast.makeText(context, R.string.msg_theme_load_failed, Toast.LENGTH_SHORT).show()
             false
         } else {
             StarfieldRenderer.rendererInstances.requestLoadTheme(theme)
-//            StarfieldRenderer.theme = TestTheme()
             activeTheme?.isActive = false
             isActive = true
             true
@@ -154,7 +163,8 @@ class ThemeInfo(val name : String, val resId : Int, val isDefaultTheme : Boolean
     companion object {
 
         val themes = arrayOf(
-            ThemeInfo("default", R.drawable.default_preview, true),
+            ThemeInfo("default", R.drawable.default_preview, Type.DefaultTheme),
+            ThemeInfo("test", android.R.color.black, Type.TestTheme),
             ThemeInfo("classic", R.drawable.classic_preview),
             ThemeInfo("classic_color", R.drawable.classic_color_preview),
             ThemeInfo("starfield2", R.drawable.starfield2_preview)
@@ -269,7 +279,7 @@ class ThemeMenuFragment : MenuFragment() {
                     }
                 }
                 downloadButton.setOnClickListener {
-                    if(!themeInfo.isDownloaded && !themeInfo.isDefaultTheme) {
+                    if(!themeInfo.isDownloaded && themeInfo.themeType == ThemeInfo.Type.PackageTheme) {
                         downloadButton.isEnabled = false
                         themeInfo.download(context)
                     } else {
