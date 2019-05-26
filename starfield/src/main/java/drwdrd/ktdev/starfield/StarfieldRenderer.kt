@@ -78,14 +78,14 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     private var maxCloudsSpawnTime = SettingsProvider.cloudsSpawnTimeMultiplier / particleSpeed
 
     init {
-        if(SettingsProvider.parallaxEffectEngineType == SettingsProvider.ParallaxEffectEngineType.Unknown) {
+        if(SettingsProvider.parallaxEffectEngineType == ParallaxEffectEngineType.Unknown) {
             SettingsProvider.parallaxEffectEngineType = getParallaxEffectEngine()
         }
         logi("Parallax effect engine set to ${SettingsProvider.parallaxEffectEngineType}")
         parallaxEffectEngine = when(SettingsProvider.parallaxEffectEngineType) {
-            SettingsProvider.ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
-            SettingsProvider.ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
-            SettingsProvider.ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
+            ParallaxEffectEngineType.Gyro -> GyroParallaxEffectEngine()
+            ParallaxEffectEngineType.Gravity -> GravityParallaxEffectEngine()
+            ParallaxEffectEngineType.Accelerometer -> AccelerometerParallaxEffectEngine()
             else -> ScrollingWallpaperEffectEngine()
         }
         fpsCounter.onMeasureListener = object : FpsCounter.OnMeasureListener {
@@ -120,33 +120,33 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
         }
     }
 
-    private fun getParallaxEffectEngine() : SettingsProvider.ParallaxEffectEngineType {
+    private fun getParallaxEffectEngine() : ParallaxEffectEngineType {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         return when {
-            sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null -> SettingsProvider.ParallaxEffectEngineType.Gyro
-            sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null -> SettingsProvider.ParallaxEffectEngineType.Gravity
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null -> SettingsProvider.ParallaxEffectEngineType.Accelerometer
-            else -> SettingsProvider.ParallaxEffectEngineType.None
+            sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null -> ParallaxEffectEngineType.Gyro
+            sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null -> ParallaxEffectEngineType.Gravity
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null -> ParallaxEffectEngineType.Accelerometer
+            else -> ParallaxEffectEngineType.None
         }
     }
 
-    private fun getTextureCompressionMode(version : String, extensions : String) : Flag<SettingsProvider.TextureCompressionMode> {
-        val modes  = Flag(SettingsProvider.TextureCompressionMode.UNKNOWN)
+    private fun getTextureCompressionMode(version : String, extensions : String) : Flag<TextureCompressionMode> {
+        val modes = Flag(TextureCompressionMode.UNKNOWN)
         if(extensions.contains("KHR_texture_compression_astc_ldr") || extensions.contains("OES_texture_compression_astc")) {
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ASTC)
+            modes.setFlag(TextureCompressionMode.ASTC)
         }
         if(version.contains("OpenGL ES 3")) {
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC2)
+            modes.setFlag(TextureCompressionMode.ETC1)
+            modes.setFlag(TextureCompressionMode.ETC2)
         }
         if(extensions.contains("OES_compressed_ETC2_RGB8_texture") && extensions.contains("OES_compressed_ETC2_RGBA8_texture")) {
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC2)
+            modes.setFlag(TextureCompressionMode.ETC2)
         }
         if(version.contains("OpenGL ES 2")) {
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
+            modes.setFlag(TextureCompressionMode.ETC1)
         }
         if(extensions.contains("OES_compressed_ETC1_RGB8_texture")) {
-            modes.setFlag(SettingsProvider.TextureCompressionMode.ETC1)
+            modes.setFlag(TextureCompressionMode.ETC1)
         }
         return modes
     }
@@ -411,7 +411,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                 SettingsProvider.baseTextureQualityLevel = getTextureBaseQualityLevel()
             }
 
-            if (SettingsProvider.textureCompressionMode.isFlag(SettingsProvider.TextureCompressionMode.UNKNOWN)) {
+            if (SettingsProvider.textureCompressionMode.isFlag(TextureCompressionMode.UNKNOWN)) {
                 SettingsProvider.textureCompressionMode =
                     getTextureCompressionMode(version ?: GLES20.glGetString(GLES20.GL_VERSION), extensions ?: GLES20.glGetString(GLES20.GL_EXTENSIONS))
             }

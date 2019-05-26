@@ -48,7 +48,7 @@ class CameraSettingsFragment : Fragment() {
         }
 
         parallaxEffectEnabledSwitch = view.findViewById(R.id.parallaxEffectEnabledSwitch)
-        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != ParallaxEffectEngineType.None)
         parallaxEffectEnabledSwitch.isChecked = SettingsProvider.enableParallaxEffect
         parallaxEffectEnabledSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             parallaxEffectMultiplierSlider.isEnabled = isChecked
@@ -60,7 +60,7 @@ class CameraSettingsFragment : Fragment() {
     fun resetSettings() {
         cameraRotationSpeedSlider.value = -SettingsProvider.cameraRotationSpeed
         parallaxEffectEnabledSwitch.isChecked = SettingsProvider.enableParallaxEffect
-        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != SettingsProvider.ParallaxEffectEngineType.None)
+        parallaxEffectEnabledSwitch.isEnabled = (SettingsProvider.parallaxEffectEngineType != ParallaxEffectEngineType.None)
         parallaxEffectMultiplierSlider.isEnabled = SettingsProvider.enableParallaxEffect
         parallaxEffectMultiplierSlider.value = SettingsProvider.parallaxEffectMultiplier
     }

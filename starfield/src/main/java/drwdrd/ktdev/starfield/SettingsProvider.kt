@@ -8,6 +8,54 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.lang.NumberFormatException
 
+
+
+enum class ParallaxEffectEngineType(val type : Int) {
+    None(0),
+    Accelerometer(1),
+    Gravity(2),
+    Gyro(3),
+    Unknown(4);
+
+    companion object {
+        fun fromInt(type: Int): ParallaxEffectEngineType {
+            return when(type) {
+                None.type -> None
+                Accelerometer.type -> Accelerometer
+                Gravity.type -> Gravity
+                Gyro.type -> Gyro
+                else -> Unknown
+            }
+        }
+    }
+}
+
+class TextureCompressionMode private constructor(override val type: Int) : FlagType() {
+
+    companion object {
+        val NONE = TextureCompressionMode(0b00000001)
+        val ETC1 = TextureCompressionMode(0b00000010)
+        val ETC2 = TextureCompressionMode(0b00000100)
+        val ASTC = TextureCompressionMode(0b00001000)
+        val UNKNOWN = TextureCompressionMode(0b00000000)
+
+        fun fromInt(type: Int): TextureCompressionMode {
+            return when (type) {
+                NONE.type -> NONE
+                ETC1.type -> ETC1
+                ETC2.type -> ETC2
+                ASTC.type -> ASTC
+                else -> UNKNOWN
+            }
+        }
+    }
+}
+
+fun Flag<TextureCompressionMode>.supportsAlpha() : Boolean {
+    return hasFlag(TextureCompressionMode.ASTC) or hasFlag(TextureCompressionMode.ETC2)
+}
+
+
 object SettingsProvider {
 
     private const val DEFAULT_PARTICLE_SPEED = 1.0f
@@ -19,47 +67,6 @@ object SettingsProvider {
     private const val DEFAULT_SLIDE_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_CAMERA_ROTATION_SPEED = 0.0f
     const val TEXTURE_QUALITY_UNKNOWN = 100
-
-    enum class ParallaxEffectEngineType(val type : Int) {
-        None(0),
-        Accelerometer(1),
-        Gravity(2),
-        Gyro(3),
-        Unknown(4);
-
-        companion object {
-            fun fromInt(type: Int): ParallaxEffectEngineType {
-                return when(type) {
-                    None.type -> None
-                    Accelerometer.type -> Accelerometer
-                    Gravity.type -> Gravity
-                    Gyro.type -> Gyro
-                    else -> Unknown
-                }
-            }
-        }
-    }
-
-    class TextureCompressionMode private constructor(override val type: Int) : FlagType() {
-
-        companion object {
-            val NONE = TextureCompressionMode(0b00000001)
-            val ETC1 = TextureCompressionMode(0b00000010)
-            val ETC2 = TextureCompressionMode(0b00000100)
-            val ASTC = TextureCompressionMode(0b00001000)
-            val UNKNOWN = TextureCompressionMode(0b00000000)
-
-            fun fromInt(type: Int): TextureCompressionMode {
-                return when (type) {
-                    NONE.type -> NONE
-                    ETC1.type -> ETC1
-                    ETC2.type -> ETC2
-                    ASTC.type -> ASTC
-                    else -> UNKNOWN
-                }
-            }
-        }
-    }
 
     var textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
 

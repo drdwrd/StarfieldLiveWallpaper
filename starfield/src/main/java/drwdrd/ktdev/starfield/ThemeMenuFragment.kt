@@ -153,9 +153,9 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
 
     private fun getPackageName() : String {
         return when {
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) -> String.format("themes/$name/${name}_astc.zip")
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2) -> String.format("themes/$name/${name}_etc2.zip")
-            SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC1) -> String.format("themes/$name/${name}_etc.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(TextureCompressionMode.ASTC) -> String.format("themes/$name/${name}_astc.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(TextureCompressionMode.ETC2) -> String.format("themes/$name/${name}_etc2.zip")
+            SettingsProvider.textureCompressionMode.hasFlag(TextureCompressionMode.ETC1) -> String.format("themes/$name/${name}_etc.zip")
             else -> String.format("themes/$name/${name}_png.zip")
         }
     }
@@ -164,7 +164,7 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
 
         val themes = arrayOf(
             ThemeInfo("default", R.drawable.default_preview, Type.DefaultTheme),
-            ThemeInfo("test", android.R.color.black, Type.TestTheme),
+            ThemeInfo("aurora", R.drawable.aurora_preview),
             ThemeInfo("classic", R.drawable.classic_preview),
             ThemeInfo("classic_color", R.drawable.classic_color_preview),
             ThemeInfo("starfield2", R.drawable.starfield2_preview)
