@@ -6,9 +6,9 @@ uniform sampler2D u_StarSprites;
 uniform sampler2D u_Noise;
 uniform vec4 u_uvRoI;
 uniform float u_FadeIn;
-uniform mat3 u_RotationMatrix;
 
 varying vec2 uv;
+varying vec2 uv2;
 
 const vec3 lumaCoeff = vec3(0.2126, 0.7152, 0.0722);
 
@@ -18,9 +18,7 @@ void main() {
 
     vec4 star = texture2D(u_StarSprites, tex);
 
-    vec3 p = u_RotationMatrix * vec3(uv, 1.0);
-
-    vec4 noise = texture2D(u_Noise, p.xy);
+    vec4 noise = texture2D(u_Noise, uv2.xy);
 
     float luma = min(1.0, dot(lumaCoeff, star.rgb));
 

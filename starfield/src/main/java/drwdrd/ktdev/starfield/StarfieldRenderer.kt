@@ -103,11 +103,11 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                 val defaultCloudsSpawnTime = theme.cloudDensity / particleSpeed
                 if(SettingsProvider.adaptiveFPS) {
                     if (frameTime > 1.15 * targetFrameTime) {
-                        maxStarsSpawnTime = clamp(1.05 * maxStarsSpawnTime, 0.25 * defaultStarsSpawnTime, defaultStarsSpawnTime)
-                        maxCloudsSpawnTime = clamp(1.05 * maxCloudsSpawnTime, 0.25 * defaultCloudsSpawnTime, defaultCloudsSpawnTime)
+                        maxStarsSpawnTime = clamp(1.05 * maxStarsSpawnTime, defaultStarsSpawnTime, 4.0 * defaultStarsSpawnTime)
+                        maxCloudsSpawnTime = clamp(1.05 * maxCloudsSpawnTime, defaultCloudsSpawnTime, 4.0 * defaultCloudsSpawnTime)
                     } else if (frameTime < 1.05 * targetFrameTime) {
-                        maxStarsSpawnTime = clamp(0.95 * maxStarsSpawnTime, 0.25 * defaultStarsSpawnTime, defaultStarsSpawnTime)
-                        maxCloudsSpawnTime = clamp(0.95 * maxCloudsSpawnTime, 0.25 * defaultCloudsSpawnTime, defaultCloudsSpawnTime)
+                        maxStarsSpawnTime = clamp(0.95 * maxStarsSpawnTime, defaultStarsSpawnTime, 4.0 * defaultStarsSpawnTime)
+                        maxCloudsSpawnTime = clamp(0.95 * maxCloudsSpawnTime, defaultCloudsSpawnTime, 4.0 * defaultCloudsSpawnTime)
                     }
                 }
                 logd("frameTime = %.2f ms, targetFrameTime = %.2f ms, starsSpawnTime = %.2f ms, starParticles = %d, cloudsSpawnTime = %.2f ms, cloudParticles = %d"
@@ -417,7 +417,6 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
             }
 
             logi("Texture compression mode set to ${SettingsProvider.textureCompressionMode.flags.toString(2)}")
-
 
             val textureQuality = SettingsProvider.textureQualityLevel + SettingsProvider.baseTextureQualityLevel
             logi("Texture quality level set to $textureQuality")

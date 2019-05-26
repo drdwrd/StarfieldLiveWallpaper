@@ -127,7 +127,7 @@ class ProgramObject(val name : String = "") {
             val name = GLES20.glGetActiveUniform(glProgramId, index, buf, 0, buf, 1)
             uniformMap[name] = index
         }
-        uniforms = Array(count[0]) { Uniform() }
+        uniforms = Array(16) { Uniform() }
         return true
     }
 

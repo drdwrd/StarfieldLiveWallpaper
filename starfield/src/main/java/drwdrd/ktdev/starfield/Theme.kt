@@ -191,12 +191,12 @@ class ThemePackage(private val themeName : String) : Theme {
 
 class TestTheme : Theme {
 
-    override val backgroundScale: Float = 1.0f
+    override val backgroundScale: Float = 0.75f
     override val cloudsParticleScale: Float = 1.0f
-    override val starsParticleScale: Float = 0.035f
-    override val cloudColors: Array<Long> = arrayOf(0xff7f7f7f, 0xff7f7f7f)
-    override val cloudDensity: Double = 0.25
-    override val starsDensity: Double = 0.025
+    override val starsParticleScale: Float = 0.02f
+    override val cloudColors: Array<Long> = arrayOf(0xff0b1d35, 0xff0b1d35)
+    override val cloudDensity: Double = 0.5
+    override val starsDensity: Double = 0.035
 
     override fun loadTheme(context: Context): Boolean {
         return true
@@ -209,7 +209,7 @@ class TestTheme : Theme {
     }
 
     override fun cloudsTexture(context: Context, textureQuality: Int, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>): Texture? {
-        /*return Texture.loadFromAssets2D(context,"themes/test/cloudsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
+/*        return Texture.loadFromAssets2D(context,"themes/test/cloudsprites.png", textureQuality, Texture.WrapMode.ClampToEdge, Texture.WrapMode.ClampToEdge,
             Texture.Filtering.LinearMipmapLinear, Texture.Filtering.Linear)*/
         return null
     }
@@ -220,11 +220,11 @@ class TestTheme : Theme {
     }
 
     override fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
-        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", vertexFormat)
+        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield2.frag", vertexFormat)
     }
 
     override fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
-        return ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", vertexFormat)
+        return ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite2.frag", vertexFormat)
     }
 
     override fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
