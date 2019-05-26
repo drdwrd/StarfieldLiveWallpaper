@@ -33,9 +33,9 @@ interface Theme {
 
 class ThemePackage(private val themeName : String) : Theme {
 
-    private inner class ThemeTextureInfo(val name : String, format : String, val isValid : Boolean = true) {
+    private inner class ThemeTextureInfo(val name : String, format : String, val shader : String, val isValid : Boolean = true) {
 
-        constructor() : this("null", "unknown", false)
+        constructor() : this("null", "unknown", "unknown", false)
 
         val textureCompressionMode = parseTextureCompressionFormat(format)
 
@@ -92,20 +92,23 @@ class ThemePackage(private val themeName : String) : Theme {
                         "background" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            starfieldInfo = ThemeTextureInfo(name, format)
+                            val shader = node.attributes.getNamedItem("shader")?.nodeValue ?: "starfield"
+                            starfieldInfo = ThemeTextureInfo(name, format, shader)
                             backgroundScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                         }
                         "starsprites" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            starsInfo = ThemeTextureInfo(name, format)
+                            val shader = node.attributes.getNamedItem("shader")?.nodeValue ?: "starsprite"
+                            starsInfo = ThemeTextureInfo(name, format, shader)
                             starsDensity = node.attributes.getNamedItem("density")?.nodeValue?.toDouble() ?: 0.025
                             starsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                         }
                         "cloudsprites" -> {
                             val name = node.attributes.getNamedItem("name")?.nodeValue ?: return false
                             val format = node.attributes.getNamedItem("format")?.nodeValue ?: return false
-                            cloudsInfo = ThemeTextureInfo(name, format)
+                            val shader = node.attributes.getNamedItem("shader")?.nodeValue ?: "cloudsprite"
+                            cloudsInfo = ThemeTextureInfo(name, format, shader)
                             cloudDensity = node.attributes.getNamedItem("density")?.nodeValue?.toDouble() ?: 0.25
                             cloudsParticleScale = node.attributes.getNamedItem("scale")?.nodeValue?.toFloat() ?: 1.0f
                             val colorList = ArrayList<String>()
@@ -162,24 +165,27 @@ class ThemePackage(private val themeName : String) : Theme {
         }
     }
 
+    fun resolveFragmentShaderName(shader : String, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : String {
+        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
+            "shaders/${shader}_pm.frag"
+        } else {
+            "shaders/${shader}.frag"
+        }
+    }
+
     override fun starfieldShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
-        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", "shaders/starfield.frag", vertexFormat)
+        val fragmentShader = resolveFragmentShaderName(starfieldInfo.shader, textureCompressionMode)
+        return ProgramObject.loadFromAssets(context, "shaders/starfield.vert", fragmentShader, vertexFormat)
     }
 
     override fun starsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
-        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite_pm.frag", vertexFormat)
-        } else {
-            ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", "shaders/starsprite.frag", vertexFormat)
-        }
+        val fragmentShader = resolveFragmentShaderName(starsInfo.shader, textureCompressionMode)
+        return ProgramObject.loadFromAssets(context, "shaders/starsprite.vert", fragmentShader, vertexFormat)
     }
 
     override fun cloudsShader(context: Context, vertexFormat: VertexFormat, textureCompressionMode: Flag<SettingsProvider.TextureCompressionMode>) : ProgramObject? {
-        return if(SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ASTC) || SettingsProvider.textureCompressionMode.hasFlag(SettingsProvider.TextureCompressionMode.ETC2)) {
-            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite_pm.frag", vertexFormat)
-        } else {
-            ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", "shaders/cloudsprite.frag", vertexFormat)
-        }
+        val fragmentShader = resolveFragmentShaderName(cloudsInfo.shader, textureCompressionMode)
+        return ProgramObject.loadFromAssets(context, "shaders/cloudsprite.vert", fragmentShader, vertexFormat)
     }
 
     override fun hasBackground(): Boolean = starfieldInfo.isValid

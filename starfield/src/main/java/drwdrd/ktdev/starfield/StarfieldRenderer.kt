@@ -423,34 +423,37 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
 
             plane.create()
 
-            starspriteShader = theme.starsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
-            starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
-            starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
-            starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
-            starspriteShader.registerUniform("u_RotationMatrix", starspriteRotationMatrixUniform)
-            starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
-            starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
-
-            cloudspriteShader = theme.cloudsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
-            cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
-            cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
-            cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
-            cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
-            cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
-
-            starfieldShader = theme.starfieldShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
-            starfieldShader.registerUniform("u_Starfield", starfieldSampler)
-            starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
-            starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
-            starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
-
             if (theme.hasBackground()) {
+
+                starfieldShader = theme.starfieldShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
+                starfieldShader.registerUniform("u_Starfield", starfieldSampler)
+                starfieldShader.registerUniform("u_Aspect", starfieldAspectUniform)
+                starfieldShader.registerUniform("u_TextureMatrix", starfieldTextureMatrixUniform)
+                starfieldShader.registerUniform("u_Time", starfieldTimeUniform)
+
                 starfieldTexture = theme.starfieldTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
             }
             if (theme.hasStars()) {
+
+                starspriteShader = theme.starsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
+                starspriteShader.registerUniform("u_StarSprites", starspriteSampler)
+                starspriteShader.registerUniform("u_Noise", starspriteNoiseSampler)
+                starspriteShader.registerUniform("u_ModelViewProjectionMatrix", starspriteModelViewProjectionMatrixUniform)
+                starspriteShader.registerUniform("u_RotationMatrix", starspriteRotationMatrixUniform)
+                starspriteShader.registerUniform("u_uvRoI", starspriteUvRoIUniform)
+                starspriteShader.registerUniform("u_FadeIn", starspriteFadeInUniform)
+
                 starspritesTexture = theme.starsTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
             }
             if (theme.hasClouds()) {
+
+                cloudspriteShader = theme.cloudsShader(context, plane.vertexFormat, SettingsProvider.textureCompressionMode) ?: ProgramObject()
+                cloudspriteShader.registerUniform("u_CloudSprites", starspriteSampler)
+                cloudspriteShader.registerUniform("u_ModelViewProjectionMatrix", cloudspriteModelViewProjectionMatrixUniform)
+                cloudspriteShader.registerUniform("u_uvRoI", cloudspriteUvRoIUniform)
+                cloudspriteShader.registerUniform("u_Color", cloudspriteColorUniform)
+                cloudspriteShader.registerUniform("u_Fade", cloudspriteFadeUniform)
+
                 cloudspritesTexture = theme.cloudsTexture(context, textureQuality, SettingsProvider.textureCompressionMode) ?: Texture.emptyTexture2D()
             }
 
