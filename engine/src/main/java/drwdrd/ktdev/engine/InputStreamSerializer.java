@@ -80,7 +80,7 @@ public class InputStreamSerializer extends InputStream {
         throw new IOException("Cannot read data.");
     }
 
-    public final int read(byte b[], int off, int len) throws IOException {
+    public final int read(byte[] b, int off, int len) throws IOException {
         int nbytes;
         if ((nbytes = checkGet(len)) > 0) {
             System.arraycopy(dataBuffer, dataMarker, b, off, nbytes);
@@ -101,7 +101,7 @@ public class InputStreamSerializer extends InputStream {
 
     public int read() throws IOException {
         if (checkGet(1) == 1) {
-            int c = (int) (dataBuffer[dataMarker] & 0xff);
+            int c = dataBuffer[dataMarker] & 0xff;
             dataMarker += 1;
             return c;
         }
@@ -124,11 +124,10 @@ public class InputStreamSerializer extends InputStream {
     private int checkGet(int size) throws IOException {
         if (size > dataBuffer.length)                            //if size is bigger than buffer, realloc buffer
         {
-            byte[] newDataBuffer = null;
+            byte[] newDataBuffer;
             newDataBuffer = new byte[size];
             System.arraycopy(dataBuffer, 0, newDataBuffer, 0, dataBuffer.length);
             dataBuffer = newDataBuffer;
-            newDataBuffer = null;
         }
         if (dataMarker == dataLength) {
             dataMarker = 0;
@@ -154,9 +153,9 @@ public class InputStreamSerializer extends InputStream {
         return size;
     }
 
-    private InputStream inputStream = null;
-    private DataSerializer serializer = null;
-    private byte[] dataBuffer = null;
+    private InputStream inputStream;
+    private DataSerializer serializer;
+    private byte[] dataBuffer;
     private int dataLength = 0;
     private int dataMarker = 0;
 }

@@ -66,18 +66,18 @@ public class DataSerializer implements BitReader {
         }
 
         public short readShort(byte[] data, int offset) {
-            return (short) ((data[offset + 0] & 0xff) << 8 | (data[offset + 1] & 0xff));
+            return (short) ((data[offset] & 0xff) << 8 | (data[offset + 1] & 0xff));
         }
 
         public int readInt(byte[] data, int offset) {
-            return ((data[offset + 0]) << 24 |
+            return ((data[offset]) << 24 |
                     (data[offset + 1] & 0xff) << 16 |
                     (data[offset + 2] & 0xff) << 8 |
                     (data[offset + 3] & 0xff));
         }
 
         public long readLong(byte[] data, int offset) {
-            return ((long) (data[offset + 0]) << 56 |
+            return ((long) (data[offset]) << 56 |
                     (long) (data[offset + 1] & 0xff) << 48 |
                     (long) (data[offset + 2] & 0xff) << 40 |
                     (long) (data[offset + 3] & 0xff) << 32 |
@@ -147,14 +147,14 @@ public class DataSerializer implements BitReader {
         }
 
         public short readShort(byte[] data, int offset) {
-            return (short) ((data[offset + 1] & 0xff) << 8 | (data[offset + 0] & 0xff));
+            return (short) ((data[offset + 1] & 0xff) << 8 | (data[offset] & 0xff));
         }
 
         public int readInt(byte[] data, int offset) {
             return ((data[offset + 3]) << 24 |
                     (data[offset + 2] & 0xff) << 16 |
                     (data[offset + 1] & 0xff) << 8 |
-                    (data[offset + 0] & 0xff));
+                    (data[offset] & 0xff));
         }
 
         public long readLong(byte[] data, int offset) {
@@ -165,7 +165,7 @@ public class DataSerializer implements BitReader {
                     (long) (data[offset + 3] & 0xff) << 24 |
                     (long) (data[offset + 2] & 0xff) << 16 |
                     (long) (data[offset + 1] & 0xff) << 8 |
-                    (long) (data[offset + 0] & 0xff));
+                    (long) (data[offset] & 0xff));
         }
 
         public float readFloat(byte[] data, int offset) {

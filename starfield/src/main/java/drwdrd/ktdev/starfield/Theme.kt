@@ -169,7 +169,7 @@ class ThemePackage(private val themeName : String) : Theme {
         return if(hasAlpha && textureCompressionMode.supportsAlpha()) {
             "shaders/${shader}_pm.frag"
         } else {
-            "shaders/${shader}.frag"
+            "shaders/$shader.frag"
         }
     }
 

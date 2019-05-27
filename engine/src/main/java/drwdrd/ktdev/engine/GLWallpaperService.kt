@@ -5,7 +5,6 @@ import android.opengl.GLSurfaceView
 import android.service.wallpaper.WallpaperService
 import android.view.MotionEvent
 import android.view.SurfaceHolder
-import java.lang.ref.WeakReference
 
 
 abstract class GLWallpaperService : WallpaperService() {
@@ -57,7 +56,7 @@ abstract class GLWallpaperService : WallpaperService() {
             }
         }
 
-        private lateinit var glSurfaceView : GLWallpaperServiceEngine.GLWallpaperSurfaceView
+        private lateinit var glSurfaceView : GLWallpaperSurfaceView
         private var rendererHasBeenSet : Boolean = false
 
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
