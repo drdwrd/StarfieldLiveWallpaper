@@ -17,7 +17,7 @@ void main() {
 
     float luma = max(max(starfield.r, starfield.g), starfield.b);
 
-    float d = 1.0 + 0.45 * sin(60.0 * tex.y - 0.75 * u_Time) * smoothstep(0.25, 0.8, luma);
+    float d = 1.0 + 0.7 * sin(30.0 * tex.y - 0.5 * u_Time) * smoothstep(0.25, 0.8, luma);
 
     gl_FragColor = pow(starfield, vec4(d));
 }
