@@ -254,7 +254,7 @@ class DefaultTheme : Theme {
     override val cloudColors: Array<Long> = arrayOf(0xff0c134e, 0xff360e3a, 0xff70b3ff)
 
     override val starsDensity: Double = 0.075
-    override val cloudDensity: Double = 0.7
+    override val cloudDensity: Double = 0.8
 
     override fun loadTheme(context: Context): Boolean {
         return true
