@@ -12,7 +12,7 @@ class StarfieldDreamService : DreamService() {
     private lateinit var liveCycleListener: GLWallpaperService.WallpaperLiveCycleListener
 
     override fun onCreate() {
-        if(Log.logOutput == null) {
+        if(Log.logOutput == null && BuildConfig.DEBUG) {
             Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
         }
         glSurfaceView = GLSurfaceView(this)

@@ -22,7 +22,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)        //ignore saved state
-        if(Log.logOutput == null) {
+        if(Log.logOutput == null && BuildConfig.DEBUG) {
             Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
         }
         requestWindowFeature(Window.FEATURE_NO_TITLE)
