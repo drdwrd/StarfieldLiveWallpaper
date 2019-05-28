@@ -57,7 +57,7 @@ fun Flag<TextureCompressionMode>.supportsAlpha() : Boolean {
 
 
 object SettingsProvider {
-
+    private const val CONFIG_VERSION = 1
     private const val DEFAULT_PARTICLE_SPEED = 1.0f
     private const val DEFAULT_STARS_SPAWN_TIME_MULTIPLIER = 0.025
     private const val DEFAULT_CLOUDS_SPAWN_TIME_MULTIPLIER = 0.25
@@ -67,6 +67,8 @@ object SettingsProvider {
     private const val DEFAULT_SLIDE_EFFECT_MULTIPLIER = 0.5f
     private const val DEFAULT_CAMERA_ROTATION_SPEED = 0.0f
     const val TEXTURE_QUALITY_UNKNOWN = 100
+
+    var version = CONFIG_VERSION
 
     var textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
 
@@ -101,6 +103,7 @@ object SettingsProvider {
     var askDownloadDefaultTheme = true
 
     fun resetSettings() {
+        version = CONFIG_VERSION
         textureCompressionMode = Flag(TextureCompressionMode.UNKNOWN)
         parallaxEffectEngineType = ParallaxEffectEngineType.Unknown
         adaptiveFPS = true
@@ -121,6 +124,7 @@ object SettingsProvider {
     //changed some params names because of collision with older ini files format (file are backed up so old file was restored and messed up initialization)
     fun save(context : Context, filename : String) {
         File(context.filesDir, filename).bufferedWriter().use {
+            it.write("version=$version\n")
             it.write("textureCompression=${textureCompressionMode.flags}\n")
             it.write("parallaxEffectEngine=${parallaxEffectEngineType.type}\n")
             it.write("adaptiveFPS=$adaptiveFPS\n")
@@ -140,14 +144,16 @@ object SettingsProvider {
         }
     }
 
-    //TODO: make sure that old configs doesn't collide with new settings
+    //TODO: make sure that old configs doesn't collide with new settings, make reset on CONFIG_VERSION change
     fun load(context: Context, filename : String) {
+        version = 0
         try {
             File(context.filesDir, filename).bufferedReader().useLines {
                 lines -> lines.forEach {
                     val s = it.split("=")
                     if(s.size >= 2) {
                         when (s[0]) {
+                            "version" -> version = s[1].toInt()
                             "textureCompression" -> textureCompressionMode = Flag(s[1].toInt())
                             "parallaxEffectEngine" -> parallaxEffectEngineType = ParallaxEffectEngineType.fromInt(s[1].toInt())
                             "adaptiveFPS" -> adaptiveFPS = s[1].toBoolean()
@@ -174,6 +180,9 @@ object SettingsProvider {
         } catch(e : NumberFormatException) {
             resetSettings()
             logw("Cannot parse settings!\n")
+        }
+        if(version != CONFIG_VERSION) {
+            resetSettings()
         }
         if(!ThemeInfo.themes[currentTheme].setActive(context, null)) {
             currentTheme = 0
