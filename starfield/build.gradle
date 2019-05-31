@@ -21,6 +21,25 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions 'version'
+    productFlavors {
+        full {
+            dimension = 'version'
+            applicationId "drwdrd.ktdev.starfield"
+            buildConfigField("Boolean", "isFreeVersion", "false")
+            buildConfigField("String", "configFileName", "\"starfield.ini\"")
+            buildConfigField("String", "logFileName", "\"starfield.log\"")
+            buildConfigField("String", "urlPrivacyPolicy", "\"https://drdwrd.github.io/starfield_privacy.html\"")
+        }
+        free {
+            dimension = 'version'
+            applicationId "drwdrd.ktdev.starfield_free"
+            buildConfigField("Boolean", "isFreeVersion", "true")
+            buildConfigField("String", "configFileName", "\"starfield.ini\"")
+            buildConfigField("String", "logFileName", "\"starfield.log\"")
+            buildConfigField("String", "urlPrivacyPolicy", "\"https://drdwrd.github.io/starfield_privacy.html\"")
+        }
+    }
 }
 
 //workaround for https://issuetracker.google.com/issues/117685087
@@ -45,5 +64,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.firebase:firebase-storage:17.0.0'
     implementation 'com.google.firebase:firebase-auth:17.0.0'
+    freeImplementation 'com.google.android.gms:play-services-ads:17.2.1'
+    freeImplementation 'com.google.android.ads.consent:consent-library:1.0.7'
     implementation project(':engine')
 }

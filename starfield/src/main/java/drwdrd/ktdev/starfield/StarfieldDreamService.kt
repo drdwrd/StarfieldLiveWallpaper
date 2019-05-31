@@ -13,7 +13,7 @@ class StarfieldDreamService : DreamService() {
 
     override fun onCreate() {
         if(Log.logOutput == null && BuildConfig.DEBUG) {
-            Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
+            Log.logOutput = FileLogOutput(applicationContext, BuildConfig.logFileName)
         }
         glSurfaceView = GLSurfaceView(this)
         super.onCreate()

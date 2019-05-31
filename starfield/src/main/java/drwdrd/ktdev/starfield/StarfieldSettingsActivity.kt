@@ -10,11 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 class StarfieldSettingsActivity : AppCompatActivity() {
 
     private lateinit var settingsFragment : SettingsFragment
+    private val privacyPolicyDialogHandler = PrivacyPolicyDialogHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)        //ignore saved
         setupActionBar()
         settingsFragment = SettingsFragment()
+
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(android.R.id.content, settingsFragment)
         transaction.commit()
@@ -30,18 +32,19 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == android.R.id.home) {
-            finish()
-        }
-        if(item?.itemId == R.id.menuResetSettings) {
-            settingsFragment.resetSettings()
-            Toast.makeText(this, "Resetting settings...", Toast.LENGTH_LONG).show()
+        when(item?.itemId) {
+            android.R.id.home -> finish()
+            R.id.menuPrivacySettings -> privacyPolicyDialogHandler.onShowPrivacyDialog()
+            R.id.menuResetSettings -> {
+                settingsFragment.resetSettings()
+                Toast.makeText(this, R.string.msg_reset_settings, Toast.LENGTH_LONG).show()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onStop() {
-        SettingsProvider.save(applicationContext,"starfield.ini")
+        SettingsProvider.save(applicationContext, BuildConfig.configFileName)
         super.onStop()
     }
 }

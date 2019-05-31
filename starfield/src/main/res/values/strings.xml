@@ -8,6 +8,7 @@
     <string name="btn_no">No</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_never">Never</string>
+    <string name="btn_ok">OK</string>
 
     <string name="dlg_download_texture_title">Notification</string>
     <string name="dlg_download_texture_text">Download optimized textures for default theme?</string>
@@ -16,6 +17,7 @@
     <string name="msg_install_failed">Cannot install theme!</string>
     <string name="msg_download_failed">File download failed!</string>
     <string name="msg_theme_load_failed">Cannot load theme!</string>
+    <string name="msg_reset_settings">"Resetting settings&#8230;"</string>
 
     <string name="btn_set_wallpaper">Set Wallpaper</string>
     <string name="btn_set_screensaver">Set Screensaver</string>
@@ -35,6 +37,9 @@
     <string name="btn_override_system_framerate">Override Frame Rate</string>
 
     <string name="menu_reset">Reset</string>
+    <string name="menu_privacy">Privacy</string>
+
+    <string name="dlg_show_privacy_title">Privacy</string>
 
     <string-array name="list_settings_category">
         <item>Particles</item>

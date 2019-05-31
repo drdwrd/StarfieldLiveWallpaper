@@ -13,7 +13,7 @@ class StarfieldWallpaperService : GLWallpaperService() {
 
     override fun onCreate() {
         if(Log.logOutput == null && BuildConfig.DEBUG) {
-            Log.logOutput = FileLogOutput(applicationContext, "starfield.log")
+            Log.logOutput = FileLogOutput(applicationContext, BuildConfig.logFileName)
         }
         super.onCreate()
     }

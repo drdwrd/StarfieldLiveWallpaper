@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools"
+       xmlns:ads="http://schemas.android.com/apk/res-auto"
+       tools:parentTag="android.widget.FrameLayout">
+
+    <android.opengl.GLSurfaceView
+            android:id="@+id/glSurfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <com.google.android.gms.ads.AdView
+                android:id="@+id/adViewBanner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="12dp"
+                ads:adSize="LARGE_BANNER"
+                ads:adUnitId="@string/banner_main"/>
+
+
+        <androidx.core.widget.NestedScrollView
+                android:id="@+id/menuFrame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/transparent">
+        </androidx.core.widget.NestedScrollView>
+
+    </RelativeLayout>
+
+</merge>

@@ -377,7 +377,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
     }
 
     override fun onStop() {
-        SettingsProvider.save(context, "starfield.ini")
+        SettingsProvider.save(context, BuildConfig.configFileName)
     }
 
     override fun onResume() {
@@ -549,7 +549,7 @@ class StarfieldRenderer private constructor(private val context: Context): GLSur
                 synchronized(this) {
                     if(instances.size == 0) {
                         //load settings from file only when no running instances
-                        SettingsProvider.load(context, "starfield.ini")
+                        SettingsProvider.load(context, BuildConfig.configFileName)
                     }
                     val renderer = StarfieldRenderer(context)
                     instances.add(WeakReference(renderer))
