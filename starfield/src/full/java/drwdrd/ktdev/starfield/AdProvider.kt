@@ -1,12 +1,22 @@
 package drwdrd.ktdev.starfield
 
+import android.app.AlertDialog
 import android.content.Context
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
 
-class PrivacyPolicyDialogHandler(val context: Context) {
 
-    fun onShowPrivacyDialog() {
+class AdProvider(val context: Context) {
+
+
+    fun requestConsent() {
+
+    }
+
+    fun requestMainBannerAd() {
+
+    }
+
+    fun requestPrivacyDialog() {
         // create a WebView with the current stats
         val webView = WebView(context)
         webView.loadUrl(BuildConfig.urlPrivacyPolicy)
@@ -16,3 +26,4 @@ class PrivacyPolicyDialogHandler(val context: Context) {
         builder.setTitle(R.string.dlg_show_privacy_title).setView(webView).setNeutralButton(R.string.btn_ok, null).show()
     }
 }
+

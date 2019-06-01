@@ -1,14 +1,12 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Intent
-import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
-import com.google.android.gms.ads.AdView
 import com.google.firebase.auth.FirebaseAuth
 import drwdrd.ktdev.engine.FileLogOutput
 import drwdrd.ktdev.engine.Log
@@ -21,15 +19,7 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
     private lateinit var renderer: StarfieldRenderer
     private lateinit var mainMenuFragment : MenuFragment
     private lateinit var themeMenuFragment: ThemeMenuFragment
-    private val consentProvider = ConsentProvider(object : ConsentProvider.OnAdFreeVersionRequested {
-        override fun onRequest() {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://play.google.com/store/apps/details?id=drwdrd.ktdev.starfield")
-                setPackage("com.android.vending")
-            }
-            startActivity(intent)
-        }
-    })
+    private val adProvider = AdProvider(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)        //ignore saved state
@@ -40,10 +30,9 @@ class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentIntera
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.starfield_activity)
 
-        consentProvider.initialize(this)
+        adProvider.requestConsent()
+        adProvider.requestMainBannerAd()
 
-        val adView = findViewById<AdView>(R.id.adViewBanner)
-        adView.loadAd(consentProvider.requestBannerAd(this))
 
         val firebaseAuth = FirebaseAuth.getInstance()
         if(firebaseAuth.currentUser == null) {
