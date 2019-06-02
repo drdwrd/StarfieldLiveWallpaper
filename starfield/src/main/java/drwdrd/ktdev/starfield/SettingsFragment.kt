@@ -1,5 +1,6 @@
 package drwdrd.ktdev.starfield
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +10,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import drwdrd.ktdev.engine.logd
 
-class SettingsFragment : Fragment() {
+class SettingsFragment(context : Context) : Fragment() {
 
     interface FragmentHandler {
         fun onViewCreated(view: View, fragmentManager : FragmentManager)
@@ -91,11 +92,17 @@ class SettingsFragment : Fragment() {
     }
 
     private lateinit var fragmentHandler : FragmentHandler
+    private val adProvider = AdProvider(context)
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.settings_fragment, container, false)
         logd("layout tag: ${view.tag}")
+
+        adProvider.requestConsent()
+        adProvider.requestSettingsBannerAd(view)
+
+
         fragmentHandler = when(view.tag) {
             "layout_sw600dp_land" -> MultiPaneFragmentHandler()
             "layout_sw720dp_land" -> MultiPaneFragmentHandler()

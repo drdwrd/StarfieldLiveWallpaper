@@ -10,6 +10,7 @@ import java.net.MalformedURLException
 import java.net.URL
 import com.google.ads.mediation.admob.AdMobAdapter
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.ads.consent.*
@@ -43,6 +44,21 @@ class AdProvider(val context: Context) {
             }
         }
         val adView = (context as AppCompatActivity).findViewById<AdView>(R.id.mainAdBanner)
+        adView.loadAd(adRequest)
+    }
+
+    fun requestSettingsBannerAd(container : View) {
+        MobileAds.initialize(context, context.getString(R.string.admob_app_id))
+        val adRequest = when(consentStatus) {
+            ConsentStatus.PERSONALIZED -> AdRequest.Builder().build()
+            ConsentStatus.UNKNOWN -> AdRequest.Builder().build()
+            ConsentStatus.NON_PERSONALIZED -> {
+                val extras = Bundle()
+                extras.putString("npa", "1")
+                AdRequest.Builder().addNetworkExtrasBundle(AdMobAdapter::class.java, extras).build()
+            }
+        }
+        val adView = container.findViewById<AdView>(R.id.settingsAdBanner)
         adView.loadAd(adRequest)
     }
 

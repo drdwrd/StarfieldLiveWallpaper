@@ -15,7 +15,7 @@ class StarfieldSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)        //ignore saved
         setupActionBar()
-        settingsFragment = SettingsFragment()
+        settingsFragment = SettingsFragment(this)
 
         adProvider.requestConsent()
 

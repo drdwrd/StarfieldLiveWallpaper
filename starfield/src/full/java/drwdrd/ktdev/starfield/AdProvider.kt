@@ -16,6 +16,10 @@ class AdProvider(val context: Context) {
 
     }
 
+    fun requestSettingsBannerAd(container : View) {
+
+    }
+
     fun requestPrivacyDialog() {
         // create a WebView with the current stats
         val webView = WebView(context)
