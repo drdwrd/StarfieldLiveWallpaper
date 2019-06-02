@@ -2,6 +2,8 @@ package drwdrd.ktdev.starfield
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.storage.FileDownloadTask
 import com.google.firebase.storage.FirebaseStorage
+import drwdrd.ktdev.engine.loge
 import java.io.*
 import java.lang.Exception
 import java.util.zip.ZipEntry
@@ -19,7 +22,7 @@ import java.util.zip.ZipInputStream
 
 
 
-class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.PackageTheme) {
+class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.PackageTheme, val themeTier : Tier = Tier.Free) {
 
     interface OnDownloadListener {
         fun onSuccess()
@@ -31,6 +34,11 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
         DefaultTheme,
         TestTheme,
         PackageTheme
+    }
+
+    enum class Tier {
+        Free,
+        Full
     }
 
     var onDownloadListener: OnDownloadListener? = null
@@ -45,7 +53,12 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
 
     val isInstalled : Boolean
         get() {
-            return isDownloaded || themeType != Type.PackageTheme
+            return isDownloaded || (themeType != Type.PackageTheme)
+        }
+
+    val isLocked : Boolean
+        get() {
+            return BuildConfig.isFreeVersion && (themeTier != Tier.Free)
         }
 
     private var fileDownloadTask : FileDownloadTask? = null
@@ -164,9 +177,9 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
 
         val themes = arrayOf(
             ThemeInfo("default", R.drawable.default_preview, Type.DefaultTheme),
-            ThemeInfo("aurora", R.drawable.aurora_preview),
+            ThemeInfo("aurora", R.drawable.aurora_preview, themeTier = Tier.Full),
             ThemeInfo("classic", R.drawable.classic_preview),
-            ThemeInfo("classic_color", R.drawable.classic_color_preview),
+            ThemeInfo("classic_color", R.drawable.classic_color_preview, themeTier = Tier.Full),
             ThemeInfo("starfield2", R.drawable.starfield2_preview)
         )
     }
@@ -279,11 +292,21 @@ class ThemeMenuFragment : MenuFragment() {
                     }
                 }
                 downloadButton.setOnClickListener {
-                    if(!themeInfo.isDownloaded && themeInfo.themeType == ThemeInfo.Type.PackageTheme) {
-                        downloadButton.isEnabled = false
-                        themeInfo.download(context)
-                    } else {
-                        setCurrentItem(context, adapterPosition)
+                    when {
+                        themeInfo.isLocked -> {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse("https://play.google.com/store/apps/details?id=drwdrd.ktdev.starfield")
+                                setPackage("com.android.vending")
+                            }
+                            context.startActivity(intent)
+                        }
+                        !themeInfo.isDownloaded && (themeInfo.themeType == ThemeInfo.Type.PackageTheme) -> {
+                            downloadButton.isEnabled = false
+                            themeInfo.download(context)
+                        }
+                        else -> {
+                            setCurrentItem(context, adapterPosition)
+                        }
                     }
                 }
                 downloadButton.setOnLongClickListener {

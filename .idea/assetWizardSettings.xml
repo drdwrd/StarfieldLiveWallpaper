@@ -154,8 +154,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_baseline_3d_acc_24" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/icons/baseline-3d_acc-24px .svg" />
+                            <entry key="outputName" value="ic_outline_lock_24" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/icons/outline-lock-24px.svg" />
                           </map>
                         </option>
                       </PersistentState>

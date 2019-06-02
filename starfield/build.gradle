@@ -20,6 +20,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
     flavorDimensions 'version'
     productFlavors {
@@ -29,6 +34,7 @@ android {
             buildConfigField("Boolean", "isFreeVersion", "false")
             buildConfigField("String", "configFileName", "\"starfield.ini\"")
             buildConfigField("String", "logFileName", "\"starfield.log\"")
+            //TODO: update privacy policy
             buildConfigField("String", "urlPrivacyPolicy", "\"https://drdwrd.github.io/starfield_privacy.html\"")
         }
         free {
@@ -38,6 +44,7 @@ android {
             buildConfigField("Boolean", "isFreeVersion", "true")
             buildConfigField("String", "configFileName", "\"starfield.ini\"")
             buildConfigField("String", "logFileName", "\"starfield.log\"")
+            //TODO: update privacy policy
             buildConfigField("String", "urlPrivacyPolicy", "\"https://drdwrd.github.io/starfield_privacy.html\"")
         }
     }

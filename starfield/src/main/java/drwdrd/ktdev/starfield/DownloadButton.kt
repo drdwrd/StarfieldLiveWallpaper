@@ -21,6 +21,7 @@ class DownloadButton : AppCompatImageButton {
         }
     private var downloadIcon : Drawable? = null
     private var currentIcon: Drawable? = null
+    private var lockIcon : Drawable? = null
     private lateinit var notificationIconRect : Rect
     private lateinit var progressPaint : Paint
     private lateinit var progressRect : RectF
@@ -46,6 +47,7 @@ class DownloadButton : AppCompatImageButton {
         context.theme.obtainStyledAttributes(attrs, R.styleable.DownloadButton, 0, 0).apply {
             downloadIcon = getDrawable(R.styleable.DownloadButton_downloadIcon)
             currentIcon = getDrawable(R.styleable.DownloadButton_activeThemeIcon)
+            lockIcon = getDrawable(R.styleable.DownloadButton_lockIcon)
             recycle()
         }
         progressPaint =  Paint()
@@ -74,6 +76,10 @@ class DownloadButton : AppCompatImageButton {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         when {
+            (themeInfo?.isLocked ?: false) -> {
+                lockIcon?.bounds = notificationIconRect
+                lockIcon?.draw(canvas!!)
+            }
             (totalBytesCount > 0) -> {
                 val progress = 100.0f * bytesTransferred / totalBytesCount
                 canvas?.drawArc(progressRect, 0.0f, progress * 360.0f / 100.0f, false, progressPaint)

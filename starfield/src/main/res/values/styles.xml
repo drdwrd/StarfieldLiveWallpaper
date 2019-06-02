@@ -17,5 +17,6 @@
         <item name="colorControlNormal">#7fffffff</item>
         <item name="downloadIcon">@drawable/ic_round_save_alt_24</item>
         <item name="activeThemeIcon">@drawable/ic_round_done_24</item>
+        <item name="lockIcon">@drawable/ic_outline_lock_24</item>
     </style>
 </resources>

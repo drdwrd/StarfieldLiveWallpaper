@@ -3,6 +3,7 @@
     <declare-styleable name="DownloadButton">
         <attr name="downloadIcon" format="reference"/>
         <attr name="activeThemeIcon" format="reference"/>
+        <attr name="lockIcon" format="reference"/>
     </declare-styleable>
     <declare-styleable name="Slider">
         <attr name="title" format="string"/>
