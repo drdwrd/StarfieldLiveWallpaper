@@ -2,6 +2,7 @@ package drwdrd.ktdev.starfield
 
 import android.app.AlertDialog
 import android.content.Context
+import android.view.View
 import android.webkit.WebView
 
 
