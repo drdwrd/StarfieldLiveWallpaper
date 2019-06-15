@@ -1,9 +1,9 @@
 package drwdrd.ktdev.starfield
 
 import android.content.Context
-import drwdrd.ktdev.engine.Flag
-import drwdrd.ktdev.engine.FlagType
-import drwdrd.ktdev.engine.logw
+import drwdrd.ktdev.kengine.Flag
+import drwdrd.ktdev.kengine.FlagType
+import drwdrd.ktdev.kengine.logw
 import java.io.File
 import java.io.FileNotFoundException
 import java.lang.NumberFormatException

@@ -2,9 +2,9 @@ package drwdrd.ktdev.starfield
 
 import android.opengl.GLSurfaceView
 import android.service.dreams.DreamService
-import drwdrd.ktdev.engine.FileLogOutput
-import drwdrd.ktdev.engine.GLWallpaperService
-import drwdrd.ktdev.engine.Log
+import drwdrd.ktdev.kengine.FileLogOutput
+import drwdrd.ktdev.kengine.GLWallpaperService
+import drwdrd.ktdev.kengine.Log
 
 class StarfieldDreamService : DreamService() {
 

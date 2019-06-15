@@ -5,7 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import drwdrd.ktdev.engine.*
+import drwdrd.ktdev.kengine.*
 
 interface ParallaxEffectEngine {
 

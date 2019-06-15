@@ -15,8 +15,8 @@ import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.ads.consent.*
 import com.google.android.gms.ads.AdView
-import drwdrd.ktdev.engine.logd
-import drwdrd.ktdev.engine.loge
+import drwdrd.ktdev.kengine.logd
+import drwdrd.ktdev.kengine.loge
 
 class AdProvider(val context: Context) {
 

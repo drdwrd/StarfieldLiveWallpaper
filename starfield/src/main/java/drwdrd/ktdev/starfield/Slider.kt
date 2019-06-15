@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import drwdrd.ktdev.engine.clamp
+import drwdrd.ktdev.kengine.clamp
 import java.text.DecimalFormat
 import kotlin.math.ceil
 

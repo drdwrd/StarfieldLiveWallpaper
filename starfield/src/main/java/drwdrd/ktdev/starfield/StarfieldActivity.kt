@@ -8,10 +8,10 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import com.google.firebase.auth.FirebaseAuth
-import drwdrd.ktdev.engine.FileLogOutput
-import drwdrd.ktdev.engine.Log
-import drwdrd.ktdev.engine.loge
-import drwdrd.ktdev.engine.logi
+import drwdrd.ktdev.kengine.FileLogOutput
+import drwdrd.ktdev.kengine.Log
+import drwdrd.ktdev.kengine.loge
+import drwdrd.ktdev.kengine.logi
 
 class StarfieldActivity : AppCompatActivity(), MenuFragment.OnMenuFragmentInteractionListener {
 

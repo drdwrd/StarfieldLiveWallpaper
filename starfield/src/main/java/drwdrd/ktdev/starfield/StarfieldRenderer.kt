@@ -6,7 +6,7 @@ import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.view.WindowManager
-import drwdrd.ktdev.engine.*
+import drwdrd.ktdev.kengine.*
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
