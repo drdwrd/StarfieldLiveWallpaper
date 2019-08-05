@@ -10,7 +10,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/kengine" />
             <option value="$PROJECT_DIR$/starfield" />
-            <option value="$PROJECT_DIR$/starfield_free" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -122,11 +122,11 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
             ZipInputStream(FileInputStream(cacheFile)).use { zipInputStream ->
                 var zipEntry: ZipEntry? = zipInputStream.nextEntry
                 while (zipEntry != null) {
+                    val dstFile = validateZipEntry(location, zipEntry.name)
                     if (zipEntry.isDirectory) {
-                        val dir = File(location, zipEntry.name)
-                        dir.mkdir()
+                        dstFile.mkdir()
                     } else {
-                        BufferedOutputStream(FileOutputStream(File(location, zipEntry.name))).use { bufferedOutputStream ->
+                        BufferedOutputStream(FileOutputStream(dstFile)).use { bufferedOutputStream ->
                             val buffer = ByteArray(1024)
                             var read = zipInputStream.read(buffer)
                             while (read > 0) {
@@ -144,6 +144,15 @@ class ThemeInfo(val name : String, val resId : Int, val themeType : Type = Type.
             return false
         }
         return true
+    }
+
+    private fun validateZipEntry(location: File, name : String) : File {
+        val dstFile = File(location, name)
+        val canonicalPath = dstFile.canonicalPath
+        if(canonicalPath.startsWith(location.canonicalPath)) {
+            return dstFile
+        }
+        throw SecurityException("ZIP tried to write outside of destination folder")
     }
 
     fun setActive(context: Context, activeTheme : ThemeInfo?) : Boolean {
