@@ -72,17 +72,17 @@ object KTXLoader {
 
         val pixelDepth = inputStream.readInt()
         if(pixelDepth != 0) {
-            KTXLoaderException("Unsupported texture type: pixelDepth = $pixelDepth")
+            throw KTXLoaderException("Unsupported texture type: pixelDepth = $pixelDepth")
         }
 
         val numberOfArrayElements = inputStream.readInt()
         if(numberOfArrayElements != 0) {
-            KTXLoaderException("Unsupported texture type: numberOfArrayElements = $numberOfArrayElements")
+            throw KTXLoaderException("Unsupported texture type: numberOfArrayElements = $numberOfArrayElements")
         }
 
         val numberOfFaces = inputStream.readInt()
         if(numberOfFaces != 1) {
-            KTXLoaderException("Unsupported texture type: numberOfFaces = $numberOfFaces")
+            throw KTXLoaderException("Unsupported texture type: numberOfFaces = $numberOfFaces")
         }
 
         val numberOfMipmapLevels = inputStream.readInt()
