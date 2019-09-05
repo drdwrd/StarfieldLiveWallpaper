@@ -1,6 +1,7 @@
 package drwdrd.ktdev.kengine
 
 import android.graphics.Color
+import kotlin.math.round
 import kotlin.math.sqrt
 
 
@@ -38,7 +39,7 @@ class vector3f(x : Float, y : Float, z : Float) {
         e[2] = a * v[2]
     }
 
-    fun toColor()  = Color.rgb(Math.round(255.0f * e[0]), Math.round(255.0f * e[1]), Math.round(255.0f * e[2]))
+    fun toColor()  = Color.rgb(round(255.0f * e[0]).toInt(), round(255.0f * e[1]).toInt(), round(255.0f * e[2]).toInt())
 
     fun isEqual(v : vector3f) : Boolean {
         return (e[0] == v.e[0]) && (e[1] == v.e[1]) && (e[2] == v.e[2])

@@ -1,5 +1,7 @@
 package drwdrd.ktdev.kengine
 
+import kotlin.math.sqrt
+
 class vector2f(x : Float, y : Float) {
 
     constructor() : this(0.0f, 0.0f)
@@ -79,7 +81,7 @@ class vector2f(x : Float, y : Float) {
     operator fun unaryMinus() = vector2f(-e[0], -e[1])
 
     fun abs() = (e[0] * e[0] + e[1] * e[1])
-    fun length() = Math.sqrt((e[0] * e[0] + e[1] * e[1]).toDouble()).toFloat()
+    fun length() = sqrt(e[0] * e[0] + e[1] * e[1])
 
     fun transform(m : matrix3f) {
         val nex = m[0] * e[0] + m[3] * e[1] + m[6]

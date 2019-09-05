@@ -262,7 +262,7 @@ class DefaultTheme : Theme {
 
     override fun starfieldTexture(context : Context, textureQuality : Int, textureCompressionMode: Flag<TextureCompressionMode>) : Texture? {
         return when {
-            SettingsProvider.textureCompressionMode.hasFlag(TextureCompressionMode.ETC1) -> {
+            textureCompressionMode.hasFlag(TextureCompressionMode.ETC1) -> {
                 //etc
                 KTXLoader.loadFromAssets(
                     context,
