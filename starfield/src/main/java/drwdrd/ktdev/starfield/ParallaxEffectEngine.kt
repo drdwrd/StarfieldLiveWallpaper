@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import drwdrd.ktdev.kengine.*
+import kotlin.NullPointerException
 
 interface ParallaxEffectEngine {
 
@@ -108,9 +109,15 @@ class SensorDataBuffer(_weights : FloatArray) {
 
     fun getData() : vector3f {
         val v = vector3f(0.0f, 0.0f, 0.0f)
-        for(i in 0 until buffer.size) {
+        for(i in buffer.indices) {
             val index = (bufferDataPos + i) % buffer.size
-            v += weights[i] * buffer[index]
+            try {
+                v += weights[i] * buffer[index]
+            } catch (e : java.lang.NullPointerException) {
+                val exception = NullPointerException("weights = $weights, i = $i, buffer = $buffer, index = $index")
+                exception.stackTrace = e.stackTrace
+                throw  exception
+            }
         }
         return v / normalizationFactor
     }
